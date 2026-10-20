@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from spendlens.schema import STANDARD_COLUMNS
+
 # Shop -> (min amount, max amount), in euros.
 MERCHANTS = {
     "DELHAIZE BRUXELLES": (15, 90),
@@ -52,8 +54,7 @@ def generate_transactions(start: date, days: int, seed: int = 42) -> pd.DataFram
             amount = -round(rng.uniform(low, high), 2)
             transactions.append(make_transaction(day, shop, amount))
 
-    return pd.DataFrame(transactions)
-
+    return pd.DataFrame(transactions, columns=STANDARD_COLUMNS)
 
 def save_csv(transactions: pd.DataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)

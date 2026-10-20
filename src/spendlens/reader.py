@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
-# Order matters: it defines the column order of the output.
+from spendlens.schema import STANDARD_COLUMNS
+
 COLUMN_MAPPING = {
     "Date valeur": "date",
     "Description": "label",
@@ -20,4 +21,4 @@ def read_bank_statement(path: Path) -> pd.DataFrame:
     transactions["date"] = pd.to_datetime(transactions["date"], format="%d/%m/%Y")
     transactions["label"] = transactions["label"].str.strip().str.upper()
 
-    return transactions
+    return transactions[STANDARD_COLUMNS]
