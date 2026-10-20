@@ -14,3 +14,7 @@ def test_lowercase_label_is_recognized():
 
 def test_unknown_label_returns_default():
     assert categorize("pret bancaire") == DEFAULT_CATEGORY
+
+
+def test_interest_with_fees_in_label_is_income():
+    assert categorize("Intérêts-Frais au 31/12/25 Décompte en annexe") == "REVENUS"
