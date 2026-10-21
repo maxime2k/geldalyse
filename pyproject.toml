@@ -7,7 +7,7 @@ name = "spendlens"
 version = "0.1.0"
 description = "Analyse et catégorisation de dépenses bancaires"
 requires-python = ">=3.10"
-dependencies = ["pandas", "streamlit"]
+dependencies = ["pandas", "streamlit", "numpy", "altair", "pytest"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
