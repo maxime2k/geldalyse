@@ -28,7 +28,12 @@ else:
     if uploaded_file is None:
         st.info("Importez un relevé ING pour commencer.")
         st.stop()  # Nothing below can run without data.
-    transactions = read_bank_statement(uploaded_file)
+        
+    try:  #check if user import a valid ING extract
+        transactions = read_bank_statement(uploaded_file)
+    except (KeyError, ValueError, UnicodeDecodeError, pd.errors.EmptyDataError):
+        st.error("Veuillez importé un extrait ING en français, au format CSV")
+        st.stop()
 
 # Both sources share the standard format, so everything below is source-agnostic.
 transactions["category"] = transactions["label"].apply(categorize)

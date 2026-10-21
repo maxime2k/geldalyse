@@ -51,7 +51,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 - [X] Dépenses par catégorie
 - [X] Revenus et dépenses par mois
 - [X] Tableau des transactions
-- [ ] Gestion des erreurs d'import (fichier au mauvais format)
+- [X] Gestion des erreurs d'import (fichier au mauvais format)
 
 ## Prévu pour la V2
 
