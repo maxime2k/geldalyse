@@ -1,0 +1,29 @@
+"""Compute figures and aggregates for the dashboard."""
+
+import pandas as pd
+
+# --- Key figures ---------------------------------------------------------
+
+def key_figures(transactions: pd.DataFrame) -> tuple[float, float, float]:
+    income_rows = transactions[transactions["amount"] > 0]
+    expense_rows = transactions[transactions["amount"] < 0]
+
+    incomes = income_rows["amount"].sum()
+    expenses = expense_rows["amount"].sum()  # Negative: money going out.
+    balance = incomes + expenses
+ 
+    return incomes, expenses, balance
+
+# --- Expenses by category ---
+
+def expenses_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
+    expense_rows = transactions[transactions["amount"] < 0]
+    total_expenses_by_category = (
+        expense_rows.groupby("category")["amount"]
+        .sum()
+        .abs()
+        .sort_values(ascending=False)
+        .reset_index()
+    )
+
+    return total_expenses_by_category

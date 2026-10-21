@@ -7,6 +7,7 @@ import altair as alt
 
 from spendlens.categorizer import categorize
 from spendlens.generator import generate_transactions
+from spendlens.analysis import key_figures, expenses_by_category
 from spendlens.reader import read_bank_statement
 
 DEMO_SOURCE = "Données de démo"
@@ -33,33 +34,19 @@ else:
 transactions["category"] = transactions["label"].apply(categorize)
 
 # --- Key figures ---------------------------------------------------------
-
-income_rows = transactions[transactions["amount"] > 0]
-expense_rows = transactions[transactions["amount"] < 0]
-
-incomes = income_rows["amount"].sum()
-expenses = expense_rows["amount"].sum()  # Negative: money going out.
-balance = incomes + expenses
-
+incomes, expenses, balance = key_figures(transactions=transactions)
 income_col, expenses_col, balance_col = st.columns(3)
 income_col.metric("Revenus", f"{incomes:.2f} €")
 expenses_col.metric("Dépenses", f"{abs(expenses):.2f} €")
 balance_col.metric("Solde", f"{balance:.2f} €")
 
 # --- Expenses by category ---
-
-expenses_by_category = (
-    expense_rows.groupby("category")["amount"]
-    .sum()
-    .abs()
-    .sort_values(ascending=False)
-    .reset_index()
-)
+total_expenses_by_category = expenses_by_category(transactions=transactions)
 
 # -- graph expenses by category ---
 st.subheader("Dépenses par catégorie")
 chart = (
-    alt.Chart(expenses_by_category)                      
+    alt.Chart(total_expenses_by_category)                      
     .mark_bar()                              
     .encode(                                 
         x=alt.X("amount", title="Montant"),
