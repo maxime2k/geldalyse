@@ -1,3 +1,5 @@
+"""Spendlens dashboard: explore bank transactions by category and over time."""
+
 from datetime import date
 
 import streamlit as st
@@ -6,30 +8,43 @@ from spendlens.categorizer import categorize
 from spendlens.generator import generate_transactions
 from spendlens.reader import read_bank_statement
 
-
-
 DEMO_SOURCE = "Données de démo"
 UPLOAD_SOURCE = "Importer un relevé ING"
 
 st.title("Spendlens")
 st.write("Comprendre où part son argent.")
 
+# --- Data source ---------------------------------------------------------
+
 st.sidebar.title("Paramètres")
 choice = st.sidebar.radio("Source de données", [DEMO_SOURCE, UPLOAD_SOURCE])
 
 if choice == DEMO_SOURCE:
-    st.write("Données de démo")
-    transactions = generate_transactions(start=date(2026,1,1), days=180)
-    
+    transactions = generate_transactions(start=date(2026, 1, 1), days=180)
 else:
-    st.write("Données d'un relevé ING")
-    uploaded_file = st.sidebar.file_uploader("Relevé ING", type="csv")
-
+    uploaded_file = st.sidebar.file_uploader("Relevé ING (CSV)", type="csv")
     if uploaded_file is None:
-        st.info("Importe un relevé ING pour commencer.")
-        st.stop()
-    
+        st.info("Importez un relevé ING pour commencer.")
+        st.stop()  # Nothing below can run without data.
     transactions = read_bank_statement(uploaded_file)
 
+# Both sources share the standard format, so everything below is source-agnostic.
 transactions["category"] = transactions["label"].apply(categorize)
+
+# --- Key figures ---------------------------------------------------------
+
+income_rows = transactions[transactions["amount"] > 0]
+expense_rows = transactions[transactions["amount"] < 0]
+
+incomes = income_rows["amount"].sum()
+expenses = expense_rows["amount"].sum()  # Negative: money going out.
+balance = incomes + expenses
+
+income_col, expenses_col, balance_col = st.columns(3)
+income_col.metric("Revenus", f"{incomes:.2f} €")
+expenses_col.metric("Dépenses", f"{abs(expenses):.2f} €")
+balance_col.metric("Solde", f"{balance:.2f} €")
+
+# --- Transactions --------------------------------------------------------
+
 st.dataframe(transactions, hide_index=True)
