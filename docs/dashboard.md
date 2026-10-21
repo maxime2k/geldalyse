@@ -50,7 +50,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 - [X] Trois chiffres clés
 - [X] Dépenses par catégorie
 - [X] Revenus et dépenses par mois
-- [ ] Tableau des transactions
+- [X] Tableau des transactions
 - [ ] Gestion des erreurs d'import (fichier au mauvais format)
 
 ## Prévu pour la V2

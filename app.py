@@ -74,6 +74,17 @@ chart = (
 st.altair_chart(chart, use_container_width=True)
 
 
-# --- Transactions --------------------------------------------------------
+# --- Transactions table --------------------------------------------------------
 
-st.dataframe(transactions, hide_index=True)
+st.subheader("Transactions")
+st.caption("Les plus récentes en premier.")
+st.dataframe(
+    transactions.sort_values("date", ascending=False),
+    hide_index=True,
+    column_config={
+        "date": st.column_config.DateColumn("Date", format="DD/MM/YYYY"),
+        "label": st.column_config.TextColumn("Description"),
+        "amount": st.column_config.NumberColumn("Montant", format="%.2f €"),
+        "category": st.column_config.TextColumn("Catégorie"),
+    },
+)
