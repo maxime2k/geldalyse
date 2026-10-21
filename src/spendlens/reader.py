@@ -17,8 +17,9 @@ COLUMN_MAPPING = {
 def read_bank_statement(path: Path) -> pd.DataFrame:
     df = pd.read_csv(path, sep=";", decimal=",")
     transactions = df[list(COLUMN_MAPPING)]
+    transactions = transactions.dropna(how="all")
     transactions = transactions.rename(columns=COLUMN_MAPPING)
     transactions["date"] = pd.to_datetime(transactions["date"], format="%d/%m/%Y")
     transactions["label"] = transactions["label"].str.strip().str.upper()
 
-    return transactions[STANDARD_COLUMNS]
+    return transactions[STANDARD_COLUMNS].reset_index(drop=True)

@@ -23,3 +23,8 @@ def test_small_negative_amount_keeps_sign():
 def test_dates_are_converted():
     transactions = read_bank_statement(FIXTURE_PATH)
     assert transactions["date"][0] == pd.Timestamp(2025, 12, 31)
+
+
+def test_output_has_no_missing_values():
+    transactions = read_bank_statement(FIXTURE_PATH)
+    assert not transactions.isna().any().any()
