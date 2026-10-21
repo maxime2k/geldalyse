@@ -7,7 +7,7 @@ import altair as alt
 
 from spendlens.categorizer import categorize
 from spendlens.generator import generate_transactions
-from spendlens.analysis import key_figures, expenses_by_category
+from spendlens.analysis import key_figures, expenses_by_category, monthly_totals
 from spendlens.reader import read_bank_statement
 
 DEMO_SOURCE = "Données de démo"
@@ -51,6 +51,24 @@ chart = (
     .encode(                                 
         x=alt.X("amount", title="Montant"),
         y=alt.Y("category", sort="-x", title=None),
+    )
+)
+st.altair_chart(chart, use_container_width=True)
+
+# -- Monthly transactions ---
+total_monthly_transactions = monthly_totals(transactions=transactions)
+total_monthly_transactions["flow"] = total_monthly_transactions["flow"].replace({"income": "Revenus", "expense": "Dépenses"})
+
+# -- graph monthly transactions ---
+st.subheader("Revenus et dépenses par mois")
+chart = (
+    alt.Chart(total_monthly_transactions)
+    .mark_bar()
+    .encode(
+        x=alt.X("month", title="Années-Mois", axis=alt.Axis(labelAngle=0)),
+        y=alt.Y("amount", title="Montant (€)"),
+        color=alt.Color("flow", title=None),
+        xOffset="flow",
     )
 )
 st.altair_chart(chart, use_container_width=True)

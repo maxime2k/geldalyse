@@ -48,8 +48,8 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 - [X] Chargement des données et ajout de la colonne `category`
 - [ ] Filtre de période
 - [X] Trois chiffres clés
-- [ ] Dépenses par catégorie
-- [ ] Revenus et dépenses par mois
+- [X] Dépenses par catégorie
+- [X] Revenus et dépenses par mois
 - [ ] Tableau des transactions
 - [ ] Gestion des erreurs d'import (fichier au mauvais format)
 
