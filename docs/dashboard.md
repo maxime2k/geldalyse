@@ -38,7 +38,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 - **Aucune catégorie écrite en dur** dans le dashboard : les catégories affichées sont celles présentes dans les données. Une nouvelle catégorie apparaît automatiquement.
 - **Dépenses affichées en valeurs positives** dans les graphiques, pour une lecture naturelle.
 - **Les revenus sont exclus** du graphique des dépenses par catégorie.
-- **Les retraits d'espèces** sont affichés à part : ce sont des sorties d'argent, mais pas des dépenses identifiables.
+- **Les retraits d'espèces** apparaissent comme une catégorie à part entière, RETRAITS : le total du graphique des dépenses reste ainsi égal au chiffre clé « Dépenses ».
 - **Pas d'information portée uniquement par la couleur** : chaque série est nommée dans une légende.
 
 ## Suivi de construction
@@ -47,7 +47,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 - [X] Barre latérale : choix de la source (démo ou relevé importé)
 - [X] Chargement des données et ajout de la colonne `category`
 - [ ] Filtre de période
-- [ ] Trois chiffres clés
+- [X] Trois chiffres clés
 - [ ] Dépenses par catégorie
 - [ ] Revenus et dépenses par mois
 - [ ] Tableau des transactions
