@@ -9,3 +9,6 @@ __pycache__/
 
 # Données générées
 data/*.csv
+
+# Éditeur
+.vscode/
