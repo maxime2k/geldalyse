@@ -1,5 +1,6 @@
-pandas
-streamlit
-pytest
-altair
-numpy
+pandas==2.3.3
+streamlit==1.65.0
+pytest==9.1.1
+altair==6.2.2
+numpy==2.2.6
+-e .

@@ -67,7 +67,6 @@ cd spendlens
 python3 -m venv .venv
 source .venv/bin/activate          # Windows : .venv\Scripts\activate
 pip install -r requirements.txt
-pip install -e .
 ```
 
 Sous Ubuntu ou Debian, si la création de l'environnement virtuel échoue, installez d'abord le paquet `python3-venv`.
