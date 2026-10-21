@@ -43,9 +43,9 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 
 ## Suivi de construction
 
-- [ ] Squelette de l'application (`app.py`) qui se lance avec `streamlit run app.py`
-- [ ] Barre latérale : choix de la source (démo ou relevé importé)
-- [ ] Chargement des données et ajout de la colonne `category`
+- [X] Squelette de l'application (`app.py`) qui se lance avec `streamlit run app.py`
+- [X] Barre latérale : choix de la source (démo ou relevé importé)
+- [X] Chargement des données et ajout de la colonne `category`
 - [ ] Filtre de période
 - [ ] Trois chiffres clés
 - [ ] Dépenses par catégorie
