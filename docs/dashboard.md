@@ -46,7 +46,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 - [X] Squelette de l'application (`app.py`) qui se lance avec `streamlit run app.py`
 - [X] Barre latérale : choix de la source (démo ou relevé importé)
 - [X] Chargement des données et ajout de la colonne `category`
-- [ ] Filtre de période
+- [X] Filtre de période
 - [X] Trois chiffres clés
 - [X] Dépenses par catégorie
 - [X] Revenus et dépenses par mois

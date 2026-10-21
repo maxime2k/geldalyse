@@ -1,5 +1,5 @@
 """Spendlens dashboard: explore bank transactions by category and over time."""
-
+import pandas as pd
 from datetime import date
 
 import streamlit as st
@@ -33,6 +33,16 @@ else:
 # Both sources share the standard format, so everything below is source-agnostic.
 transactions["category"] = transactions["label"].apply(categorize)
 
+# --- Filter by period ---
+first_date = transactions["date"].min()
+last_date = transactions["date"].max()
+period = st.sidebar.date_input("Période", value=(first_date, last_date))
+if len(period) != 2:
+    st.stop()
+start, end = period
+
+in_period = transactions["date"].between(pd.Timestamp(start), pd.Timestamp(end))
+transactions = transactions[in_period]
 # --- Key figures ---------------------------------------------------------
 incomes, expenses, balance = key_figures(transactions=transactions)
 income_col, expenses_col, balance_col = st.columns(3)
