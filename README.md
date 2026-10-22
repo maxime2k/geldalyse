@@ -1,4 +1,5 @@
 # Geldalyse
+[![Tests](https://github.com/maxime2k/geldalyse/actions/workflows/tests.yml/badge.svg)](https://github.com/maxime2k/geldalyse/actions/workflows/tests.yml)
 
 > Comprendre où part son argent, en quelques secondes.
 
