@@ -11,7 +11,8 @@ from geldalyse.categorizer import categorize, DEFAULT_CATEGORY
 from geldalyse.schema import STANDARD_COLUMNS
 from geldalyse.reader import read_bank_statement
 
-FIXTURE_PATH = Path(__file__).parent / "fixtures" / "ing_export_sample.csv"
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
+ING_SAMPLE = FIXTURES_DIR/ "ing_export_sample.csv"
 
 
 def test_all_merchants_are_categorized():
@@ -35,11 +36,11 @@ def test_generate_date_from_generator_is_panda_date():
 
 
 def test_reader_dates_are_datetime():
-    transactions = read_bank_statement(FIXTURE_PATH)
+    transactions = read_bank_statement(ING_SAMPLE)
     assert pd.api.types.is_datetime64_any_dtype(transactions["date"])
 
 def test_reader_output_can_be_categorized():
-    transactions = read_bank_statement(FIXTURE_PATH)
+    transactions = read_bank_statement(ING_SAMPLE)
     transactions["category"] = transactions["label"].apply(categorize)
     assert transactions["category"].notna().all()
 
