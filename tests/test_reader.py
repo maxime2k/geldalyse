@@ -13,6 +13,7 @@ ING_SAMPLE = FIXTURES_DIR/ "ing_export_sample.csv"
 WRONG_COLUMNS = FIXTURES_DIR / "wrong_format.csv"
 WRONG_DATE_FORMAT = FIXTURES_DIR / "wrong_date_format.csv"
 EMPTY_FILE = FIXTURES_DIR / "empty.csv"
+HEADER_ONLY = FIXTURES_DIR / "header_only.csv"
 
 
 def test_output_columns_match():
@@ -49,3 +50,8 @@ def test_empty_file_raises_empty_data_error():
     with pytest.raises(pd.errors.EmptyDataError):
         read_bank_statement(EMPTY_FILE)
         
+
+def test_header_only_returns_empty_table():
+    transactions = read_bank_statement(HEADER_ONLY)
+    assert transactions.empty
+    assert list(transactions) == STANDARD_COLUMNS
