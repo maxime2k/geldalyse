@@ -6,10 +6,12 @@ from datetime import date
 import streamlit as st
 import altair as alt
 
-from geldalyse.categorizer import categorize
+from geldalyse.categorizer import categorize, DEFAULT_CATEGORY
 from geldalyse.generator import generate_transactions
-from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals
+from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized
 from geldalyse.reader import read_bank_statement
+
+st.set_page_config(page_title="Geldalyse")
 
 DEMO_SOURCE = "Données de démo"
 UPLOAD_SOURCE = "Importer un relevé ING"
@@ -55,6 +57,21 @@ start, end = period
 
 in_period = transactions["date"].between(pd.Timestamp(start), pd.Timestamp(end))
 transactions = transactions[in_period]
+
+# --- Count uncategorized transactions ---
+
+total_uncategorized = count_uncategorized(transactions)
+if total_uncategorized == 0:
+    st.sidebar.success("Toutes vos transactions sont dans une catégorie.")
+else:
+    message = (
+        f"{total_uncategorized} transactions non catégorisées."
+        if total_uncategorized > 1
+        else "Une transaction n'a pas de catégorie."
+    ) 
+    st.sidebar.warning(message)
+    st.sidebar.caption(f"Filtrez le tableau sur {DEFAULT_CATEGORY} pour les afficher.")
+
 # --- Key figures ---------------------------------------------------------
 incomes, expenses, balance = key_figures(transactions=transactions)
 income_col, expenses_col, balance_col = st.columns(3)
@@ -97,16 +114,26 @@ st.altair_chart(chart, use_container_width=True)
 
 
 # --- Transactions table --------------------------------------------------------
-
+# Only the table is filtered: figures and charts keep all categories.
 st.subheader("Transactions")
 st.caption("Les plus récentes en premier.")
+
+selected = st.multiselect("Catégories ", 
+                          options=sorted(transactions["category"].unique())
+            )
+
+if not selected:
+    shown_transactions = transactions
+else:
+    shown_transactions = transactions[transactions["category"].isin(selected)]
+
 st.dataframe(
-    transactions.sort_values("date", ascending=False),
+    shown_transactions.sort_values("date", ascending=False),
     hide_index=True,
     column_config={
-        "date": st.column_config.DateColumn("Date", format="DD/MM/YYYY"),
+        "date": st.column_config.DateColumn("Date", format="DD/MM/YYYY", width="small"),
         "label": st.column_config.TextColumn("Description"),
-        "amount": st.column_config.NumberColumn("Montant", format="%.2f €"),
+        "amount": st.column_config.NumberColumn("Montant", format="%.2f €", width="small"),
         "category": st.column_config.TextColumn("Catégorie"),
     },
 )

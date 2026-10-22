@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals
+from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized
 
 TRANSACTIONS = pd.DataFrame([
     {"date": pd.Timestamp(2026, 3, 15), "label": "SALAIRE", "amount": 500.0, "category": "REVENUS"},
@@ -13,6 +13,12 @@ TRANSACTIONS = pd.DataFrame([
     {"date": pd.Timestamp(2026, 1, 12), "label": "CARREFOUR", "amount": -10.0, "category": "FACTURE"},
     {"date": pd.Timestamp(2026, 2, 14), "label": "CARREFOUR", "amount": -20.0, "category": "FACTURE"},
 
+])
+
+UNKNOW_TRANSACTIONS = pd.DataFrame([
+    {"date": pd.Timestamp(2026, 3, 15), "label": "SALAIRE", "amount": 500.0, "category": "REVENUS"},
+    {"date": pd.Timestamp(2026, 3, 17), "label": "DELHAIZE", "amount": -30.0, "category": "INCONNU"},
+    {"date": pd.Timestamp(2026, 1, 20), "label": "CARREFOUR", "amount": -20.0, "category": "INCONNU"},
 ])
 
 # --- Key figures ---
@@ -68,3 +74,9 @@ def test_monthly_expenses_are_summed_per_month():
 def test_monthly_expenses_are_sorted_by_month():
     monthly_trans = monthly_totals(TRANSACTIONS)
     assert monthly_trans["month"].iloc[0] == "2026-01"
+
+
+
+def test_count_uncategorized_counts_default_category_rows():
+    total_count = count_uncategorized(UNKNOW_TRANSACTIONS)
+    assert total_count == 2
