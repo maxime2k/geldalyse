@@ -1,19 +1,20 @@
-"""Spendlens dashboard: explore bank transactions by category and over time."""
+"""Geldalyse dashboard: explore bank transactions by category and over time."""
+
 import pandas as pd
 from datetime import date
 
 import streamlit as st
 import altair as alt
 
-from spendlens.categorizer import categorize
-from spendlens.generator import generate_transactions
-from spendlens.analysis import key_figures, expenses_by_category, monthly_totals
-from spendlens.reader import read_bank_statement
+from geldalyse.categorizer import categorize
+from geldalyse.generator import generate_transactions
+from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals
+from geldalyse.reader import read_bank_statement
 
 DEMO_SOURCE = "Données de démo"
 UPLOAD_SOURCE = "Importer un relevé ING"
 
-st.title("Spendlens")
+st.title("Geldalyse")
 st.write("Comprendre où part son argent.")
 
 # --- Data source ---------------------------------------------------------

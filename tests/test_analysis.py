@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from spendlens.analysis import key_figures, expenses_by_category, monthly_totals
+from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals
 
 TRANSACTIONS = pd.DataFrame([
     {"date": pd.Timestamp(2026, 3, 15), "label": "SALAIRE", "amount": 500.0, "category": "REVENUS"},
@@ -49,6 +49,8 @@ def test_income_not_in_expenses():
 def test_biggest_expenses_category_is_top():
      expenses_by_cat = expenses_by_category(transactions=TRANSACTIONS)
      assert expenses_by_cat["category"][0] == "RETRAIT"
+
+# --- Expenses by month ---
 
 
 def test_monthly_totals_columns():

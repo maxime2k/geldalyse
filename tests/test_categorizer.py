@@ -1,4 +1,4 @@
-from spendlens.categorizer import categorize, DEFAULT_CATEGORY
+from geldalyse.categorizer import categorize, DEFAULT_CATEGORY
 
 
 """Unit tests for the keyword-based categorizer."""

@@ -1,4 +1,4 @@
-"""Generate fake bank transactions for Spendlens (fictional data only)."""
+"""Generate fake bank transactions for Geldalyse (fictional data only)."""
 
 
 import random
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from spendlens.schema import STANDARD_COLUMNS
+from geldalyse.schema import STANDARD_COLUMNS
 
 # Shop -> (min amount, max amount), in euros.
 MERCHANTS = {

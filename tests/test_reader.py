@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from spendlens.reader import read_bank_statement
-from spendlens.schema import STANDARD_COLUMNS
+from geldalyse.reader import read_bank_statement
+from geldalyse.schema import STANDARD_COLUMNS
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "ing_export_sample.csv"
 

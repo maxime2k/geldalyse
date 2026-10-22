@@ -1,10 +1,10 @@
-"""Read bank statement exports and convert them to the Spendlens standard format."""
+"""Read bank statement exports and convert them to the Geldalyse standard format."""
 
 from pathlib import Path
 
 import pandas as pd
 
-from spendlens.schema import STANDARD_COLUMNS
+from geldalyse.schema import STANDARD_COLUMNS
 
 COLUMN_MAPPING = {
     "Date valeur": "date",

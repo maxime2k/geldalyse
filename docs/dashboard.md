@@ -1,4 +1,4 @@
-# Dashboard Spendlens — conception et suivi
+# Dashboard Geldalyse — conception et suivi
 
 Ce document décrit le contenu du tableau de bord et suit l'avancement de sa construction.
 

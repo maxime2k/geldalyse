@@ -6,10 +6,10 @@ import pandas as pd
 from pathlib import Path
 from datetime import date
 
-from spendlens.generator import MERCHANTS, RECURRING, generate_transactions
-from spendlens.categorizer import categorize, DEFAULT_CATEGORY
-from spendlens.schema import STANDARD_COLUMNS
-from spendlens.reader import read_bank_statement
+from geldalyse.generator import MERCHANTS, RECURRING, generate_transactions
+from geldalyse.categorizer import categorize, DEFAULT_CATEGORY
+from geldalyse.schema import STANDARD_COLUMNS
+from geldalyse.reader import read_bank_statement
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "ing_export_sample.csv"
 

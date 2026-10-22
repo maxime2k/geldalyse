@@ -43,7 +43,7 @@ def monthly_totals(transactions: pd.DataFrame) -> pd.DataFrame:
         .sum()
         .abs()
         .reset_index()
-        .sort_values("month")
+        .sort_values("month")  # Explicit: groupby already sorts, but the order is intended.
         
     )
 

@@ -1,10 +1,10 @@
-# Spendlens
+# Geldalyse
 
 > Comprendre où part son argent, en quelques secondes.
 
-Spendlens est une application Python qui importe un relevé bancaire, catégorise automatiquement les transactions et affiche un tableau de bord des revenus et des dépenses.
+Geldalyse est une application Python qui importe un relevé bancaire, catégorise automatiquement les transactions et affiche un tableau de bord des revenus et des dépenses.
 
-![Tableau de bord Spendlens](docs/screenshot.png)
+![Tableau de bord Geldalyse](docs/screenshot.png)
 **[Voir la démo en ligne](https://spendlens-kkm.streamlit.app)**
 
 ---
@@ -37,9 +37,9 @@ Le projet suit un schéma **ETL** (*Extract, Transform, Load*). Chaque étape es
 Toutes les sources de données produisent le même **format standard**, défini dans `schema.py`. Ajouter une nouvelle banque ne demande donc qu'un nouveau lecteur : le reste de l'application ne change pas.
 
 ```
-spendlens/
+geldalyse/
 ├── app.py                  # Tableau de bord Streamlit
-├── src/spendlens/
+├── src/geldalyse/
 │   ├── analysis.py         # Chiffres clés et agrégats
 │   ├── categorizer.py      # Catégorisation par mots-clés
 │   ├── generator.py        # Transactions fictives
@@ -64,7 +64,7 @@ spendlens/
 
 ```bash
 git clone https://github.com/maxime2k/spendlens.git
-cd spendlens
+cd geldalyse
 python3 -m venv .venv
 source .venv/bin/activate          # Windows : .venv\Scripts\activate
 pip install -r requirements.txt
@@ -85,7 +85,7 @@ Choisissez ensuite la source dans la barre latérale : les données de démo, ou
 **Générer un relevé fictif en CSV :**
 
 ```bash
-python -m spendlens.generator
+python -m geldalyse.generator
 ```
 
 **Lancer les tests :**
