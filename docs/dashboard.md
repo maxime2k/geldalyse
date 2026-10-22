@@ -32,6 +32,8 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 | 3 | Dépenses par catégorie | Barres horizontales, triées de la plus grande à la plus petite | Où part mon argent ? |
 | 4 | Revenus et dépenses par mois | Barres groupées (une barre revenus, une barre dépenses par mois) | Comment ça évolue ? |
 | 5 | Transactions | Tableau | Quelles opérations se cachent derrière les chiffres ? |
+| 6 | 	Transactions, avec filtre par catégorie | Tableau, les plus récentes en premier | Quelles opérations se cachent derrière les chiffres ? |
+
 
 ## Règles de conception
 
@@ -39,6 +41,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 - **Dépenses affichées en valeurs positives** dans les graphiques, pour une lecture naturelle.
 - **Les revenus sont exclus** du graphique des dépenses par catégorie.
 - **Les retraits d'espèces** apparaissent comme une catégorie à part entière, RETRAITS : le total du graphique des dépenses reste ainsi égal au chiffre clé « Dépenses ».
+- **Le filtre de période** s'applique à tout le dashboard ; **le filtre par catégorie** ne s'applique qu'au tableau des transactions.
 - **Pas d'information portée uniquement par la couleur** : chaque série est nommée dans une légende.
 
 ## Suivi de construction
@@ -51,9 +54,14 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 - [X] Dépenses par catégorie
 - [X] Revenus et dépenses par mois
 - [X] Tableau des transactions
-- [X] Gestion des erreurs d'import (fichier au mauvais format)
+- [X] Gestion des erreurs d'import (fichier au mauvais format, fichier vide, relevé sans transaction)
+- [X] Filtre du tableau par catégorie
+- [X] Indicateur des transactions non catégorisées
 
 ## Prévu pour la V2
-
+- [ ] Indicateurs clés du mois, avec comparaison au mois précédent (`st.metric` avec `delta`)
+- [ ] Correction manuelle de la catégorie d'une transaction (`st.data_editor`)
+ Correction manuelle de la catégorie d'une transaction (st.data_editor)
 - [ ] Paiements récurrents, sous forme de tableau (nécessite un algorithme de détection : même libellé, montant proche, chaque mois)
 - [ ] Liste des transactions non catégorisées, pour enrichir les mots-clés
+- [ ] Dépenses regroupées par commerçant (nombre d'achats et total), filtrables par catégorie — nécessite l'extraction du nom du commerçant

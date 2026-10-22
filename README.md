@@ -15,12 +15,15 @@ Geldalyse est une application Python qui importe un relevé bancaire, catégoris
 - **Deux sources de données** : des transactions fictives générées à la volée, ou un export CSV d'ING Belgique (en français)
 - **Nettoyage automatique** : colonnes renommées, dates converties, libellés normalisés, lignes vides supprimées
 - **Catégorisation par mots-clés** : alimentation, transport, logement, restauration, frais bancaires, retraits…
+- **Gestion des erreurs d'import** : un fichier au mauvais format affiche un message clair, sans faire planter l'application
 - **Tableau de bord interactif** :
   - revenus, dépenses et solde de la période
   - dépenses par catégorie, de la plus importante à la plus faible
   - revenus et dépenses mois par mois
   - tableau détaillé des transactions
   - filtre de période
+  - filtre des transactions par catégorie
+  - indicateur des transactions non catégorisées
 
 ## Architecture
 
@@ -47,9 +50,17 @@ geldalyse/
 │   ├── reader.py           # Lecture des exports ING
 │   └── schema.py           # Format standard des données
 ├── tests/                  # Tests unitaires et d'intégration (pytest)
-│   └── fixtures/           # Export ING synthétique
-└── docs/                   # Conception du tableau de bord
+│   └── fixtures/           # Relevés synthétiques, valides et invalides
+├── docs/                   # Conception du tableau de bord
+└── .github/workflows/      # Intégration continue (GitHub Actions)
 ```
+
+## Qualité et intégration continue
+
+- **Tests unitaires et d'intégration** avec pytest, dont une partie écrite en TDD
+- **Intégration continue** : les tests sont lancés automatiquement par GitHub Actions à chaque push et à chaque pull request
+- **Branche `main` protégée** : toute modification passe par une pull request, fusionnable uniquement si les tests passent
+- **Déploiement continu** : l'application en ligne est mise à jour automatiquement à chaque fusion dans `main`
 
 ## Stack technique
 
@@ -60,6 +71,8 @@ geldalyse/
 | Interface | Streamlit |
 | Graphiques | Altair |
 | Tests | pytest |
+| Intégration continue | GitHub Actions |
+| Hébergement | Streamlit Community Cloud |
 
 ## Installation
 
@@ -97,7 +110,9 @@ pytest
 
 ## Données et confidentialité
 
-Le dépôt ne contient **aucune donnée bancaire réelle**. Les tests utilisent une fixture synthétique qui reproduit la structure d'un export ING, avec un contenu entièrement inventé. Un relevé importé dans l'application n'est jamais enregistré : il est traité en mémoire.
+Le dépôt ne contient **aucune donnée bancaire réelle**. Les tests utilisent des fixtures synthétiques qui reproduisent la structure d'un export ING, avec un contenu entièrement inventé. Un relevé importé dans l'application n'est jamais enregistré : il est traité en mémoire.
+
+Pour analyser vos propres relevés, **utilisez l'application en local** : vos données ne quittent alors jamais votre ordinateur. La version en ligne est destinée à la démonstration, avec les données fictives.
 
 ## Feuille de route
 
@@ -106,6 +121,7 @@ Le dépôt ne contient **aucune donnée bancaire réelle**. Les tests utilisent 
 - [x] Nettoyage des données (dates, montants, libellés)
 - [x] Catégorisation automatique par mots-clés
 - [x] Tableau de bord : chiffres clés, dépenses par catégorie et par mois
+- [X] Filtre par catégorie et indicateur des transactions non catégorisées
 
 ### V2 — prévue
 
@@ -125,10 +141,15 @@ Le dépôt ne contient **aucune donnée bancaire réelle**. Les tests utilisent 
 - [ ] Suivi du taux de couverture (part des transactions catégorisées)
 
 **Tableau de bord**
+- [ ] Indicateurs clés du mois, avec comparaison au mois précédent
+- [ ] Correction manuelle de la catégorie d'une transaction
 - [ ] Paiements récurrents
-- [ ] Liste des transactions non catégorisées, pour enrichir les mots-clés
 - [ ] Détection des dépenses inhabituelles
 - [ ] Budgets par catégorie avec alertes
+
+**Qualité**
+- [ ] Tests sur plusieurs versions de python (matrice CI)
+- [ ] Exception personnalisée pour les relevés invalides
 
 ## Auteur
 
