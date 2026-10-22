@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from datetime import date
 
+from geldalyse.categorizer import DEFAULT_CATEGORY
+
 # --- Key figures ---------------------------------------------------------
 
 def key_figures(transactions: pd.DataFrame) -> tuple[float, float, float]:
@@ -48,3 +50,10 @@ def monthly_totals(transactions: pd.DataFrame) -> pd.DataFrame:
     )
 
     return total_monthly_transactions
+
+# --- count uncategorized transactions---
+
+def count_uncategorized(transactions:pd.DataFrame) -> int:
+
+    return int((transactions["category"] == DEFAULT_CATEGORY).sum())
+
