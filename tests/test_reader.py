@@ -9,30 +9,29 @@ from geldalyse.reader import read_bank_statement
 from geldalyse.schema import STANDARD_COLUMNS
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
-ING_SAMPLE = FIXTURES_DIR/ "ing_export_sample.csv"
 WRONG_COLUMNS = FIXTURES_DIR / "wrong_format.csv"
 WRONG_DATE_FORMAT = FIXTURES_DIR / "wrong_date_format.csv"
 EMPTY_FILE = FIXTURES_DIR / "empty.csv"
 HEADER_ONLY = FIXTURES_DIR / "header_only.csv"
 
 
-def test_output_columns_match():
-    transactions = read_bank_statement(ING_SAMPLE)
+def test_output_columns_match(ing_sample):
+    transactions = read_bank_statement(ing_sample)
     assert list(transactions.columns) == STANDARD_COLUMNS
 
 
-def test_small_negative_amount_keeps_sign():
-    transactions = read_bank_statement(ING_SAMPLE)
+def test_small_negative_amount_keeps_sign(ing_sample):
+    transactions = read_bank_statement(ing_sample)
     assert transactions["amount"][3] == -0.5
 
 
-def test_dates_are_converted():
-    transactions = read_bank_statement(ING_SAMPLE)
+def test_dates_are_converted(ing_sample):
+    transactions = read_bank_statement(ing_sample)
     assert transactions["date"][0] == pd.Timestamp(2025, 12, 31)
 
 
-def test_output_has_no_missing_values():
-    transactions = read_bank_statement(ING_SAMPLE)
+def test_output_has_no_missing_values(ing_sample):
+    transactions = read_bank_statement(ing_sample)
     assert not transactions.isna().any().any()
 
 

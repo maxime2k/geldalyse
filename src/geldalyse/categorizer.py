@@ -1,3 +1,6 @@
+# Order matters: the first matching category wins.
+# Keywords in uppercase, accents included: labels are uppercased before matching.
+# Keep keywords precise: "CAR" would also match "CARTE".
 
 DEFAULT_CATEGORY = "INCONNU"
 CATEGORIES = {
@@ -14,6 +17,7 @@ CATEGORIES = {
 
 #Match catégories with labels
 def categorize(label: str) -> str:
+    """Return the first category whose keyword appears in the label, else DEFAULT_CATEGORY."""
     normalized_label = label.upper()
     for category, keywords in CATEGORIES.items():
         for keyword in keywords:

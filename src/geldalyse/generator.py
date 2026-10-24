@@ -9,7 +9,7 @@ import pandas as pd
 
 from geldalyse.schema import STANDARD_COLUMNS
 
-# Shop -> (min amount, max amount), in euros.
+# Shop -> (min amount, max amount), in euros. Positive: the sign is applied per purchase.
 MERCHANTS = {
     "DELHAIZE BRUXELLES": (15, 90),
     "COLRUYT ANDERLECHT": (20, 120),
@@ -23,7 +23,7 @@ MERCHANTS = {
     "ZALANDO": (25, 120),
 }
 
-# (day of month, label, amount). Positive = money in, negative = money out.
+# Day of month between 1 and 28: higher days are missing in some months (February).
 RECURRING = [
     (1, "VIREMENT SALAIRE", 2350),
     (3, "LOYER APPARTEMENT", -850),
@@ -56,6 +56,7 @@ def generate_transactions(start: date, days: int, seed: int = 42) -> pd.DataFram
             transactions.append(make_transaction(day, shop, amount))
         
     transactions = pd.DataFrame(transactions, columns=STANDARD_COLUMNS)
+        # Same date type as reader.py: both sources must share the standard format.
     transactions["date"] = pd.to_datetime(transactions["date"])
 
     return transactions
