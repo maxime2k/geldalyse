@@ -9,3 +9,4 @@ Numéro de compte;Nom du compte;Compte contrepartie;Numéro d'opération;Date de
 ;;;8;15/02/2026;14/02/2026;-13,49;EUR;Paiement Debit Mastercard 14/02/26 - 10h00 - NETFLIX.COM - AMSTERDAM - NLD Numéro de carte 0000 XXXX XXXX 0000 Référence ING: XXXX;;
 ;;;;;;;;;;
 ;;;9;20/02/2026;20/02/2026;-40,00;EUR;Virement instantané: ING app Vers: AMI FICTIF - BE00 0000 0000 0000 Instantané le 20/02 - 18:30:00 Info personnelle: XXXX;;
+;;;10;12/03/2026;31/12/2025;0,15;EUR;Rectification;Remboursement taxe fictive;

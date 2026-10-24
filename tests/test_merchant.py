@@ -34,6 +34,8 @@ TRANSFER_WITHOUT_MARKER = (
     "VIREMENT INSTANTANÉ: ING APP XXX - BE00 0000 0000 0000 "
     "INSTANTANÉ LE 20/02 - 18:30:00 INFO PERSONNELLE: XXXX"
 )
+UNKNOWN_WITH_SEGMENTS = "OPÉRATION DIVERSE - RÉFÉRENCE 0000 - TRAITEMENT DU 01/03/26"
+MALFORMED_CARD_PAYMENT = "PAIEMENT BANCONTACT SANS DÉTAIL"
 
 # --- Card payments ---
 
@@ -47,6 +49,10 @@ def test_card_payment_without_postcode_keeps_full_name():
     assert extract_merchant(CARD_PAYMENT_NO_POSTCODE) == "NETFLIX.COM"
 
 
+def test_malformed_card_payment_is_returned_unchanged():
+    assert extract_merchant(MALFORMED_CARD_PAYMENT) == MALFORMED_CARD_PAYMENT
+
+    
 # --- Fixed names ---
 
 
@@ -75,6 +81,9 @@ def test_unknown_description_is_returned_in_uppercase(label):
     assert extract_merchant(label) == label.upper()
 
 
+def test_unknown_description_with_segments_is_returned_unchanged():
+    assert extract_merchant(UNKNOWN_WITH_SEGMENTS) == UNKNOWN_WITH_SEGMENTS
+
 # --- Transfers ---
 
 def test_transfer_receive():
@@ -87,3 +96,5 @@ def test_transfer_sent():
 
 def test_transfer_without_marker_is_returned_unchanged():
     assert extract_merchant(TRANSFER_WITHOUT_MARKER) == TRANSFER_WITHOUT_MARKER
+
+
