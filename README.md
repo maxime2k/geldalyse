@@ -15,12 +15,13 @@ Geldalyse est une application Python qui importe un relevé bancaire, catégoris
 - **Deux sources de données** : des transactions fictives générées à la volée, ou un export CSV d'ING Belgique (en français)
 - **Nettoyage automatique** : colonnes renommées, dates converties, libellés normalisés, lignes vides supprimées
 - **Catégorisation par mots-clés** : alimentation, transport, logement, restauration, frais bancaires, retraits…
+- **Libellé court lisible** : le commerçant, le bénéficiaire d'un virement ou la nature d'une opération bancaire, extrait de la longue description de la banque
 - **Gestion des erreurs d'import** : un fichier au mauvais format affiche un message clair, sans faire planter l'application
 - **Tableau de bord interactif** :
   - revenus, dépenses et solde de la période
   - dépenses par catégorie, de la plus importante à la plus faible
   - revenus et dépenses mois par mois
-  - tableau détaillé des transactions
+  - tableau détaillé des transactions, avec un libellé court et la description complète
   - filtre de période
   - filtre des transactions par catégorie
   - indicateur des transactions non catégorisées
@@ -35,6 +36,7 @@ Le projet suit un schéma **ETL** (*Extract, Transform, Load*). Chaque étape es
 | Extract | `generator.py` | Génère des transactions fictives reproductibles |
 | Transform | `reader.py` | Convertit les données au format standard |
 | Transform | `categorizer.py` | Attribue une catégorie à chaque transaction |
+| Transform | `merchant.py` | Extrait un libellé court de chaque description |
 | Transform | `analysis.py` | Calcule les chiffres clés et les agrégats |
 | Load | `app.py` | Affiche le tableau de bord Streamlit |
 
@@ -47,6 +49,7 @@ geldalyse/
 │   ├── analysis.py         # Chiffres clés et agrégats
 │   ├── categorizer.py      # Catégorisation par mots-clés
 │   ├── generator.py        # Transactions fictives
+│   ├── merchant.py         # Libellé court à partir de la description
 │   ├── reader.py           # Lecture des exports ING
 │   └── schema.py           # Format standard des données
 ├── tests/                  # Tests unitaires et d'intégration (pytest)
@@ -126,12 +129,13 @@ Pour analyser vos propres relevés, **utilisez l'application en local** : vos do
 ### V2 — prévue
 
 **Données et import**
+- [x] Libellé court extrait de chaque description (commerçant, virement, opération bancaire)
 - [ ] Exports ING en néerlandais, anglais et allemand
 - [ ] Prise en charge d'autres banques (BNP Paribas Fortis, Belfius…)
 - [ ] Import de jeux de données publics (Kaggle, UCI) via le même format standard
 - [ ] Générateur produisant des relevés fictifs au format ING, pour une démo à grand volume
 - [ ] Simulation des montants par une loi log-normale plutôt qu'uniforme
-- [ ] Extraction du nom du commerçant à partir de la description bancaire
+- [ ] Utiliser le détail de l'opération quand la description est trop générique (ex. « Rectification »)
 
 **Catégorisation**
 - [ ] Catégorisation par apprentissage automatique
@@ -139,6 +143,7 @@ Pour analyser vos propres relevés, **utilisez l'application en local** : vos do
 - [ ] Mots-clés stockés dans un fichier de configuration, modifiables sans toucher au code
 - [ ] Distinction entre abonnements de loisirs (Netflix…) et factures essentielles (Proximus…)
 - [ ] Suivi du taux de couverture (part des transactions catégorisées)
+- [ ] Mots-clés des opérations bancaires dans chaque langue d'export
 
 **Tableau de bord**
 - [ ] Indicateurs clés du mois, avec comparaison au mois précédent
