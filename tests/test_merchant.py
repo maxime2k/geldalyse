@@ -21,7 +21,19 @@ CASH_WITHDRAWAL = (
 )
 BANK_FEES = "DÉCOMPTE DE FRAIS N° 000000000 PIÈCE JUSTIFICATIVE EN ANNEXE"
 INTEREST = "INTÉRÊTS-FRAIS AU 31/12/25 DÉCOMPTE EN ANNEXE"
+TRANSFER_RECEIVED = (
+    "VIREMENT EN EUROS (SEPA) DE: SOCIÉTÉ FICTIVE SA - BE00 0000 0000 0000 "
+    "COMMUNICATION: SALAIRE JANVIER"
+)
+TRANSFER_SENT = (
+    "VIREMENT INSTANTANÉ: ING APP VERS: AMI FICTIF - BE00 0000 0000 0000 "
+    "INSTANTANÉ LE 20/02 - 18:30:00 INFO PERSONNELLE: XXXX"
+)
 
+TRANSFER_WITHOUT_MARKER = (
+    "VIREMENT INSTANTANÉ: ING APP XXX - BE00 0000 0000 0000 "
+    "INSTANTANÉ LE 20/02 - 18:30:00 INFO PERSONNELLE: XXXX"
+)
 
 # --- Card payments ---
 
@@ -61,3 +73,17 @@ def test_every_fixed_prefix_returns_its_name(prefix, name):
 @pytest.mark.parametrize("label", ["opération diverse", "abc - def"])
 def test_unknown_description_is_returned_in_uppercase(label):
     assert extract_merchant(label) == label.upper()
+
+
+# --- Transfers ---
+
+def test_transfer_receive():
+    assert extract_merchant(TRANSFER_RECEIVED) == "SOCIÉTÉ FICTIVE SA"
+
+
+def test_transfer_sent():
+    assert extract_merchant(TRANSFER_SENT) == "AMI FICTIF"
+
+
+def test_transfer_without_marker_is_returned_unchanged():
+    assert extract_merchant(TRANSFER_WITHOUT_MARKER) == TRANSFER_WITHOUT_MARKER
