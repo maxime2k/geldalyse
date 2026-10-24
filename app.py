@@ -6,9 +6,10 @@ from datetime import date
 import streamlit as st
 import altair as alt
 
+from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized
 from geldalyse.categorizer import categorize, DEFAULT_CATEGORY
 from geldalyse.generator import generate_transactions
-from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized
+from geldalyse.merchant import extract_merchant
 from geldalyse.reader import read_bank_statement
 
 st.set_page_config(page_title="Geldalyse")
@@ -46,6 +47,8 @@ if transactions.empty:
     st.stop()
 
 transactions["category"] = transactions["label"].apply(categorize)
+# Short, readable name shown in the table; the full description is kept too.
+transactions["merchant"] = transactions["label"].apply(extract_merchant)
 
 # --- Filter by period ---
 first_date = transactions["date"].min()
@@ -130,10 +133,12 @@ else:
 st.dataframe(
     shown_transactions.sort_values("date", ascending=False),
     hide_index=True,
+    column_order=["date", "merchant", "amount", "category", "label"],
     column_config={
         "date": st.column_config.DateColumn("Date", format="DD/MM/YYYY", width="small"),
         "label": st.column_config.TextColumn("Description"),
         "amount": st.column_config.NumberColumn("Montant", format="%.2f €", width="small"),
         "category": st.column_config.TextColumn("Catégorie"),
+        "merchant": st.column_config.TextColumn("Opération")
     },
 )
