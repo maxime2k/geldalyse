@@ -2,25 +2,46 @@
 
 Rules, by family of description:
 - Card payment ("PAIEMENT ..."): 3rd segment between " - "
-- Cash withdrawal ("RETRAIT D'ESPÈCES ..."): same rule as card payments
+- Cash withdrawal ("RETRAIT D'ESPÈCES ..."): the fixed value "RETRAIT D'ESPÈCES"
 - Transfer ("VIREMENT ..."): text between "DE:" or "VERS:" and the next " - "
-- Bank operation ("DÉCOMPTE DE FRAIS", "INTÉRÊTS"): the fixed value "ING"
-- Anything else: the description, unchanged
+- Bank operation ("DÉCOMPTE DE FRAIS"): the fixed value "FRAIS COMPTE ING"
+- Bank operation ("INTÉRÊTS-FRAIS"): the fixed value "INTÉRÊTS COMPTE ING"
+- Anything else: the description, in capital case
 """
 
 import pandas as pd
 
+FIXED_NAMES = {
+    "RETRAIT D'ESPÈCES": "RETRAIT D'ESPÈCES",
+    "DÉCOMPTE DE FRAIS": "FRAIS COMPTE ING",
+    "INTÉRÊTS-FRAIS":"INTÉRÊTS COMPTE ING"
+}
+
 def extract_merchant(label: str) -> str:
-    label_list = label.split(" - ")
-    merchant = label_list[2]
+    """Return a short, readable name for a bank transaction description."""
+
+    # Normalize here too, so the output is uniform whatever the source.
+    label = label.upper()
+
+    # Fixed names first: these descriptions have no " - " segments.
+    for prefix, name in FIXED_NAMES.items():
+        if label.startswith(prefix):
+            return name
+     # Spaces matter: city names such as LOUVAIN-LA-NE contain hyphens.
+    segments = label.split(" - ")
+    if len(segments) < 3:
+        return label
+    merchant = segments[2]
     merchant_name = _remove_postal_code(name=merchant)
     
     return merchant_name
 
 
 def _remove_postal_code(name: str) -> str:
-    name_list = name.split()
-    if name_list and name_list[-1].isdigit() and len(name_list[-1]) == 4:
-        name_list.pop()
+    """Remove a trailing Belgian postal code (4 digits) from a name."""
 
-    return " ".join(name_list)
+    segments = name.split()
+    if segments and segments[-1].isdigit() and len(segments[-1]) == 4:
+        segments.pop()
+
+    return " ".join(segments)
