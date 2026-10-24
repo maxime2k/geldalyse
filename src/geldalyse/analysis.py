@@ -9,6 +9,7 @@ from geldalyse.categorizer import DEFAULT_CATEGORY
 # --- Key figures ---------------------------------------------------------
 
 def key_figures(transactions: pd.DataFrame) -> tuple[float, float, float]:
+    """Return incomes, expenses and balance. Expenses stay negative."""
     income_rows = transactions[transactions["amount"] > 0]
     expense_rows = transactions[transactions["amount"] < 0]
 
@@ -21,6 +22,7 @@ def key_figures(transactions: pd.DataFrame) -> tuple[float, float, float]:
 # --- Expenses by category ---
 
 def expenses_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
+    """Return total expenses per category, as positive amounts, biggest first."""
     expense_rows = transactions[transactions["amount"] < 0]
     total_expenses_by_category = (
         expense_rows.groupby("category")["amount"]
@@ -36,6 +38,7 @@ def expenses_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
 
 
 def monthly_totals(transactions: pd.DataFrame) -> pd.DataFrame:
+    # Copy: adding a column must not modify the caller's DataFrame.
     transactions_copy = transactions.copy()
     transactions_copy["month"] = transactions_copy["date"].dt.strftime("%Y-%m")
     transactions_copy["flow"] = np.where(transactions_copy["amount"] > 0, "income", "expense")
@@ -45,6 +48,7 @@ def monthly_totals(transactions: pd.DataFrame) -> pd.DataFrame:
         .sum()
         .abs()
         .reset_index()
+            # "YYYY-MM" strings sort in chronological order.
         .sort_values("month")  # Explicit: groupby already sorts, but the order is intended.
         
     )
@@ -54,6 +58,7 @@ def monthly_totals(transactions: pd.DataFrame) -> pd.DataFrame:
 # --- count uncategorized transactions---
 
 def count_uncategorized(transactions:pd.DataFrame) -> int:
+        # int(): .sum() returns a NumPy integer, not a Python int.
 
     return int((transactions["category"] == DEFAULT_CATEGORY).sum())
 
