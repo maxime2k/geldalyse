@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized
+from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized, uncategorized_by_operation
 
 TRANSACTIONS = pd.DataFrame([
     {"date": pd.Timestamp(2026, 3, 15), "label": "SALAIRE", "amount": 500.0, "category": "REVENUS"},
@@ -15,10 +15,17 @@ TRANSACTIONS = pd.DataFrame([
 
 ])
 
-UNKNOW_TRANSACTIONS = pd.DataFrame([
-    {"date": pd.Timestamp(2026, 3, 15), "label": "SALAIRE", "amount": 500.0, "category": "REVENUS"},
-    {"date": pd.Timestamp(2026, 3, 17), "label": "DELHAIZE", "amount": -30.0, "category": "INCONNU"},
-    {"date": pd.Timestamp(2026, 1, 20), "label": "CARREFOUR", "amount": -20.0, "category": "INCONNU"},
+UNKNOWN_TRANSACTIONS = pd.DataFrame([
+    {"date": pd.Timestamp(2026, 3, 15), "label": "SALAIRE DE: SOCIETE FICTIVE SA", "amount": 500.0, "category": "REVENUS", "merchant": "SOCIETE FICTIVE SA"},
+    {"date": pd.Timestamp(2026, 3, 17), "label": "PAIEMENT CARTE - 17/03 10:12 - BOULANGERIE DUPONT 1000", "amount": -30.0, "category": "INCONNU", "merchant": "BOULANGERIE DUPONT"},
+    {"date": pd.Timestamp(2026, 1, 20), "label": "PAIEMENT CARTE - 20/03 14:20 - BOULANGERIE DUPONT 1000", "amount": -20.0, "category": "INCONNU", "merchant": "BOULANGERIE DUPONT"},
+])
+
+UNCATEGORIZED_TRANSACTIONS = pd.DataFrame([
+    {"date": pd.Timestamp(2026, 3, 15), "label": "SALAIRE DE: SOCIETE FICTIVE SA", "amount": 500.0, "category": "REVENUS", "merchant": "SOCIETE FICTIVE SA"},
+    {"date": pd.Timestamp(2026, 3, 17), "label": "PAIEMENT CARTE - 17/03 10:12 - FRITERIE AS 1050", "amount": -35.0, "category": "INCONNU", "merchant": "FRITERIE AS"},
+    {"date": pd.Timestamp(2026, 1, 20), "label": "PAIEMENT CARTE - 20/01 14:20 - FRITERIE AS 1050", "amount": -20.0, "category": "INCONNU", "merchant": "FRITERIE AS"},
+    {"date": pd.Timestamp(2026, 3, 17), "label": "PAIEMENT CARTE - 17/03 10:12 - BOULANGERIE DUPONT 1000", "amount": -30.0, "category": "INCONNU", "merchant": "BOULANGERIE DUPONT"},
 ])
 
 # --- Key figures ---
@@ -78,5 +85,28 @@ def test_monthly_expenses_are_sorted_by_month():
 
 
 def test_count_uncategorized_counts_default_category_rows():
-    total_count = count_uncategorized(UNKNOW_TRANSACTIONS)
+    total_count = count_uncategorized(UNKNOWN_TRANSACTIONS)
     assert total_count == 2
+
+
+def test_uncategorized_by_operation_excludes_categorized():
+     uncategorized = uncategorized_by_operation(UNCATEGORIZED_TRANSACTIONS)
+
+     assert "SOCIETE FICTIVE SA" not in uncategorized["merchant"].tolist()
+
+
+def test_uncategorized_by_operation_groups_same_merchant():
+     uncategorized = uncategorized_by_operation(UNCATEGORIZED_TRANSACTIONS)
+     friterie = uncategorized[uncategorized["merchant"] == "FRITERIE AS"]
+     assert len(uncategorized) == 2
+     assert friterie["transaction_count"].iloc[0]== 2
+     assert friterie["total_amount"].iloc[0]== -55.0
+
+
+def test_uncategorized_by_operation_ties_sorted_by_amount():
+    tied_transactions = pd.DataFrame([
+        {"category": "INCONNU", "merchant": "BOULANGERIE DUPONT", "amount": -20.0},
+        {"category": "INCONNU", "merchant": "FRITERIE AS", "amount": -50.0},
+    ])
+    uncategorized = uncategorized_by_operation(tied_transactions)
+    assert uncategorized["merchant"].iloc[0] == "FRITERIE AS"
