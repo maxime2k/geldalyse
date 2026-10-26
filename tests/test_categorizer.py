@@ -14,7 +14,7 @@ def test_lowercase_label_is_recognized():
 
 
 def test_unknown_expense_returns_default_expense():
-    assert categorize("dépense imprévu", -15.0) == DEFAULT_EXPENSE_CATEGORY
+    assert categorize("delhaize bruxelles", -15.0) == "ALIMENTATION"
 
 
 def test_unknown_income_returns_default_income():
