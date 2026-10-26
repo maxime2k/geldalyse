@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from geldalyse.categorizer import categorize, DEFAULT_CATEGORY, apply_manual_categories
+from geldalyse.categorizer import categorize, DEFAULT_EXPENSE_CATEGORY, DEFAULT_INCOME_CATEGORY, apply_manual_categories
 
 
 def test_supermarket_is_food():
@@ -13,9 +13,12 @@ def test_lowercase_label_is_recognized():
     assert categorize("virement du salaire", 2500.0) == "REVENUS"
 
 
-def test_unknown_label_returns_default():
-    assert categorize("pret bancaire", 10000.0) == DEFAULT_CATEGORY
+def test_unknown_expense_returns_default_expense():
+    assert categorize("dépense imprévu", -15.0) == DEFAULT_EXPENSE_CATEGORY
 
+
+def test_unknown_income_returns_default_income():
+    assert categorize("nouveau virement", 100.0) == DEFAULT_INCOME_CATEGORY
 
 def test_interest_with_fees_in_label_is_income():
     assert categorize("Intérêts-Frais au 31/12/25 Décompte en annexe", 12.7) == "REVENUS"

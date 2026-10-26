@@ -4,7 +4,9 @@
 
 import pandas as pd
 
-DEFAULT_CATEGORY = "INCONNU"
+DEFAULT_EXPENSE_CATEGORY = "INCONNU"
+DEFAULT_INCOME_CATEGORY = "AUTRES ENTRÉES"
+
 EXPENSE_CATEGORIES = {
     "ALIMENTATION": ["DELHAIZE", "COLRUYT", "CARREFOUR"],
     "TRANSPORT": ["STIB", "SNCB", "TOTALENERGIES", "PARKING"],
@@ -19,10 +21,10 @@ EXPENSE_CATEGORIES = {
 
 #Match catégories with labels
 def categorize(label: str, amount: float) -> str:
-    """Return the first category whose keyword appears in the label, else DEFAULT_CATEGORY."""
+    """Return the first matching category, else a default that depends on the sign of amount."""
     category = _find_category(label=label, categories=EXPENSE_CATEGORIES)
-    
-    return category or DEFAULT_CATEGORY
+    default_category = DEFAULT_INCOME_CATEGORY if amount > 0 else DEFAULT_EXPENSE_CATEGORY
+    return category or default_category
 
 def _find_category(label: str, categories: dict[str, list[str]]) -> str | None:
         

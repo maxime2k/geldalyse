@@ -7,7 +7,7 @@ import streamlit as st
 import altair as alt
 
 from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized, uncategorized_by_operation
-from geldalyse.categorizer import categorize, DEFAULT_CATEGORY, EXPENSE_CATEGORIES, apply_manual_categories
+from geldalyse.categorizer import categorize, DEFAULT_EXPENSE_CATEGORY, EXPENSE_CATEGORIES, apply_manual_categories
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant
 from geldalyse.reader import read_bank_statement
@@ -80,7 +80,7 @@ else:
         else "Une transaction n'a pas de catégorie."
     ) 
     st.sidebar.warning(message)
-    st.sidebar.caption(f"Filtrez le tableau sur {DEFAULT_CATEGORY} pour les afficher.")
+    st.sidebar.caption(f"Filtrez le tableau sur {DEFAULT_EXPENSE_CATEGORY} pour les afficher.")
 
 # --- Key figures ---------------------------------------------------------
 incomes, expenses, balance = key_figures(transactions=transactions)
