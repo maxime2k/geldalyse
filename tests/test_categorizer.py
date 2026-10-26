@@ -28,6 +28,10 @@ def test_salary_transfers_return_salaire():
     assert categorize("virement salaire", 2500.0) == "SALAIRE"
 
 
+def test_positive_income_merchant_return_merchant():
+    assert categorize("REMBOUSSEMENT VOTRE ACHAT ZALANDO", 50.0) == "SHOPPING"
+
+
 def test_apply_manual_categories_changes_chosen_operation():
     transactions = pd.DataFrame([{"merchant": "FRITERIE AS", "category": "INCONNU"}])
     choices = {"FRITERIE AS": "ALIMENTATION"}
