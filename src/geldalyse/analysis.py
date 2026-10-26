@@ -55,10 +55,21 @@ def monthly_totals(transactions: pd.DataFrame) -> pd.DataFrame:
 
     return total_monthly_transactions
 
-# --- count uncategorized transactions---
 
 def count_uncategorized(transactions:pd.DataFrame) -> int:
         # int(): .sum() returns a NumPy integer, not a Python int.
 
     return int((transactions["category"] == DEFAULT_CATEGORY).sum())
 
+
+def uncategorized_by_operation(transactions: pd.DataFrame) -> pd.DataFrame:
+    """Group uncategorized transactions by merchant, most frequent first."""
+    uncategorized = transactions[transactions["category"] == DEFAULT_CATEGORY]
+    grouped_uncategorized = (
+        uncategorized.groupby("merchant")
+        .agg(transaction_count=("amount", "count"), total_amount=("amount", "sum")) 
+        .reset_index()
+        .sort_values(["transaction_count", "total_amount"], ascending=[False, True])
+    )
+
+    return grouped_uncategorized

@@ -6,7 +6,7 @@ from datetime import date
 import streamlit as st
 import altair as alt
 
-from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized
+from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized, uncategorized_by_operation
 from geldalyse.categorizer import categorize, DEFAULT_CATEGORY
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant
@@ -115,6 +115,20 @@ chart = (
 )
 st.altair_chart(chart, use_container_width=True)
 
+# --- Uncategorized transactions table -------------------------
+if total_uncategorized > 0:
+    st.subheader("Transactions non catégorisées")
+    uncategorized_table = uncategorized_by_operation(transactions=transactions)
+    st.dataframe(
+        uncategorized_table,
+        hide_index=True,
+        column_config={
+            "merchant": st.column_config.TextColumn("Opération"),
+            "transaction_count": st.column_config.NumberColumn("Transactions"),
+            "total_amount": st.column_config.NumberColumn("Total", format="%.2f €"),
+        },
+    )
+
 
 # --- Transactions table --------------------------------------------------------
 # Only the table is filtered: figures and charts keep all categories.
@@ -139,6 +153,6 @@ st.dataframe(
         "label": st.column_config.TextColumn("Description"),
         "amount": st.column_config.NumberColumn("Montant", format="%.2f €", width="small"),
         "category": st.column_config.TextColumn("Catégorie"),
-        "merchant": st.column_config.TextColumn("Opération")
+        "merchant": st.column_config.TextColumn("Opération"),
     },
 )
