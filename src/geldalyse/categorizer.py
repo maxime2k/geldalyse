@@ -5,7 +5,7 @@
 import pandas as pd
 
 DEFAULT_CATEGORY = "INCONNU"
-CATEGORIES = {
+EXPENSE_CATEGORIES = {
     "ALIMENTATION": ["DELHAIZE", "COLRUYT", "CARREFOUR"],
     "TRANSPORT": ["STIB", "SNCB", "TOTALENERGIES", "PARKING"],
     "SANTE": ["PHARMACIE"],
@@ -18,9 +18,9 @@ CATEGORIES = {
 }
 
 #Match catégories with labels
-def categorize(label: str) -> str:
+def categorize(label: str, amount: float) -> str:
     """Return the first category whose keyword appears in the label, else DEFAULT_CATEGORY."""
-    category = _find_category(label=label, categories=CATEGORIES)
+    category = _find_category(label=label, categories=EXPENSE_CATEGORIES)
     
     return category or DEFAULT_CATEGORY
 
@@ -46,7 +46,7 @@ def apply_manual_categories(transactions: pd.DataFrame, choices: dict[str, str])
 
 
 if __name__ == "__main__":
-    print(categorize("DELHAIZE BRUXELLES"))
-    print(categorize("VIREMENT SALAIRE"))
-    print(categorize("BOULANGERIE DU COIN"))
-    print(categorize("stib mivb"))
+    print(categorize("DELHAIZE BRUXELLES", -10.0))
+    print(categorize("VIREMENT SALAIRE", -250.5))
+    print(categorize("BOULANGERIE DU COIN", -30.5))
+    print(categorize("stib mivb", -2.7))

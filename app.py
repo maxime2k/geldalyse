@@ -7,7 +7,7 @@ import streamlit as st
 import altair as alt
 
 from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized, uncategorized_by_operation
-from geldalyse.categorizer import categorize, DEFAULT_CATEGORY, CATEGORIES, apply_manual_categories
+from geldalyse.categorizer import categorize, DEFAULT_CATEGORY, EXPENSE_CATEGORIES, apply_manual_categories
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant
 from geldalyse.reader import read_bank_statement
@@ -46,7 +46,7 @@ if transactions.empty:
     st.warning("Aucune transaction à afficher.")
     st.stop()
 
-transactions["category"] = transactions["label"].apply(categorize)
+transactions["category"] = transactions.apply(lambda row: categorize(row["label"], row["amount"]), axis=1)
 # Short, readable name shown in the table; the full description is kept too.
 transactions["merchant"] = transactions["label"].apply(extract_merchant)
 
@@ -136,7 +136,7 @@ if total_uncategorized > 0:
                                 "merchant": st.column_config.TextColumn("Opération"),
                                 "transaction_count": st.column_config.NumberColumn("Transactions"),
                                 "total_amount": st.column_config.NumberColumn("Total", format="%.2f €"),
-                                "category": st.column_config.SelectboxColumn("Catégorie", options=sorted(CATEGORIES)),
+                                "category": st.column_config.SelectboxColumn("Catégorie", options=sorted(EXPENSE_CATEGORIES)),
                             },
                             disabled=["merchant", "transaction_count", "total_amount"]
                         )
