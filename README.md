@@ -147,7 +147,8 @@ Pour analyser vos propres relevés, **utilisez l'application en local** : vos do
 
 **Tableau de bord**
 - [ ] Indicateurs clés du mois, avec comparaison au mois précédent
-- [ ] Correction manuelle de la catégorie d'une transaction
+- [X] Correction manuelle de la catégorie d'une opération non catégorisée
+-  Correction manuelle de la catégorie d'une transaction 
 - [ ] Paiements récurrents
 - [ ] Détection des dépenses inhabituelles
 - [ ] Budgets par catégorie avec alertes

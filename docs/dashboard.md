@@ -60,8 +60,8 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 
 ## Prévu pour la V2
 - [ ] Indicateurs clés du mois, avec comparaison au mois précédent (`st.metric` avec `delta`)
-- [ ] Correction manuelle de la catégorie d'une transaction (`st.data_editor`)
- Correction manuelle de la catégorie d'une transaction (st.data_editor)
+- [X] Correction manuelle de la catégorie d'une opération non catégorisée (`st.data_editor`)
+-  Correction manuelle de la catégorie d'une transaction (`st.data_editor`)
 - [ ] Paiements récurrents, sous forme de tableau (nécessite un algorithme de détection : même libellé, montant proche, chaque mois)
 - [ ] Liste des transactions non catégorisées, pour enrichir les mots-clés
 - [x] Libellé court des transactions

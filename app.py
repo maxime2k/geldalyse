@@ -7,7 +7,7 @@ import streamlit as st
 import altair as alt
 
 from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized, uncategorized_by_operation
-from geldalyse.categorizer import categorize, DEFAULT_CATEGORY
+from geldalyse.categorizer import categorize, DEFAULT_CATEGORY, CATEGORIES, apply_manual_categories
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant
 from geldalyse.reader import read_bank_statement
@@ -16,7 +16,7 @@ st.set_page_config(page_title="Geldalyse")
 
 DEMO_SOURCE = "Données de démo"
 UPLOAD_SOURCE = "Importer un relevé ING"
-
+MANUAL_CATEGORIES_KEY = "manual_categories"
 st.title("Geldalyse")
 st.write("Comprendre où part son argent.")
 
@@ -49,6 +49,13 @@ if transactions.empty:
 transactions["category"] = transactions["label"].apply(categorize)
 # Short, readable name shown in the table; the full description is kept too.
 transactions["merchant"] = transactions["label"].apply(extract_merchant)
+
+# --- Manual categories by user ---
+
+if MANUAL_CATEGORIES_KEY not in st.session_state:
+    st.session_state[MANUAL_CATEGORIES_KEY] = {}
+
+transactions = apply_manual_categories(transactions, st.session_state[MANUAL_CATEGORIES_KEY])
 
 # --- Filter by period ---
 first_date = transactions["date"].min()
@@ -116,19 +123,28 @@ chart = (
 st.altair_chart(chart, use_container_width=True)
 
 # --- Uncategorized transactions table -------------------------
+
 if total_uncategorized > 0:
     st.subheader("Transactions non catégorisées")
     uncategorized_table = uncategorized_by_operation(transactions=transactions)
-    st.dataframe(
-        uncategorized_table,
-        hide_index=True,
-        column_config={
-            "merchant": st.column_config.TextColumn("Opération"),
-            "transaction_count": st.column_config.NumberColumn("Transactions"),
-            "total_amount": st.column_config.NumberColumn("Total", format="%.2f €"),
-        },
-    )
-
+    uncategorized_table["category"] = None
+    edited_table = st.data_editor(
+                            uncategorized_table,
+                            hide_index=True,
+                            placeholder = "Choisir une catégorie",
+                            column_config={
+                                "merchant": st.column_config.TextColumn("Opération"),
+                                "transaction_count": st.column_config.NumberColumn("Transactions"),
+                                "total_amount": st.column_config.NumberColumn("Total", format="%.2f €"),
+                                "category": st.column_config.SelectboxColumn("Catégorie", options=sorted(CATEGORIES)),
+                            },
+                            disabled=["merchant", "transaction_count", "total_amount"]
+                        )
+    chosen_rows = edited_table[edited_table["category"].notna()]
+    new_choices = dict(zip(chosen_rows["merchant"], chosen_rows["category"]))
+    if new_choices:
+        st.session_state[MANUAL_CATEGORIES_KEY].update(new_choices)
+        st.rerun()
 
 # --- Transactions table --------------------------------------------------------
 # Only the table is filtered: figures and charts keep all categories.
