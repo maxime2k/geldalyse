@@ -5,7 +5,7 @@ Descriptions come from the ING fixture, in uppercase as produced by the reader.
 
 import pytest
 
-from geldalyse.merchant import FIXED_NAMES, extract_merchant
+from geldalyse.merchant import FIXED_NAMES, extract_merchant, is_received_transfer
 
 CARD_PAYMENT = (
     "PAIEMENT BANCONTACT 04/01/26 - 18H12 - DELHAIZE IXELLES 1050 - BRUXELLES "
@@ -97,4 +97,15 @@ def test_transfer_sent():
 def test_transfer_without_marker_is_returned_unchanged():
     assert extract_merchant(TRANSFER_WITHOUT_MARKER) == TRANSFER_WITHOUT_MARKER
 
+
+def test_is_received_transfer_true_for_received_transfer():
+    assert is_received_transfer(TRANSFER_RECEIVED)
+
+
+def test_is_received_transfer_false_for_sent_transfer():
+    assert not is_received_transfer(TRANSFER_SENT)
+
+
+def test_is_received_transfer_false_for_card_payment():
+    assert not is_received_transfer(CARD_PAYMENT)
 

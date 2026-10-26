@@ -69,3 +69,11 @@ def _remove_postal_code(name: str) -> str:
         words.pop()
 
     return " ".join(words)
+
+
+def is_received_transfer(label: str) -> bool:
+    """Return True if the label is a transfer received from someone."""
+    label = label.upper()
+
+    return label.startswith(TRANSFER_PREFIX) and TRANSFER_RECEIVED_MARKER in label
+
