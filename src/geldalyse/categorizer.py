@@ -14,16 +14,27 @@ EXPENSE_CATEGORIES = {
     "FACTURE": ["PROXIMUS", "NETFLIX", "DÉCOMPTE DE FRAIS"],
     "LOGEMENT": ["LOYER"],
     "SHOPPING": ["ZALANDO", "ZARA", "C&A"],
-    "REVENUS": ["SALAIRE", "INTÉRÊTS"],
     "RESTAURATION": ["PAIN QUOTIDIEN", "RESTAURANT", "DELIVEROO"],
     "RETRAITS": ["RETRAIT D'ESPÈCES"],
+}
+INCOME_CATEGORIES = {
+        "SALAIRE": ["SALAIRE"],
+        "INVESTISSEMENT": ["INTÉRÊTS"],
 }
 
 #Match catégories with labels
 def categorize(label: str, amount: float) -> str:
     """Return the first matching category, else a default that depends on the sign of amount."""
-    category = _find_category(label=label, categories=EXPENSE_CATEGORIES)
-    default_category = DEFAULT_INCOME_CATEGORY if amount > 0 else DEFAULT_EXPENSE_CATEGORY
+    if amount > 0:
+        category = (
+            _find_category(label=label, categories=INCOME_CATEGORIES)
+            or _find_category(label=label, categories=EXPENSE_CATEGORIES)
+        )
+        default_category = DEFAULT_INCOME_CATEGORY
+    else:
+        category = _find_category(label=label, categories=EXPENSE_CATEGORIES)
+        default_category = DEFAULT_EXPENSE_CATEGORY
+        
     return category or default_category
 
 def _find_category(label: str, categories: dict[str, list[str]]) -> str | None:

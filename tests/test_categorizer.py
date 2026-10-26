@@ -10,7 +10,7 @@ def test_supermarket_is_food():
 
 
 def test_lowercase_label_is_recognized():
-    assert categorize("virement du salaire", 2500.0) == "REVENUS"
+    assert categorize("virement du salaire", 2500.0) == "SALAIRE"
 
 
 def test_unknown_expense_returns_default_expense():
@@ -21,7 +21,11 @@ def test_unknown_income_returns_default_income():
     assert categorize("nouveau virement", 100.0) == DEFAULT_INCOME_CATEGORY
 
 def test_interest_with_fees_in_label_is_income():
-    assert categorize("Intérêts-Frais au 31/12/25 Décompte en annexe", 12.7) == "REVENUS"
+    assert categorize("Intérêts-Frais au 31/12/25 Décompte en annexe", 12.7) == "INVESTISSEMENT"
+
+
+def test_salary_transfers_return_salaire():
+    assert categorize("virement salaire", 2500.0) == "SALAIRE"
 
 
 def test_apply_manual_categories_changes_chosen_operation():
