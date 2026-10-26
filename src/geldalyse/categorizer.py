@@ -20,13 +20,19 @@ CATEGORIES = {
 #Match catégories with labels
 def categorize(label: str) -> str:
     """Return the first category whose keyword appears in the label, else DEFAULT_CATEGORY."""
+    category = _find_category(label=label, categories=CATEGORIES)
+    
+    return category or DEFAULT_CATEGORY
+
+def _find_category(label: str, categories: dict[str, list[str]]) -> str | None:
+        
     normalized_label = label.upper()
-    for category, keywords in CATEGORIES.items():
+    for category, keywords in categories.items():
         for keyword in keywords:
             if keyword in normalized_label:
                 return category
     
-    return DEFAULT_CATEGORY
+    return None
 
 # --- change transactions categories manually ---
 
