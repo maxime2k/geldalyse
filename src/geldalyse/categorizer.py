@@ -2,6 +2,8 @@
 # Keywords in uppercase, accents included: labels are uppercased before matching.
 # Keep keywords precise: "CAR" would also match "CARTE".
 
+import pandas as pd
+
 DEFAULT_CATEGORY = "INCONNU"
 CATEGORIES = {
     "ALIMENTATION": ["DELHAIZE", "COLRUYT", "CARREFOUR"],
@@ -25,6 +27,16 @@ def categorize(label: str) -> str:
                 return category
     
     return DEFAULT_CATEGORY
+
+# --- change transactions categories manually ---
+
+
+def apply_manual_categories(transactions: pd.DataFrame, choices: dict[str, str]) -> pd.DataFrame:
+    """Return a copy where each operation in choices gets the chosen category."""
+    transactions_copy = transactions.copy()
+    transactions_copy["category"] = transactions_copy["merchant"].map(choices).fillna(transactions["category"])
+
+    return transactions_copy
 
 
 if __name__ == "__main__":
