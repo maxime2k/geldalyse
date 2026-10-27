@@ -4,8 +4,11 @@
 
 import pandas as pd
 
+from geldalyse.merchant import is_received_transfer
+
 DEFAULT_EXPENSE_CATEGORY = "INCONNU"
 DEFAULT_INCOME_CATEGORY = "AUTRES ENTRÉES"
+REFUND_CATEGORY = "REMBOURSEMENT"
 
 EXPENSE_CATEGORIES = {
     "ALIMENTATION": ["DELHAIZE", "COLRUYT", "CARREFOUR"],
@@ -30,7 +33,7 @@ def categorize(label: str, amount: float) -> str:
             _find_category(label=label, categories=INCOME_CATEGORIES)
             or _find_category(label=label, categories=EXPENSE_CATEGORIES)
         )
-        default_category = DEFAULT_INCOME_CATEGORY
+        default_category = REFUND_CATEGORY if is_received_transfer(label) else DEFAULT_INCOME_CATEGORY
     else:
         category = _find_category(label=label, categories=EXPENSE_CATEGORIES)
         default_category = DEFAULT_EXPENSE_CATEGORY
