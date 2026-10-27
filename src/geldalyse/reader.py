@@ -9,7 +9,7 @@ from geldalyse.schema import STANDARD_COLUMNS
 #ING columns to Geldalyse columns
 COLUMN_MAPPING = {
     "Date valeur": "date",
-    "Description": "label",
+    "Libellés": "label",
     "Montant": "amount",
     
 }

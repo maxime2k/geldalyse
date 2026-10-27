@@ -1,4 +1,4 @@
-Date valeur;Montant;Description
+Date valeur;Montant;Libellés
 2026-01-01;-42;10;Paiement Bancontact 04/01/26 - 18h12 - DELHAIZE IXELLES 1050 - BRUXELLES - BEL Numéro de carte 0000 XXXX XXXX 0000;;
 2026-01-01;2350;00;Virement en euros (SEPA) De: EMPLOYEUR FICTIF SA Communication: SALAIRE JANVIER;;
 2026-01-10;-0;50;Paiement Debit Mastercard 07/01/26 - 19h35 - PARKING FICTIF 1000 - BRUSSEL - BEL Numéro de carte 0000 XXXX XXXX 0000 Référence ING: XXXX;;
