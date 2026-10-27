@@ -160,7 +160,7 @@ Pour analyser vos propres relevés, **utilisez l'application en local** : vos do
 - [ ] Exception personnalisée pour les relevés invalides
 
 **Modèle Entrées / Sorties**
-- [ ] Chiffres clés « Entrées / Sorties / Solde » et graphique du détail des entrées
+- [X] Chiffres clés « Entrées / Sorties / Solde » et graphique du détail des entrées
 - [ ] Totaux nets par catégorie : un remboursement réduit sa catégorie de dépense
 - [ ] Catégories proposées selon le sens de l'argent dans les choix manuels
 - [ ] Identifiant de transaction (numéro d'opération ING), pour les corrections ponctuelles
