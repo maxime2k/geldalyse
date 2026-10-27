@@ -10,7 +10,7 @@ TRANSACTIONS = pd.DataFrame([
     {"date": pd.Timestamp(2026, 3, 17), "label": "DELHAIZE", "amount": -30.0, "category": "ALIMENTATION"},
     {"date": pd.Timestamp(2026, 1, 20), "label": "CARREFOUR", "amount": -20.0, "category": "ALIMENTATION"},
     {"date": pd.Timestamp(2026, 1, 15), "label": "CARREFOUR", "amount": -20.0, "category": "ALIMENTATION"},
-    {"date": pd.Timestamp(2026, 2, 15), "label": "CARREFOUR", "amount": -100.0, "category": "RETRAIT"},
+    {"date": pd.Timestamp(2026, 2, 15), "label": "CARREFOUR", "amount": -100.0, "category": "RETRAITS"},
     {"date": pd.Timestamp(2026, 1, 12), "label": "CARREFOUR", "amount": -10.0, "category": "FACTURE"},
     {"date": pd.Timestamp(2026, 2, 14), "label": "CARREFOUR", "amount": -20.0, "category": "FACTURE"},
 
@@ -62,7 +62,18 @@ def test_expenses_by_category_excludes_income():
 
 def test_expense_by_category_biggest_first():
      expenses_by_cat = expenses_by_category(transactions=TRANSACTIONS)
-     assert expenses_by_cat["category"].iloc[0] == "RETRAIT"
+     assert expenses_by_cat["category"].iloc[0] == "RETRAITS"
+
+
+def test_expenses_by_category_deducts_shop_refunds():
+    transactions = pd.DataFrame([
+        {"category": "SHOPPING", "amount": -500.0},
+        {"category": "SHOPPING", "amount": 100.0},
+    ])
+
+    result = expenses_by_category(transactions)
+
+    assert result["amount"].iloc[0] == 400.0
 
 
 # --- Income by category ---

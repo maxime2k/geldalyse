@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from datetime import date
 
-from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY
+from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, EXPENSE_CATEGORIES, INCOME_CATEGORIES
 
 # --- Key figures ---------------------------------------------------------
 
@@ -23,24 +23,24 @@ def key_figures(transactions: pd.DataFrame) -> tuple[float, float, float]:
 
 def expenses_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
     """Return total expenses per category, as positive amounts, biggest first."""
-    expense_rows = transactions[transactions["amount"] < 0]
+    expense_rows = transactions[transactions["category"].isin(list(EXPENSE_CATEGORIES) + [DEFAULT_EXPENSE_CATEGORY])]
+    expense_rows = expense_rows.assign(amount=-expense_rows["amount"])
   
     return _totals_by_category(expense_rows)
 
 
 def incomes_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
-    """Return total per income, biggest first."""
+    """Return total incomes per category, biggest first."""
     income_rows = transactions[transactions["amount"] > 0]
 
     return _totals_by_category(income_rows)
 
 
 def _totals_by_category(rows: pd.DataFrame) -> pd.DataFrame:
-    """Return total per category, as positive amounts, biggest first."""
+    """Return total amount per category, biggest first."""
     total = (
         rows.groupby("category")["amount"]
         .sum()
-        .abs()
         .sort_values(ascending=False)
         .reset_index()
     )
