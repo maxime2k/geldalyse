@@ -24,15 +24,28 @@ def key_figures(transactions: pd.DataFrame) -> tuple[float, float, float]:
 def expenses_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
     """Return total expenses per category, as positive amounts, biggest first."""
     expense_rows = transactions[transactions["amount"] < 0]
-    total_expenses_by_category = (
-        expense_rows.groupby("category")["amount"]
+  
+    return _totals_by_category(expense_rows)
+
+
+def incomes_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
+    """Return total per income, biggest first."""
+    income_rows = transactions[transactions["amount"] > 0]
+
+    return _totals_by_category(income_rows)
+
+
+def _totals_by_category(rows: pd.DataFrame) -> pd.DataFrame:
+    """Return total per category, as positive amounts, biggest first."""
+    total = (
+        rows.groupby("category")["amount"]
         .sum()
         .abs()
         .sort_values(ascending=False)
         .reset_index()
     )
 
-    return total_expenses_by_category
+    return total
 
 # --- Monthly transactions ---
 
