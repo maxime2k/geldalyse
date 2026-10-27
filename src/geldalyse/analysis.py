@@ -28,6 +28,13 @@ def expenses_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
     return _totals_by_category(expense_rows)
 
 
+def incomes_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
+    """Return total per income, biggest first."""
+    income_rows = transactions[transactions["amount"] > 0]
+
+    return _totals_by_category(income_rows)
+
+
 def _totals_by_category(rows: pd.DataFrame) -> pd.DataFrame:
     """Return total per category, as positive amounts, biggest first."""
     total = (
