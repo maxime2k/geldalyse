@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from geldalyse.categorizer import categorize, DEFAULT_CATEGORY
+from geldalyse.categorizer import categorize, DEFAULT_EXPENSE_CATEGORY
 from geldalyse.generator import MERCHANTS, RECURRING, generate_transactions
 from geldalyse.merchant import extract_merchant
 from geldalyse.reader import read_bank_statement
@@ -16,13 +16,13 @@ from geldalyse.schema import STANDARD_COLUMNS
 
 
 def test_all_merchants_are_categorized():
-    for merchant in MERCHANTS:
-        assert categorize(merchant) != DEFAULT_CATEGORY, f"{merchant} does not have a category"
+    for merchant, (low, high) in MERCHANTS.items():
+        assert categorize(merchant, -low) != DEFAULT_EXPENSE_CATEGORY, f"{merchant} does not have a category"
 
 
 def test_all_recurring_labels_are_categorized():
-    for _, label, _ in RECURRING:
-        assert categorize(label) != DEFAULT_CATEGORY, f"{label} does not have a category"
+    for _, label, amount in RECURRING:
+        assert categorize(label, amount) != DEFAULT_EXPENSE_CATEGORY, f"{label} does not have a category"
         
 
 def test_output_generator_columns_match_standard_columns():
@@ -46,7 +46,7 @@ def test_reader_dates_are_datetime(ing_sample):
 
 def test_reader_output_can_be_categorized(ing_sample):
     transactions = read_bank_statement(ing_sample)
-    categories = transactions["label"].apply(categorize)
+    categories = transactions.apply(lambda row: categorize(row["label"], row["amount"]), axis=1)
     assert categories.notna().all()
 
 

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from datetime import date
 
-from geldalyse.categorizer import DEFAULT_CATEGORY
+from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY
 
 # --- Key figures ---------------------------------------------------------
 
@@ -59,12 +59,12 @@ def monthly_totals(transactions: pd.DataFrame) -> pd.DataFrame:
 def count_uncategorized(transactions:pd.DataFrame) -> int:
         # int(): .sum() returns a NumPy integer, not a Python int.
 
-    return int((transactions["category"] == DEFAULT_CATEGORY).sum())
+    return int((transactions["category"] == DEFAULT_EXPENSE_CATEGORY).sum())
 
 
 def uncategorized_by_operation(transactions: pd.DataFrame) -> pd.DataFrame:
     """Group uncategorized transactions by merchant, most frequent first."""
-    uncategorized = transactions[transactions["category"] == DEFAULT_CATEGORY]
+    uncategorized = transactions[transactions["category"] == DEFAULT_EXPENSE_CATEGORY]
     grouped_uncategorized = (
         uncategorized.groupby("merchant")
         .agg(transaction_count=("amount", "count"), total_amount=("amount", "sum")) 

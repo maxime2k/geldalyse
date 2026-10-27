@@ -1,12 +1,14 @@
-"""Extract the merchant (or counterparty) name from an ING description.
+"""Read ING descriptions: merchant (or counterparty) name and transfer direction.
 
-Rules, by family of description:
-- Card payment ("PAIEMENT ..."): 3rd segment between " - " without the trailing postal code
+Merchant name, by family of description:
+- Card payment ("PAIEMENT ..."): 3rd segment between " - ", without the trailing postal code
 - Cash withdrawal ("RETRAIT D'ESPÈCES ..."): the fixed value "RETRAIT D'ESPÈCES"
 - Transfer ("VIREMENT ..."): text between "DE:" or "VERS:" and the next " - "
 - Bank operation ("DÉCOMPTE DE FRAIS"): the fixed value "FRAIS COMPTE ING"
 - Bank operation ("INTÉRÊTS-FRAIS"): the fixed value "INTÉRÊTS COMPTE ING"
-- Anything else: the description, in in uppercase
+- Anything else: the description, in uppercase
+
+Received transfer: a "VIREMENT ..." description containing "DE:".
 """
 
 
@@ -21,7 +23,9 @@ FIXED_NAMES = {
 }
 
 TRANSFER_PREFIX = "VIREMENT"
-TRANSFER_MARKERS = ("DE: ", "VERS: ")
+TRANSFER_RECEIVED_MARKER = "DE: "
+TRANSFER_SENT_MARKER = "VERS: "
+TRANSFER_MARKERS = (TRANSFER_RECEIVED_MARKER, TRANSFER_SENT_MARKER)
 
 CARD_PAYMENT_PREFIX = "PAIEMENT"
 
@@ -67,3 +71,11 @@ def _remove_postal_code(name: str) -> str:
         words.pop()
 
     return " ".join(words)
+
+
+def is_received_transfer(label: str) -> bool:
+    """Return True if the label is a transfer received from someone."""
+    label = label.upper()
+
+    return label.startswith(TRANSFER_PREFIX) and TRANSFER_RECEIVED_MARKER in label
+
