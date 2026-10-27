@@ -43,6 +43,10 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 - **Le filtre de période** s'applique à tout le dashboard ; **le filtre par catégorie** ne s'applique qu'au tableau des transactions.
 - **Pas d'information portée uniquement par la couleur** : chaque série est nommée dans une légende.
 - **Le libellé court** est affiché en priorité ; **la description complète** reste disponible en dernière colonne, pour ne rien cacher.
+- **Deux vues de l'argent** :
+  - les **chiffres clés** et le **graphique mensuel** suivent le compte bancaire : une entrée est un montant positif, une sortie un montant négatif. Leurs totaux sont vérifiables sur le relevé ;
+  - les **onglets par catégorie** montrent ce que l'argent représente : un remboursement de magasin est déduit de sa catégorie de dépense, et n'apparaît pas dans les entrées.
+- **Cohérence entre les deux vues** : total des entrées par catégorie − total des sorties par catégorie = Solde.
 
 ## Suivi de construction
 
@@ -65,4 +69,4 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 - [ ] Paiements récurrents, sous forme de tableau (nécessite un algorithme de détection : même libellé, montant proche, chaque mois)
 - [ ] Liste des transactions non catégorisées, pour enrichir les mots-clés
 - [x] Libellé court des transactions
-- [ ] Dépenses regroupées par commerçant (nombre d'achats et total), filtrables par catégorie
+- [X] Dépenses regroupées par commerçant (nombre d'achats et total), filtrables par catégorie

@@ -20,17 +20,20 @@ MANUAL_CATEGORIES_KEY = "manual_categories"
 
 
 def details_graph_by_category(total_category: pd.DataFrame) -> alt.Chart:
-    """Build a horizontal bar chart of totals by category, biggest first."""
-    chart = (
-        alt.Chart(total_category)                      
-        .mark_bar()                              
-        .encode(                                 
-            x=alt.X("amount", title="Montant"),
-            y=alt.Y("category", sort="-x", title=None),
-        )
+    base = alt.Chart(total_category).encode(
+        x=alt.X("amount", title="Montant (€)"),
+        y=alt.Y("category", sort="-x", title=None),
+        tooltip=[
+            alt.Tooltip("category", title="Catégorie"),
+            alt.Tooltip("amount", title="Montant (€)", format=".2f"),
+        ],
     )
-
-    return chart
+    bars = base.mark_bar()
+    # Light text: the app theme is dark (.streamlit/config.toml).
+    labels = base.mark_text(align="left", dx=3, color="#FAFAFA").encode(
+        text=alt.Text("amount", format=".2f"),
+    )
+    return bars + labels
 
 st.title("Geldalyse")
 st.write("Comprendre où part son argent.")
@@ -117,7 +120,8 @@ with incomes_tabs:
     incomes_details = details_graph_by_category(total_incomes_by_category)
     st.altair_chart(incomes_details, use_container_width=True)
 
-
+st.caption("Les remboursements de magasins sont déduits de leur catégorie de dépense.")
+st.dataframe(total_incomes_by_category)
 # -- Monthly transactions ---
 total_monthly_transactions = monthly_totals(transactions=transactions)
 total_monthly_transactions["flow"] = total_monthly_transactions["flow"].replace({"income": "Revenus", "expense": "Dépenses"})
