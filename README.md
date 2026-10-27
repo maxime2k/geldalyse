@@ -161,7 +161,7 @@ Pour analyser vos propres relevés, **utilisez l'application en local** : vos do
 
 **Modèle Entrées / Sorties**
 - [X] Chiffres clés « Entrées / Sorties / Solde » et graphique du détail des entrées
-- [ ] Totaux nets par catégorie : un remboursement réduit sa catégorie de dépense
+- [X] Totaux nets par catégorie : un remboursement réduit sa catégorie de dépense
 - [ ] Catégories proposées selon le sens de l'argent dans les choix manuels
 - [ ] Identifiant de transaction (numéro d'opération ING), pour les corrections ponctuelles
 - [ ] Correction de la catégorie depuis le tableau des transactions, pour une transaction ou toute l'opération
