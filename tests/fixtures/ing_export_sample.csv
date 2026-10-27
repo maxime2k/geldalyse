@@ -1,4 +1,4 @@
-Numéro de compte;Nom du compte;Compte contrepartie;Numéro d'opération;Date de comptabilisation;Date valeur;Montant;Devise;Description;Détail de l'opération;Message
+Numéro de compte;Nom du compte;Compte contrepartie;Numéro de mouvement;Date comptable;Date valeur;Montant;Devise;Libellés;Détails du mouvement;Message
 ;;;1;01/01/2026;31/12/2025;0,15;EUR;Intérêts-Frais au 31/12/25 Décompte en annexe;;
 ;;;2;05/01/2026;04/01/2026;-42,10;EUR;Paiement Bancontact 04/01/26 - 18h12 - DELHAIZE IXELLES 1050 - BRUXELLES - BEL Numéro de carte 0000 XXXX XXXX 0000;;
 ;;;3;06/01/2026;06/01/2026;2350,00;EUR;Virement en euros (SEPA) De: SOCIÉTÉ FICTIVE SA - BE00 0000 0000 0000 Communication: SALAIRE JANVIER;;
