@@ -23,11 +23,15 @@ EXPENSE_CATEGORIES = {
     "RESTAURATION": ["PAIN QUOTIDIEN", "RESTAURANT", "DELIVEROO"],
     "RETRAITS": ["RETRAIT D'ESPÈCES"],
 }
+
 # Searched before EXPENSE_CATEGORIES for positive amounts: an income keyword wins over a shop name.
 INCOME_CATEGORIES = {
         "SALAIRE": ["SALAIRE"],
         "INVESTISSEMENT": ["INTÉRÊTS"],
 }
+
+EXPENSE_CATEGORY_NAMES = [*EXPENSE_CATEGORIES, DEFAULT_EXPENSE_CATEGORY]
+INCOME_CATEGORY_NAMES = [*INCOME_CATEGORIES, DEFAULT_INCOME_CATEGORY, REFUND_CATEGORY]
 
 #Match catégories with labels
 def categorize(label: str, amount: float) -> str:

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from datetime import date
 
-from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, EXPENSE_CATEGORIES, INCOME_CATEGORIES
+from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, EXPENSE_CATEGORY_NAMES, INCOME_CATEGORY_NAMES
 
 # --- Key figures ---------------------------------------------------------
 
@@ -23,7 +23,7 @@ def key_figures(transactions: pd.DataFrame) -> tuple[float, float, float]:
 
 def expenses_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
     """Return total expenses per category, as positive amounts, biggest first."""
-    expense_rows = transactions[transactions["category"].isin(list(EXPENSE_CATEGORIES) + [DEFAULT_EXPENSE_CATEGORY])]
+    expense_rows = transactions[transactions["category"].isin(EXPENSE_CATEGORY_NAMES)]
     expense_rows = expense_rows.assign(amount=-expense_rows["amount"])
   
     return _totals_by_category(expense_rows)
@@ -31,7 +31,7 @@ def expenses_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
 
 def incomes_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
     """Return total incomes per category, biggest first."""
-    income_rows = transactions[transactions["amount"] > 0]
+    income_rows = transactions[transactions["category"].isin(INCOME_CATEGORY_NAMES)]
 
     return _totals_by_category(income_rows)
 

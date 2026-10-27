@@ -88,6 +88,17 @@ def test_incomes_by_category_biggest_first():
      assert income_by_cat["category"].iloc[0] == "SALAIRE"
 
 
+def test_incomes_by_category_excludes_shop_refunds():
+     transactions = pd.DataFrame([
+          {"amount": 500.0, "category": "SALAIRE"},
+          {"amount": 20.0, "category": "SHOPPING"},
+     ])
+
+     result = incomes_by_category(transactions)
+
+     assert "SHOPPING" not in result["category"].tolist()
+     assert "SALAIRE"  in result["category"].tolist()
+
 # --- Expenses by month ---
 
 
