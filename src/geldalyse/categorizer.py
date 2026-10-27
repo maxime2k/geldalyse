@@ -1,6 +1,9 @@
-# Order matters: the first matching category wins.
-# Keywords in uppercase, accents included: labels are uppercased before matching.
-# Keep keywords precise: "CAR" would also match "CARTE".
+"""Assign a category to each transaction from its label and the sign of its amount.
+    Order matters: the first matching category wins.
+    Keywords in uppercase, accents included: labels are uppercased before matching.
+    Keep keywords precise: "CAR" would also match "CARTE".
+"""
+
 
 import pandas as pd
 
@@ -20,6 +23,7 @@ EXPENSE_CATEGORIES = {
     "RESTAURATION": ["PAIN QUOTIDIEN", "RESTAURANT", "DELIVEROO"],
     "RETRAITS": ["RETRAIT D'ESPÈCES"],
 }
+# Searched before EXPENSE_CATEGORIES for positive amounts: an income keyword wins over a shop name.
 INCOME_CATEGORIES = {
         "SALAIRE": ["SALAIRE"],
         "INVESTISSEMENT": ["INTÉRÊTS"],

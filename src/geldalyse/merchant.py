@@ -1,12 +1,14 @@
-"""Extract the merchant (or counterparty) name from an ING description.
+"""Read ING descriptions: merchant (or counterparty) name and transfer direction.
 
-Rules, by family of description:
-- Card payment ("PAIEMENT ..."): 3rd segment between " - " without the trailing postal code
+Merchant name, by family of description:
+- Card payment ("PAIEMENT ..."): 3rd segment between " - ", without the trailing postal code
 - Cash withdrawal ("RETRAIT D'ESPÈCES ..."): the fixed value "RETRAIT D'ESPÈCES"
 - Transfer ("VIREMENT ..."): text between "DE:" or "VERS:" and the next " - "
 - Bank operation ("DÉCOMPTE DE FRAIS"): the fixed value "FRAIS COMPTE ING"
 - Bank operation ("INTÉRÊTS-FRAIS"): the fixed value "INTÉRÊTS COMPTE ING"
-- Anything else: the description, in in uppercase
+- Anything else: the description, in uppercase
+
+Received transfer: a "VIREMENT ..." description containing "DE:".
 """
 
 
