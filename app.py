@@ -121,10 +121,10 @@ with incomes_tabs:
     st.altair_chart(incomes_details, use_container_width=True)
 
 st.caption("Les remboursements de magasins sont déduits de leur catégorie de dépense.")
-st.dataframe(total_incomes_by_category)
+
 # -- Monthly transactions ---
 total_monthly_transactions = monthly_totals(transactions=transactions)
-total_monthly_transactions["flow"] = total_monthly_transactions["flow"].replace({"income": "Revenus", "expense": "Dépenses"})
+total_monthly_transactions["flow"] = total_monthly_transactions["flow"].replace({"income": "Entrées", "expense": "Sorties"})
 
 # -- graph monthly transactions ---
 st.subheader("Entrées et Sorties par mois")
