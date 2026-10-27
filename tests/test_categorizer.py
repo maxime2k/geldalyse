@@ -20,8 +20,12 @@ def test_unknown_expense_returns_default_expense():
 def test_unknown_income_returns_default_income():
     assert categorize("nouveau virement", 100.0) == DEFAULT_INCOME_CATEGORY
 
-def test_interest_with_fees_in_label_is_income():
+def test_positive_interest_is_investment():
     assert categorize("Intérêts-Frais au 31/12/25 Décompte en annexe", 12.7) == "INVESTISSEMENT"
+
+
+def test_negative_interest_is_bank_fee():
+    assert categorize("Intérêts-Frais au 31/12/25 Décompte en annexe", -2.7) == "FACTURE"
 
 
 def test_salary_transfers_returns_salary():
