@@ -42,9 +42,23 @@ def test_expenses_match_transactions_expenses():
      assert expenses == -200.0
 
 
-def test_balance_is_the_difference_of_income_and_expenses():
+def test_balance_is_income_plus_expenses():
      _, _, balance = key_figures(transactions=TRANSACTIONS)
      assert balance == 400.0
+
+
+def test_category_totals_match_balance():
+     transactions = pd.DataFrame([
+          {"amount": 500.0, "category": "SALAIRE"},
+          {"amount": -50.0, "category": "SHOPPING"},
+          {"amount": 20.0, "category": "SHOPPING"},
+     ])
+
+     _, _, balance = key_figures(transactions)
+     incomes_table = incomes_by_category(transactions)
+     expenses_table = expenses_by_category(transactions)
+
+     assert incomes_table["amount"].sum() - expenses_table["amount"].sum() == balance
 
 
 # --- Expenses by category ---
