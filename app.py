@@ -6,7 +6,7 @@ from datetime import date
 import streamlit as st
 import altair as alt
 
-from geldalyse.analysis import key_figures, expenses_by_category, monthly_totals, count_uncategorized, uncategorized_by_operation
+from geldalyse.analysis import key_figures, expenses_by_category, incomes_by_category, monthly_totals, count_uncategorized, uncategorized_by_operation
 from geldalyse.categorizer import categorize, DEFAULT_EXPENSE_CATEGORY, EXPENSE_CATEGORIES, apply_manual_categories
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant
@@ -17,6 +17,21 @@ st.set_page_config(page_title="Geldalyse")
 DEMO_SOURCE = "Données de démo"
 UPLOAD_SOURCE = "Importer un relevé ING"
 MANUAL_CATEGORIES_KEY = "manual_categories"
+
+
+def details_graph_by_category(total_category: pd.DataFrame) -> alt.Chart:
+    """Build a horizontal bar chart of totals by category, biggest first."""
+    chart = (
+        alt.Chart(total_category)                      
+        .mark_bar()                              
+        .encode(                                 
+            x=alt.X("amount", title="Montant"),
+            y=alt.Y("category", sort="-x", title=None),
+        )
+    )
+
+    return chart
+
 st.title("Geldalyse")
 st.write("Comprendre où part son argent.")
 
@@ -85,31 +100,30 @@ else:
 # --- Key figures ---------------------------------------------------------
 incomes, expenses, balance = key_figures(transactions=transactions)
 income_col, expenses_col, balance_col = st.columns(3)
-income_col.metric("Revenus", f"{incomes:.2f} €")
-expenses_col.metric("Dépenses", f"{abs(expenses):.2f} €")
+income_col.metric("Entrées", f"{incomes:.2f} €")
+expenses_col.metric("Sorties", f"{abs(expenses):.2f} €")
 balance_col.metric("Solde", f"{balance:.2f} €")
 
-# --- Expenses by category ---
-total_expenses_by_category = expenses_by_category(transactions=transactions)
+# --- Transactions details by category ---
+expenses_tabs, incomes_tabs = st.tabs([":material/arrow_upward: Sorties par catégorie", ":material/arrow_downward: Entrées par catégorie"])
 
-# -- graph expenses by category ---
-st.subheader("Dépenses par catégorie")
-chart = (
-    alt.Chart(total_expenses_by_category)                      
-    .mark_bar()                              
-    .encode(                                 
-        x=alt.X("amount", title="Montant"),
-        y=alt.Y("category", sort="-x", title=None),
-    )
-)
-st.altair_chart(chart, use_container_width=True)
+with expenses_tabs:
+    total_expenses_by_category = expenses_by_category(transactions=transactions)
+    expenses_details = details_graph_by_category(total_expenses_by_category)
+    st.altair_chart(expenses_details, use_container_width=True)
+
+with incomes_tabs:
+    total_incomes_by_category = incomes_by_category(transactions=transactions)
+    incomes_details = details_graph_by_category(total_incomes_by_category)
+    st.altair_chart(incomes_details, use_container_width=True)
+
 
 # -- Monthly transactions ---
 total_monthly_transactions = monthly_totals(transactions=transactions)
 total_monthly_transactions["flow"] = total_monthly_transactions["flow"].replace({"income": "Revenus", "expense": "Dépenses"})
 
 # -- graph monthly transactions ---
-st.subheader("Revenus et dépenses par mois")
+st.subheader("Entrées et Sorties par mois")
 chart = (
     alt.Chart(total_monthly_transactions)
     .mark_bar()
