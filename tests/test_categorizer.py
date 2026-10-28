@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from geldalyse.categorizer import categorize, DEFAULT_INCOME_CATEGORY, apply_manual_categories, REFUND_CATEGORY
+from geldalyse.categorizer import categorize, DEFAULT_INCOME_CATEGORY, DEFAULT_EXPENSE_CATEGORY, apply_manual_categories, REFUND_CATEGORY
 
 
 def test_supermarket_is_food():
@@ -41,7 +41,7 @@ def test_received_transfer_returns_refund():
 
 
 def test_apply_manual_categories_changes_chosen_operation():
-    transactions = pd.DataFrame([{"merchant": "FRITERIE AS", "category": "INCONNU"}])
+    transactions = pd.DataFrame([{"merchant": "FRITERIE AS", "amount": 15.0, "category": DEFAULT_EXPENSE_CATEGORY}])
     choices = {"FRITERIE AS": "ALIMENTATION"}
 
     result = apply_manual_categories(transactions, choices)
@@ -51,8 +51,8 @@ def test_apply_manual_categories_changes_chosen_operation():
 
 def test_apply_manual_categories_keeps_other_operations():
     transactions = pd.DataFrame([
-            {"merchant": "FRITERIE AS", "category": "INCONNU"},
-            {"merchant": "SOCIETE FICTIVE SA", "category": "REVENUS"}
+            {"merchant": "FRITERIE AS", "amount": -15.0, "category": DEFAULT_EXPENSE_CATEGORY},
+            {"merchant": "SOCIETE FICTIVE SA", "amount": 1000.0, "category": "SALAIRE"}
         ]
     )
     choices = {"FRITERIE AS": "ALIMENTATION"}
@@ -60,4 +60,20 @@ def test_apply_manual_categories_keeps_other_operations():
     result = apply_manual_categories(transactions, choices)
     societe_fictive = result[result["merchant"] == "SOCIETE FICTIVE SA"]
     
-    assert societe_fictive["category"].iloc[0] == "REVENUS"
+    assert societe_fictive["category"].iloc[0] == "SALAIRE"
+
+
+def test_apply_manual_categories_income_category_skips_expenses():
+    transactions = pd.DataFrame([
+            {"merchant": "FRITERIE AS", "amount": -15.0, "category": DEFAULT_EXPENSE_CATEGORY},
+            {"merchant": "FRITERIE AS", "amount": 200.0, "category": "REMBOURSEMENT"}
+        ]
+    )
+    choices = {"FRITERIE AS": "SALAIRE"}
+
+    result = apply_manual_categories(transactions, choices)
+    income_row = result[result["amount"] > 0]
+    expense_row = result[result["amount"] < 0]
+    
+    assert income_row["category"].iloc[0] == "SALAIRE"
+    assert expense_row["category"].iloc[0] == DEFAULT_EXPENSE_CATEGORY

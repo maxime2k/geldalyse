@@ -62,9 +62,13 @@ def _find_category(label: str, categories: dict[str, list[str]]) -> str | None:
 
 
 def apply_manual_categories(transactions: pd.DataFrame, choices: dict[str, str]) -> pd.DataFrame:
-    """Return a copy where each operation in choices gets the chosen category."""
+    """Return a copy where each operation in choices gets the chosen category; an income category never applies to a negative amount."""
     transactions_copy = transactions.copy()
-    transactions_copy["category"] = transactions_copy["merchant"].map(choices).fillna(transactions["category"])
+    chosen = transactions_copy["merchant"].map(choices)
+    wrong_direction = chosen.isin(INCOME_CATEGORY_NAMES) & (transactions_copy["amount"] < 0)
+    chosen = chosen.mask(wrong_direction)
+
+    transactions_copy["category"] = chosen.fillna(transactions["category"])
 
     return transactions_copy
 
