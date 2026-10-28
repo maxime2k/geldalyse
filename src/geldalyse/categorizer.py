@@ -32,7 +32,11 @@ INCOME_CATEGORIES = {
 
 EXPENSE_CATEGORY_NAMES = [*EXPENSE_CATEGORIES, DEFAULT_EXPENSE_CATEGORY]
 INCOME_CATEGORY_NAMES = [*INCOME_CATEGORIES, DEFAULT_INCOME_CATEGORY, REFUND_CATEGORY]
-
+SELECTABLE_CATEGORIES = [
+    category
+    for category in (EXPENSE_CATEGORY_NAMES + INCOME_CATEGORY_NAMES)
+    if category != DEFAULT_EXPENSE_CATEGORY
+]
 #Match catégories with labels
 def categorize(label: str, amount: float) -> str:
     """Return the first matching category, else a default that depends on the sign of amount."""

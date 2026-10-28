@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from geldalyse.categorizer import categorize, DEFAULT_INCOME_CATEGORY, DEFAULT_EXPENSE_CATEGORY, apply_manual_categories, REFUND_CATEGORY
+from geldalyse.categorizer import categorize, DEFAULT_INCOME_CATEGORY, DEFAULT_EXPENSE_CATEGORY, apply_manual_categories, REFUND_CATEGORY, SELECTABLE_CATEGORIES
 
 
 def test_supermarket_is_food():
@@ -77,3 +77,9 @@ def test_apply_manual_categories_income_category_skips_expenses():
     
     assert income_row["category"].iloc[0] == "SALAIRE"
     assert expense_row["category"].iloc[0] == DEFAULT_EXPENSE_CATEGORY
+
+
+def test_selectable_categories_exclude_default_expense_category():
+    assert DEFAULT_EXPENSE_CATEGORY not in SELECTABLE_CATEGORIES
+    assert "ALIMENTATION" in SELECTABLE_CATEGORIES   # une catégorie de sortie
+    assert "SALAIRE" in SELECTABLE_CATEGORIES   # une catégorie d'entrée
