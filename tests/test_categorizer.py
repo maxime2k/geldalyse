@@ -2,7 +2,9 @@
 
 import pandas as pd
 
-from geldalyse.categorizer import categorize, DEFAULT_INCOME_CATEGORY, DEFAULT_EXPENSE_CATEGORY, apply_manual_categories, REFUND_CATEGORY, SELECTABLE_CATEGORIES
+import pytest
+
+from geldalyse.categorizer import categorize, DEFAULT_INCOME_CATEGORY, DEFAULT_EXPENSE_CATEGORY, apply_manual_categories, REFUND_CATEGORY, SELECTABLE_EXPENSE_CATEGORIES, INCOME_CATEGORY_NAMES
 
 
 def test_supermarket_is_food():
@@ -41,7 +43,7 @@ def test_received_transfer_returns_refund():
 
 
 def test_apply_manual_categories_changes_chosen_operation():
-    transactions = pd.DataFrame([{"merchant": "FRITERIE AS", "amount": 15.0, "category": DEFAULT_EXPENSE_CATEGORY}])
+    transactions = pd.DataFrame([{"merchant": "FRITERIE AS", "amount": -15.0, "category": DEFAULT_EXPENSE_CATEGORY}])
     choices = {"FRITERIE AS": "ALIMENTATION"}
 
     result = apply_manual_categories(transactions, choices)
@@ -62,24 +64,29 @@ def test_apply_manual_categories_keeps_other_operations():
     
     assert societe_fictive["category"].iloc[0] == "SALAIRE"
 
-
-def test_apply_manual_categories_income_category_skips_expenses():
-    transactions = pd.DataFrame([
-            {"merchant": "FRITERIE AS", "amount": -15.0, "category": DEFAULT_EXPENSE_CATEGORY},
-            {"merchant": "FRITERIE AS", "amount": 200.0, "category": "REMBOURSEMENT"}
-        ]
-    )
-    choices = {"FRITERIE AS": "SALAIRE"}
+@pytest.mark.parametrize(
+    "chosen, amount, original, expected",
+    [
+        # Income category on an expense: refused, the expense keeps its category.
+        ("SALAIRE", -40.0, DEFAULT_EXPENSE_CATEGORY, DEFAULT_EXPENSE_CATEGORY),
+        # Income category on an income: applied.
+        ("SALAIRE", 50.0, REFUND_CATEGORY, "SALAIRE"),
+        # Expense category on an income: refused, the income keeps its category.
+        ("RESTAURATION", 50.0, REFUND_CATEGORY, REFUND_CATEGORY),
+        # Expense category on an expense: applied.
+        ("RESTAURATION", -40.0, DEFAULT_EXPENSE_CATEGORY, "RESTAURATION"),
+    ],
+)
+def test_apply_manual_categories_respects_money_direction(chosen, amount, original, expected):
+    transactions = pd.DataFrame([{"merchant": "AMI FICTIF", "amount": amount, "category": original}])
+    choices = {"AMI FICTIF": chosen}
 
     result = apply_manual_categories(transactions, choices)
-    income_row = result[result["amount"] > 0]
-    expense_row = result[result["amount"] < 0]
-    
-    assert income_row["category"].iloc[0] == "SALAIRE"
-    assert expense_row["category"].iloc[0] == DEFAULT_EXPENSE_CATEGORY
+
+    assert result["category"].iloc[0] == expected
 
 
-def test_selectable_categories_exclude_default_expense_category():
-    assert DEFAULT_EXPENSE_CATEGORY not in SELECTABLE_CATEGORIES
-    assert "ALIMENTATION" in SELECTABLE_CATEGORIES   # une catégorie de sortie
-    assert "SALAIRE" in SELECTABLE_CATEGORIES   # une catégorie d'entrée
+def test_selectable_expense_categories_are_expenses_only():
+    assert DEFAULT_EXPENSE_CATEGORY not in SELECTABLE_EXPENSE_CATEGORIES
+    assert "ALIMENTATION" in SELECTABLE_EXPENSE_CATEGORIES   # une catégorie de sortie
+    assert "SALAIRE" not in SELECTABLE_EXPENSE_CATEGORIES   # une catégorie d'entrée
