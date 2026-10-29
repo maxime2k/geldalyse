@@ -1,11 +1,13 @@
 # Geldalyse
+
 [![Tests](https://github.com/maxime2k/geldalyse/actions/workflows/tests.yml/badge.svg)](https://github.com/maxime2k/geldalyse/actions/workflows/tests.yml)
 
 > Comprendre où part son argent, en quelques secondes.
 
-Geldalyse est une application Python qui importe un relevé bancaire, catégorise automatiquement les transactions et affiche un tableau de bord des revenus et des dépenses.
+Geldalyse est une application Python qui importe un relevé bancaire, catégorise automatiquement les transactions et affiche un tableau de bord des entrées et des sorties d'argent.
 
 ![Tableau de bord Geldalyse](docs/dashboard.png)
+
 **[Voir la démo en ligne](https://geldalyse.streamlit.app/)**
 
 ---
@@ -14,16 +16,20 @@ Geldalyse est une application Python qui importe un relevé bancaire, catégoris
 
 - **Deux sources de données** : des transactions fictives générées à la volée, ou un export CSV d'ING Belgique (en français)
 - **Nettoyage automatique** : colonnes renommées, dates converties, libellés normalisés, lignes vides supprimées
-- **Catégorisation automatique** : les entrées et les sorties ont leurs propres catégories, choisies selon le signe du montant. Les sorties sont reconnues par mots-clés (alimentation, transport, logement…). Les entrées aussi (salaire, intérêts), et à défaut, un virement reçu est classé en remboursement et toute autre entrée en « autres entrées ».
+- **Catégorisation automatique** selon les mots-clés et le signe du montant :
+  - une sortie reçoit une catégorie de sortie (alimentation, transport, logement…) ;
+  - une entrée reçoit une catégorie d'entrée (salaire, intérêts) ; à défaut, un virement reçu est classé en remboursement, et toute autre entrée en « autres entrées » ;
+  - un remboursement de magasin garde la catégorie de sa dépense, et la réduit
 - **Libellé court lisible** : le commerçant, le bénéficiaire d'un virement ou la nature d'une opération bancaire, extrait de la longue description de la banque
+- **Correction manuelle des catégories** : pour une opération non catégorisée, ou depuis le tableau des transactions. Un choix s'applique à toutes les transactions de l'opération, sans jamais transformer une entrée en sortie
 - **Gestion des erreurs d'import** : un fichier au mauvais format affiche un message clair, sans faire planter l'application
 - **Tableau de bord interactif** :
-  - revenus, dépenses et solde de la période
-  - dépenses par catégorie, de la plus importante à la plus faible
-  - revenus et dépenses mois par mois
-  - tableau détaillé des transactions, avec un libellé court et la description complète
-  - filtre de période
-  - filtre des transactions par catégorie
+  - entrées, sorties et solde de la période
+  - sorties et entrées par catégorie, en deux onglets, avec le montant de chaque catégorie
+  - entrées et sorties mois par mois
+  - transactions non catégorisées, regroupées par opération
+  - tableau détaillé des transactions, en deux onglets, avec un libellé court et la description complète
+  - filtre de période et filtre des transactions par catégorie
   - indicateur des transactions non catégorisées
 
 ## Architecture
@@ -35,7 +41,7 @@ Le projet suit un schéma **ETL** (*Extract, Transform, Load*). Chaque étape es
 | Extract | `reader.py` | Lit un export bancaire CSV |
 | Extract | `generator.py` | Génère des transactions fictives reproductibles |
 | Transform | `reader.py` | Convertit les données au format standard |
-| Transform | `categorizer.py` | Attribue une catégorie selon les mots-clés et le signe du montant |
+| Transform | `categorizer.py` | Attribue une catégorie selon les mots-clés et le signe du montant, et applique les choix manuels |
 | Transform | `merchant.py` | Extrait le nom de la contrepartie et reconnaît les virements reçus |
 | Transform | `analysis.py` | Calcule les chiffres clés et les agrégats |
 | Load | `app.py` | Affiche le tableau de bord Streamlit |
@@ -49,7 +55,7 @@ geldalyse/
 │   ├── analysis.py         # Chiffres clés et agrégats
 │   ├── categorizer.py      # Catégorisation par mots-clés et signe du montant
 │   ├── generator.py        # Transactions fictives
-│   ├── merchant.py         # Libellé court à partir de la description et reconnaissance des virements reçus
+│   ├── merchant.py         # Libellé court et reconnaissance des virements reçus
 │   ├── reader.py           # Lecture des exports ING
 │   └── schema.py           # Format standard des données
 ├── tests/                  # Tests unitaires et d'intégration (pytest)
@@ -80,7 +86,7 @@ geldalyse/
 ## Installation
 
 ```bash
-git clone https://github.com/maxime2k/spendlens.git
+git clone https://github.com/maxime2k/geldalyse.git
 cd geldalyse
 python3 -m venv .venv
 source .venv/bin/activate          # Windows : .venv\Scripts\activate
@@ -113,7 +119,7 @@ pytest
 
 ## Données et confidentialité
 
-Le dépôt ne contient **aucune donnée bancaire réelle**. Les tests utilisent des fixtures synthétiques qui reproduisent la structure d'un export ING, avec un contenu entièrement inventé. Un relevé importé dans l'application n'est jamais enregistré : il est traité en mémoire.
+Le dépôt ne contient **aucune donnée bancaire réelle**. Les tests utilisent des fixtures synthétiques qui reproduisent la structure d'un export ING, avec un contenu entièrement inventé. Un relevé importé dans l'application n'est jamais enregistré : il est traité en mémoire, tout comme les catégories choisies manuellement, perdues à la fermeture de la page.
 
 Pour analyser vos propres relevés, **utilisez l'application en local** : vos données ne quittent alors jamais votre ordinateur. La version en ligne est destinée à la démonstration, avec les données fictives.
 
@@ -124,9 +130,9 @@ Pour analyser vos propres relevés, **utilisez l'application en local** : vos do
 - [x] Nettoyage des données (dates, montants, libellés)
 - [x] Catégorisation automatique par mots-clés
 - [x] Tableau de bord : chiffres clés, dépenses par catégorie et par mois
-- [X] Filtre par catégorie et indicateur des transactions non catégorisées
+- [x] Filtre par catégorie et indicateur des transactions non catégorisées
 
-### V2 — prévue
+### V2 — en cours
 
 **Données et import**
 - [x] Libellé court extrait de chaque description (commerçant, virement, opération bancaire)
@@ -136,35 +142,38 @@ Pour analyser vos propres relevés, **utilisez l'application en local** : vos do
 - [ ] Générateur produisant des relevés fictifs au format ING, pour une démo à grand volume
 - [ ] Simulation des montants par une loi log-normale plutôt qu'uniforme
 - [ ] Utiliser le détail de l'opération quand la description est trop générique (ex. « Rectification »)
-- [ ] Catégorie « Virements » pour les virements envoyés à des particuliers
-- [ ] Avertissement en cas de catégorie incohérente avec le sens de l'argent
 
 **Catégorisation**
-- [ ] Catégorisation par apprentissage automatique
 - [x] Prise en compte du signe du montant (entrées et sorties, catégories par défaut)
+- [ ] Recherche des mots-clés en début de mot, pour ajouter des enseignes comme ACTION sans reconnaître « TRANSACTION »
 - [ ] Mots-clés stockés dans un fichier de configuration, modifiables sans toucher au code
+- [ ] Mots-clés personnels de l'utilisateur, enregistrés en local
+- [ ] Mots-clés des opérations bancaires dans chaque langue d'export
+- [ ] Catégorie « Virements » pour les virements envoyés à des particuliers
 - [ ] Distinction entre abonnements de loisirs (Netflix…) et factures essentielles (Proximus…)
 - [ ] Suivi du taux de couverture (part des transactions catégorisées)
-- [ ] Mots-clés des opérations bancaires dans chaque langue d'export
+- [ ] Catégorisation par apprentissage automatique
+
+**Modèle Entrées / Sorties**
+- [x] Chiffres clés « Entrées / Sorties / Solde » et graphique du détail des entrées
+- [x] Totaux nets par catégorie : un remboursement de magasin réduit sa catégorie de dépense
+- [x] Catégories proposées selon le sens de l'argent dans les choix manuels
+- [x] Correction de la catégorie depuis le tableau des transactions, pour toute l'opération
+- [ ] Identifiant de transaction (numéro de mouvement ING)
+- [ ] Correction de la catégorie d'une seule transaction
 
 **Tableau de bord**
+- [x] Correction manuelle de la catégorie d'une opération non catégorisée
 - [ ] Indicateurs clés du mois, avec comparaison au mois précédent
-- [X] Correction manuelle de la catégorie d'une opération non catégorisée
--  Correction manuelle de la catégorie d'une transaction 
+- [ ] Sorties regroupées par commerçant (nombre d'achats et total), filtrables par catégorie
 - [ ] Paiements récurrents
 - [ ] Détection des dépenses inhabituelles
 - [ ] Budgets par catégorie avec alertes
+- [ ] Évolution du solde, à partir du solde actuel saisi par l'utilisateur
 
 **Qualité**
-- [ ] Tests sur plusieurs versions de python (matrice CI)
+- [ ] Tests sur plusieurs versions de Python (matrice CI)
 - [ ] Exception personnalisée pour les relevés invalides
-
-**Modèle Entrées / Sorties**
-- [X] Chiffres clés « Entrées / Sorties / Solde » et graphique du détail des entrées
-- [X] Totaux nets par catégorie : un remboursement réduit sa catégorie de dépense
-- [ ] Catégories proposées selon le sens de l'argent dans les choix manuels
-- [ ] Identifiant de transaction (numéro d'opération ING), pour les corrections ponctuelles
-- [ ] Correction de la catégorie depuis le tableau des transactions, pour une transaction ou toute l'opération
 
 ## Auteur
 
