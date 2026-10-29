@@ -16,7 +16,8 @@ st.set_page_config(page_title="Geldalyse")
 
 DEMO_SOURCE = "Données de démo"
 UPLOAD_SOURCE = "Importer un relevé ING"
-MANUAL_CATEGORIES_KEY = "manual_categories"
+EXPENSE_CHOICES_KEY = "expense_choices"
+INCOME_CHOICES_KEY = "income_choices"
 
 
 def details_graph_by_category(total_category: pd.DataFrame) -> alt.Chart:
@@ -91,10 +92,13 @@ transactions["merchant"] = transactions["label"].apply(extract_merchant)
 
 # --- Manual categories by user ---
 
-if MANUAL_CATEGORIES_KEY not in st.session_state:
-    st.session_state[MANUAL_CATEGORIES_KEY] = {}
+if EXPENSE_CHOICES_KEY not in st.session_state:
+    st.session_state[EXPENSE_CHOICES_KEY] = {}
+if INCOME_CHOICES_KEY not in st.session_state:
+    st.session_state[INCOME_CHOICES_KEY] = {}
 
-transactions = apply_manual_categories(transactions, st.session_state[MANUAL_CATEGORIES_KEY])
+transactions = apply_manual_categories(transactions, st.session_state[EXPENSE_CHOICES_KEY])
+transactions = apply_manual_categories(transactions, st.session_state[INCOME_CHOICES_KEY])
 
 # --- Filter by period ---
 first_date = transactions["date"].min()
@@ -182,7 +186,7 @@ if total_uncategorized > 0:
     chosen_rows = edited_table[edited_table["category"].notna()]
     new_choices = dict(zip(chosen_rows["merchant"], chosen_rows["category"]))
     if new_choices:
-        st.session_state[MANUAL_CATEGORIES_KEY].update(new_choices)
+        st.session_state[EXPENSE_CHOICES_KEY].update(new_choices)
         st.rerun()
 
 # --- Transactions table --------------------------------------------------------
