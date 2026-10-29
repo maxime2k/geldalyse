@@ -23,17 +23,18 @@ Les deux sources produisent le **format standard** (`schema.py`). Tout ce qui su
 
 ## Mise en page
 
-Principe : **du plus général au plus détaillé**, de haut en bas.
+Principe : **du plus général au plus détaillé**, de haut en bas, et **le contenu avant la navigation**.
 
-| # | Élément | Forme | Question à laquelle il répond |
-|---|---|---|---|
-| 1 | Source des données et filtre de période | Barre latérale | Quelles données, sur quelle période ? |
-| 2 | Transactions non catégorisées | Indicateur dans la barre latérale | Le catégoriseur a-t-il besoin de nouveaux mots-clés ? |
-| 3 | Entrées, sorties, solde | Trois chiffres clés (`st.metric`) | Est-ce que je dépense plus que je ne gagne ? |
-| 4 | Sorties et entrées par catégorie | Deux onglets ; barres horizontales triées de la plus grande à la plus petite, avec le montant de chaque barre | Où part mon argent, d'où vient-il ? |
-| 5 | Entrées et sorties par mois | Barres groupées (une barre entrées, une barre sorties par mois) | Comment ça évolue ? |
-| 6 | Transactions non catégorisées, par opération | Tableau modifiable : une catégorie à choisir par opération | Que reste-t-il à classer ? |
-| 7 | Transactions, avec filtre par catégorie | Tableau modifiable en deux onglets, sorties et entrées, les plus récentes en premier ; libellé court en 2e colonne, description complète en dernière | Quelles opérations se cachent derrière les chiffres ? |
+| # | Page | Élément | Forme | Question à laquelle il répond |
+|---|---|---|---|---|
+| 1 | Barre latérale | Menu des pages, source des données et filtre de période | Menu de navigation, choix de la source, calendrier | Où aller, quelles données, sur quelle période ? |
+| 2 | Barre latérale | Transactions non catégorisées | Avertissement et lien « Les classer », dans un même cadre | Le catégoriseur a-t-il besoin de nouveaux mots-clés ? |
+| 3 | Vue d'ensemble | Entrées, sorties, solde | Trois chiffres clés en cartes (`st.metric` avec cadre) | Est-ce que je dépense plus que je ne gagne ? |
+| 4 | Vue d'ensemble | Sorties et entrées par catégorie | Deux onglets ; barres horizontales triées de la plus grande à la plus petite, avec le montant de chaque barre | Où part mon argent, d'où vient-il ? |
+| 5 | Vue d'ensemble | Entrées et sorties par mois | Barres groupées, en pleine largeur | Comment ça évolue ? |
+| 6 | Vue d'ensemble | Aller plus loin | Une carte par page, en bas de page | Que puis-je regarder ensuite ? |
+| 7 | Transactions | Transactions non catégorisées, par opération | Tableau modifiable : une catégorie à choisir par opération | Que reste-t-il à classer ? |
+| 8 | Transactions | Transactions, avec filtre par catégorie | Tableau modifiable en deux onglets, sorties et entrées, les plus récentes en premier | Quelles opérations se cachent derrière les chiffres ? |
 
 ## Règles de conception
 
@@ -51,6 +52,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas.
 - **Une période sans transaction** affiche un message, au lieu d'une page vide.
 - **Pas d'information portée uniquement par la couleur** : chaque série est nommée dans une légende.
 - **Le libellé court** est affiché en priorité ; **la description complète** reste disponible en dernière colonne, pour ne rien cacher.
+- **Le contenu avant la navigation** : les liens vers les autres pages sont en bas de la vue d'ensemble. Sur mobile, les colonnes s'empilent, et l'utilisateur voit ses résultats en premier.
 
 ## Limites connues
 

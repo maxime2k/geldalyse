@@ -9,13 +9,14 @@ from geldalyse.analysis import count_uncategorized
 from geldalyse.categorizer import categorize, DEFAULT_EXPENSE_CATEGORY, apply_manual_categories
 from components import (
     PERIOD_TRANSACTIONS_KEY, NO_TRANSACTION_MSG, EXPENSE_CHOICES_KEY, 
-    INCOME_CHOICES_KEY, ALL_TRANSACTIONS_KEY, PERIOD_TRANSACTIONS_KEY
+    INCOME_CHOICES_KEY, ALL_TRANSACTIONS_KEY, PERIOD_TRANSACTIONS_KEY, TRANSACTIONS_PAGE,
+    OVERVIEW_PAGE
 )
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant
 from geldalyse.reader import read_bank_statement
 
-st.set_page_config(page_title="Geldalyse")
+st.set_page_config(page_title="Geldalyse", layout="wide")
 
 DEMO_SOURCE = "Données de démo"
 UPLOAD_SOURCE = "Importer un relevé ING"
@@ -80,8 +81,8 @@ st.session_state[ALL_TRANSACTIONS_KEY] = all_transactions
 st.session_state[PERIOD_TRANSACTIONS_KEY] = period_transactions
 
 page = st.navigation([
-    st.Page("views/overview.py", title="Vue d'ensemble", icon=":material/dashboard:", default=True),
-    st.Page("views/transactions.py", title="Transactions", icon=":material/list:"),
+    st.Page(OVERVIEW_PAGE, title="Vue d'ensemble", icon=":material/dashboard:", default=True),
+    st.Page(TRANSACTIONS_PAGE, title="Transactions", icon=":material/list:"),
 ])
 page.run()
 
@@ -93,10 +94,10 @@ if total_uncategorized == 0:
     st.sidebar.success("Toutes vos transactions sont dans une catégorie.")
 else:
     message = (
-        f"{total_uncategorized} transactions non catégorisées."
-        if total_uncategorized > 1
-        else "Une transaction n'a pas de catégorie."
-    ) 
-    st.sidebar.warning(message)
-    st.sidebar.caption(f"Filtrez le tableau sur {DEFAULT_EXPENSE_CATEGORY} pour les afficher.")
-
+    f"{total_uncategorized} transactions non catégorisées."
+    if total_uncategorized > 1
+    else "Une transaction n'a pas de catégorie."
+    )
+    with st.sidebar.container(border=True):
+        st.warning(message)
+        st.page_link(TRANSACTIONS_PAGE, label="Les classer", icon=":material/arrow_forward:")
