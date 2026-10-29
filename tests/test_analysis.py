@@ -2,9 +2,12 @@
 
 import pandas as pd
 
+import pytest
+
 from geldalyse.analysis import (
     key_figures, expenses_by_category, incomes_by_category, monthly_totals, 
-    count_uncategorized, uncategorized_by_operation, month_range
+    count_uncategorized, uncategorized_by_operation, month_range, available_baselines,
+    PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR
 )
 
 TRANSACTIONS = pd.DataFrame([
@@ -31,6 +34,8 @@ UNCATEGORIZED_TRANSACTIONS = pd.DataFrame([
     {"date": pd.Timestamp(2026, 1, 20), "label": "PAIEMENT CARTE - 20/01 14:20 - FRITERIE AS 1050", "amount": -20.0, "category": "INCONNU", "merchant": "FRITERIE AS"},
     {"date": pd.Timestamp(2026, 3, 17), "label": "PAIEMENT CARTE - 17/03 10:12 - BOULANGERIE DUPONT 1000", "amount": -30.0, "category": "INCONNU", "merchant": "BOULANGERIE DUPONT"},
 ])
+
+MONTHS = pd.period_range("2025-01", "2026-01", freq="M").strftime("%Y-%m").tolist()
 
 # --- Key figures ---
 
@@ -175,3 +180,16 @@ def test_month_range_includes_months_without_transactions():
     })
 
     assert month_range(transactions) == ["2026-01", "2026-02", "2026-03", "2026-04"]
+
+
+@pytest.mark.parametrize(
+    "month, expected",
+    [
+        ("2025-01", []),
+        ("2025-02", [PREVIOUS_MONTH]),
+        ("2025-04", [PREVIOUS_MONTH, LAST_THREE_MONTHS]),
+        ("2026-01", [PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR]),
+    ],
+)
+def test_available_baselines_depend_on_history(month, expected):
+    assert available_baselines(MONTHS, month) == expected

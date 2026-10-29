@@ -6,6 +6,10 @@ from datetime import date
 
 from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, EXPENSE_CATEGORY_NAMES, INCOME_CATEGORY_NAMES
 
+PREVIOUS_MONTH = "previous_month"
+LAST_THREE_MONTHS = "last_three_months"
+SAME_MONTH_LAST_YEAR = "same_month_last_year"
+
 # --- Key figures ---------------------------------------------------------
 
 def key_figures(transactions: pd.DataFrame) -> tuple[float, float, float]:
@@ -93,3 +97,17 @@ def month_range(transactions: pd.DataFrame) -> list[str]:
     date_range = pd.period_range(transactions["date"].min(), transactions["date"].max(), freq="M")
     
     return date_range.strftime("%Y-%m").tolist()
+
+
+def available_baselines(months: list[str], chosen_month: str) -> list[str]:
+    """Return the baselines the history allows for the chosen month, shortest first."""
+    month_index = months.index(chosen_month)
+
+    baselines = []
+    if month_index >= 1:
+        baselines.append(PREVIOUS_MONTH)
+    if month_index >= 3:
+        baselines.append(LAST_THREE_MONTHS)
+    if month_index >= 12:
+        baselines.append(SAME_MONTH_LAST_YEAR)
+    return baselines
