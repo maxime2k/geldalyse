@@ -86,3 +86,10 @@ def uncategorized_by_operation(transactions: pd.DataFrame) -> pd.DataFrame:
     )
 
     return grouped_uncategorized
+
+
+def month_range(transactions: pd.DataFrame) -> list[str]:
+    """Return the list of months, enven if, there are no transactions"""
+    date_range = pd.period_range(transactions["date"].min(), transactions["date"].max(), freq="M")
+    
+    return date_range.strftime("%Y-%m").tolist()

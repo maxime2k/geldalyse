@@ -2,7 +2,10 @@
 
 import pandas as pd
 
-from geldalyse.analysis import key_figures, expenses_by_category, incomes_by_category, monthly_totals, count_uncategorized, uncategorized_by_operation
+from geldalyse.analysis import (
+    key_figures, expenses_by_category, incomes_by_category, monthly_totals, 
+    count_uncategorized, uncategorized_by_operation, month_range
+)
 
 TRANSACTIONS = pd.DataFrame([
     {"date": pd.Timestamp(2026, 3, 10), "label": "INTÉRÊTS-FRAIS EPARGNE", "amount": 100.0, "category": "INVESTISSEMENT"},
@@ -160,3 +163,15 @@ def test_uncategorized_by_operation_ties_sorted_by_amount():
     ])
     uncategorized = uncategorized_by_operation(tied_transactions)
     assert uncategorized["merchant"].iloc[0] == "FRITERIE AS"
+
+
+def test_month_range_includes_months_without_transactions():
+    transactions = pd.DataFrame({
+        "date": [
+            pd.Timestamp(2026, 1, 15),
+            pd.Timestamp(2026, 2, 3),
+            pd.Timestamp(2026, 4, 28),
+        ],
+    })
+
+    assert month_range(transactions) == ["2026-01", "2026-02", "2026-03", "2026-04"]
