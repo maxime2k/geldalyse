@@ -18,7 +18,7 @@ DEMO_SOURCE = "Données de démo"
 UPLOAD_SOURCE = "Importer un relevé ING"
 EXPENSE_CHOICES_KEY = "expense_choices"
 INCOME_CHOICES_KEY = "income_choices"
-
+NO_TRANSACTION_MSG = "Aucune transaction pour cette période."
 
 def details_graph_by_category(total_category: pd.DataFrame) -> alt.Chart:
     base = alt.Chart(total_category).encode(
@@ -37,9 +37,18 @@ def details_graph_by_category(total_category: pd.DataFrame) -> alt.Chart:
     return bars + labels
 
 
-def transactions_editor(transactions: pd.DataFrame, options: list[str], key: str) -> pd.DataFrame:
-    """Show an editable transactions table, where only the category can be changed."""
+def transactions_editor(
+        transactions: pd.DataFrame, 
+        options: list[str], 
+        key: str, 
+        empty_message: str
+    ) -> pd.DataFrame:
+    """Show an editable transactions table, where only the category can be changed, or a message if there is no transaction."""
 
+    if transactions.empty:
+        st.info(empty_message)
+        return transactions
+    
     return st.data_editor(
         transactions,
         key=key,
@@ -214,19 +223,37 @@ sorted_transactions = shown_transactions.sort_values("date", ascending=False)
 expenses_transactions = sorted_transactions[sorted_transactions["amount"] <= 0]
 incomes_transactions = sorted_transactions[sorted_transactions["amount"] > 0]
 
-with st.form("transactions"):
-   expenses_transactions_tab, incomes_transactions_tab = st.tabs(["Transactions sorties", "Transactions entrées"])
-   st.caption("Vous pouvez modifier les catégories")
 
+expenses_msg = (
+    "Aucune sortie pour la période et les catégories sélectionnées. Les résultats sont dans l'onglet Entrées."
+    if not incomes_transactions.empty
+    else NO_TRANSACTION_MSG
+)
+income_msg = (
+    "Aucune entrée pour la période et les catégories sélectionnées. Les résultats sont dans l'onglet Sorties."
+    if not expenses_transactions.empty
+    else NO_TRANSACTION_MSG
+)
+
+with st.form("transactions"):
+   expenses_transactions_tab, incomes_transactions_tab = st.tabs([
+       f"Sorties ({len(expenses_transactions)})", 
+       f"Entrées ({len(incomes_transactions)})"
+    ])
    with expenses_transactions_tab:
-    edited_expenses = transactions_editor(expenses_transactions, SELECTABLE_EXPENSE_CATEGORIES, "expenses_editor")
+    edited_expenses = transactions_editor(
+        expenses_transactions, SELECTABLE_EXPENSE_CATEGORIES, "expenses_editor", expenses_msg
+    )
 
    with incomes_transactions_tab:
-    edited_incomes = transactions_editor(incomes_transactions, INCOME_CATEGORY_NAMES, "incomes_editor")
+    edited_incomes = transactions_editor(
+        incomes_transactions, INCOME_CATEGORY_NAMES, "incomes_editor", income_msg
+    )
 
-   submited = st.form_submit_button("Enregistrer les modifications")
+   submitted = st.form_submit_button("Enregistrer les modifications")
+st.caption("Cliquez sur une catégorie pour la modifier, puis enregistrez. Un changement s’applique à toutes les transactions de cette opération.")
 
-if submited:
+if submitted:
     expense_changes = category_changes(expenses_transactions, edited_expenses)
     income_changes = category_changes(incomes_transactions, edited_incomes)
 
