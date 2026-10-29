@@ -73,6 +73,12 @@ def category_changes(original: pd.DataFrame, edited: pd.DataFrame) -> dict[str, 
     return dict(zip(changed_rows["merchant"], changed_rows["category"]))
 
 
+def plural(count: int, word: str) -> str:
+    """Return the count followed by the word, with an s when the count is above 1."""
+    
+    return f"{count} {word}s" if count > 1 else f"{count} {word}"
+
+
 st.title("Geldalyse")
 st.write("Comprendre où part son argent.")
 
@@ -190,7 +196,7 @@ st.altair_chart(chart, use_container_width=True)
 # --- Uncategorized transactions table -------------------------
 
 if total_uncategorized > 0:
-    st.subheader("Transactions non catégorisées")
+    st.subheader("Transactions non catégorisées, par opération")
     uncategorized_table = uncategorized_by_operation(transactions=transactions)
     uncategorized_table["category"] = None
     edited_table = st.data_editor(
@@ -210,6 +216,12 @@ if total_uncategorized > 0:
     if new_choices:
         st.session_state[EXPENSE_CHOICES_KEY].update(new_choices)
         st.rerun()
+    
+    st.caption(
+        f"{plural(total_uncategorized, 'transaction')} regroupées en {plural(len(uncategorized_table), 'opération')}"
+        if total_uncategorized > 1
+        else "1 transaction"
+    )
 
 # --- Transactions table --------------------------------------------------------
 # Only the table is filtered: figures and charts keep all categories.
