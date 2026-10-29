@@ -23,14 +23,10 @@ Geldalyse est une application Python qui importe un relevé bancaire, catégoris
 - **Libellé court lisible** : le commerçant, le bénéficiaire d'un virement ou la nature d'une opération bancaire, extrait de la longue description de la banque
 - **Correction manuelle des catégories** : pour une opération non catégorisée, ou depuis le tableau des transactions. Un choix s'applique à toutes les transactions de l'opération, sans jamais transformer une entrée en sortie
 - **Gestion des erreurs d'import** : un fichier au mauvais format affiche un message clair, sans faire planter l'application
-- **Tableau de bord interactif** :
-  - entrées, sorties et solde de la période
-  - sorties et entrées par catégorie, en deux onglets, avec le montant de chaque catégorie
-  - entrées et sorties mois par mois
-  - transactions non catégorisées, regroupées par opération
-  - tableau détaillé des transactions, en deux onglets, avec un libellé court et la description complète
-  - filtre de période et filtre des transactions par catégorie
-  - indicateur des transactions non catégorisées
+- **Tableau de bord interactif**, en deux pages :
+  - **Vue d'ensemble** : entrées, sorties et solde de la période ; sorties et entrées par catégorie, en deux onglets, avec le montant de chaque catégorie ; entrées et sorties mois par mois
+  - **Transactions** : transactions non catégorisées, regroupées par opération ; tableau détaillé, en deux onglets, avec un libellé court et la description complète
+  - filtre de période, filtre des transactions par catégorie et indicateur des transactions non catégorisées, dans la barre latérale
 
 ## Architecture
 
@@ -44,13 +40,21 @@ Le projet suit un schéma **ETL** (*Extract, Transform, Load*). Chaque étape es
 | Transform | `categorizer.py` | Attribue une catégorie selon les mots-clés et le signe du montant, et applique les choix manuels |
 | Transform | `merchant.py` | Extrait le nom de la contrepartie et reconnaît les virements reçus |
 | Transform | `analysis.py` | Calcule les chiffres clés et les agrégats |
-| Load | `app.py` | Affiche le tableau de bord Streamlit |
+| Load | `app.py` | Point d'entrée : barre latérale, chargement des données et navigation |
+| Load | `views/` | Une page du tableau de bord par fichier |
+| Load | `components.py` | Fonctions d'affichage partagées par les pages |
 
 Toutes les sources de données produisent le même **format standard**, défini dans `schema.py`. Ajouter une nouvelle banque ne demande donc qu'un nouveau lecteur : le reste de l'application ne change pas.
 
+La logique (`src/geldalyse/`) ne dépend pas de Streamlit : elle est testée seule, et pourrait servir une autre interface.
+
 ```
 geldalyse/
-├── app.py                  # Tableau de bord Streamlit
+├── app.py                  # Point d'entrée : barre latérale, chargement et navigation
+├── components.py           # Fonctions d'affichage partagées par les pages
+├── views/
+│   ├── overview.py         # Vue d'ensemble : chiffres clés, catégories, mois par mois
+│   └── transactions.py     # Transactions : non catégorisées et tableau modifiable
 ├── src/geldalyse/
 │   ├── analysis.py         # Chiffres clés et agrégats
 │   ├── categorizer.py      # Catégorisation par mots-clés et signe du montant
@@ -162,11 +166,17 @@ Pour analyser vos propres relevés, **utilisez l'application en local** : vos do
 - [ ] Identifiant de transaction (numéro de mouvement ING)
 - [ ] Correction de la catégorie d'une seule transaction
 
+**Interface**
+- [x] Application en plusieurs pages (Vue d'ensemble, Transactions)
+- [ ] Mise en page large, avec colonnes et liens vers les autres pages
+
 **Tableau de bord**
 - [x] Correction manuelle de la catégorie d'une opération non catégorisée
-- [ ] Indicateurs clés du mois, avec comparaison au mois précédent
+- [ ] Comparaison d'un mois avec la moyenne des mois précédents (page Évolution)
+- [ ] Faits marquants sur la vue d'ensemble (plus forte variation du mois)
+- [ ] Paiements récurrents et total des charges fixes (page Habitudes)
+- [ ] Top des dépenses variables, hors paiements récurrents
 - [ ] Sorties regroupées par commerçant (nombre d'achats et total), filtrables par catégorie
-- [ ] Paiements récurrents
 - [ ] Détection des dépenses inhabituelles
 - [ ] Budgets par catégorie avec alertes
 - [ ] Évolution du solde, à partir du solde actuel saisi par l'utilisateur
