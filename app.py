@@ -33,7 +33,7 @@ st.sidebar.title("Paramètres")
 choice = st.sidebar.radio("Source de données", [DEMO_SOURCE, UPLOAD_SOURCE])
 
 if choice == DEMO_SOURCE:
-    transactions = generate_transactions(start=date(2026, 1, 1), days=180)
+    all_transactions = generate_transactions(start=date(2026, 1, 1), days=180)
 else:
     uploaded_file = st.sidebar.file_uploader("Relevé ING (CSV)", type="csv")
     if uploaded_file is None:
@@ -43,19 +43,19 @@ else:
         #A file in another format must not crash the app.
 
     try:  
-        transactions = read_bank_statement(uploaded_file)
+        all_transactions = read_bank_statement(uploaded_file)
     except (KeyError, ValueError, UnicodeDecodeError, pd.errors.EmptyDataError):
         st.error("Veuillez importer un relevé ING en français, au format CSV")
         st.stop()
 
 # Both sources share the standard format, so everything below is source-agnostic.
-if transactions.empty:
+if all_transactions.empty:
     st.warning(NO_TRANSACTION_MSG)
     st.stop()
 
-transactions["category"] = transactions.apply(lambda row: categorize(row["label"], row["amount"]), axis=1)
+all_transactions["category"] = all_transactions.apply(lambda row: categorize(row["label"], row["amount"]), axis=1)
 # Short, readable name shown in the table; the full description is kept too.
-transactions["merchant"] = transactions["label"].apply(extract_merchant)
+all_transactions["merchant"] = all_transactions["label"].apply(extract_merchant)
 
 # --- Manual categories by user ---
 
@@ -64,29 +64,30 @@ if EXPENSE_CHOICES_KEY not in st.session_state:
 if INCOME_CHOICES_KEY not in st.session_state:
     st.session_state[INCOME_CHOICES_KEY] = {}
 
-transactions = apply_manual_categories(transactions, st.session_state[EXPENSE_CHOICES_KEY])
-transactions = apply_manual_categories(transactions, st.session_state[INCOME_CHOICES_KEY])
+all_transactions = apply_manual_categories(all_transactions, st.session_state[EXPENSE_CHOICES_KEY])
+all_transactions = apply_manual_categories(all_transactions, st.session_state[INCOME_CHOICES_KEY])
 
 # --- Filter by period ---
-first_date = transactions["date"].min()
-last_date = transactions["date"].max()
+first_date = all_transactions["date"].min()
+last_date = all_transactions["date"].max()
 period = st.sidebar.date_input("Période", value=(first_date, last_date))
 if len(period) != 2:
     st.stop()
 start, end = period
 
-in_period = transactions["date"].between(pd.Timestamp(start), pd.Timestamp(end))
-transactions = transactions[in_period]
+in_period = all_transactions["date"].between(pd.Timestamp(start), pd.Timestamp(end))
+period_transactions = all_transactions[in_period]
 
 # --- Empty period ---
 
-if transactions.empty:
+if period_transactions.empty:
     st.warning(NO_TRANSACTION_MSG)
     st.stop()
 
+
 # --- Count uncategorized transactions ---
 
-total_uncategorized = count_uncategorized(transactions)
+total_uncategorized = count_uncategorized(period_transactions)
 if total_uncategorized == 0:
     st.sidebar.success("Toutes vos transactions sont dans une catégorie.")
 else:
@@ -99,7 +100,7 @@ else:
     st.sidebar.caption(f"Filtrez le tableau sur {DEFAULT_EXPENSE_CATEGORY} pour les afficher.")
 
 # --- Key figures ---------------------------------------------------------
-incomes, expenses, balance = key_figures(transactions=transactions)
+incomes, expenses, balance = key_figures(period_transactions)
 income_col, expenses_col, balance_col = st.columns(3)
 income_col.metric("Entrées", f"{incomes:.2f} €")
 expenses_col.metric("Sorties", f"{abs(expenses):.2f} €")
@@ -109,19 +110,19 @@ balance_col.metric("Solde", f"{balance:.2f} €")
 expenses_tabs, incomes_tabs = st.tabs([":material/arrow_upward: Sorties par catégorie", ":material/arrow_downward: Entrées par catégorie"])
 
 with expenses_tabs:
-    total_expenses_by_category = expenses_by_category(transactions=transactions)
+    total_expenses_by_category = expenses_by_category(period_transactions)
     expenses_details = category_chart(total_expenses_by_category)
     st.altair_chart(expenses_details, use_container_width=True)
 
 with incomes_tabs:
-    total_incomes_by_category = incomes_by_category(transactions=transactions)
+    total_incomes_by_category = incomes_by_category(period_transactions)
     incomes_details = category_chart(total_incomes_by_category)
     st.altair_chart(incomes_details, use_container_width=True)
 
 st.caption("Les remboursements de magasins sont déduits de leur catégorie de dépense.")
 
 # -- Monthly transactions ---
-total_monthly_transactions = monthly_totals(transactions=transactions)
+total_monthly_transactions = monthly_totals(period_transactions)
 total_monthly_transactions["flow"] = total_monthly_transactions["flow"].replace({"income": "Entrées", "expense": "Sorties"})
 
 # -- graph monthly transactions ---
@@ -142,7 +143,7 @@ st.altair_chart(chart, use_container_width=True)
 
 if total_uncategorized > 0:
     st.subheader("Transactions non catégorisées, par opération")
-    uncategorized_table = uncategorized_by_operation(transactions=transactions)
+    uncategorized_table = uncategorized_by_operation(period_transactions)
     uncategorized_table["category"] = None
     edited_table = st.data_editor(
                             uncategorized_table,
@@ -168,19 +169,19 @@ if total_uncategorized > 0:
         else "1 transaction"
     )
 
-# --- Transactions table --------------------------------------------------------
+# --- All transactions table --------------------------------------------------------
 # Only the table is filtered: figures and charts keep all categories.
 st.subheader("Transactions")
 st.caption("Les plus récentes en premier.")
 
 selected = st.multiselect("Catégories ", 
-                          options=sorted(transactions["category"].unique())
+                          options=sorted(period_transactions["category"].unique())
             )
 
 if not selected:
-    shown_transactions = transactions
+    shown_transactions = period_transactions
 else:
-    shown_transactions = transactions[transactions["category"].isin(selected)]
+    shown_transactions = period_transactions[period_transactions["category"].isin(selected)]
 
 sorted_transactions = shown_transactions.sort_values("date", ascending=False)
 expenses_transactions = sorted_transactions[sorted_transactions["amount"] <= 0]
