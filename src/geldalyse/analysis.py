@@ -111,3 +111,19 @@ def available_baselines(months: list[str], chosen_month: str) -> list[str]:
     if month_index >= 12:
         baselines.append(SAME_MONTH_LAST_YEAR)
     return baselines
+
+
+def baseline_months(months: list[str], chosen_month: str, baseline: str) -> list[str]:
+    """Return the months that make up the baseline of the chosen month."""
+
+    month_index = months.index(chosen_month)
+
+    if baseline == PREVIOUS_MONTH:
+        return [months[month_index - 1]]
+    if baseline == LAST_THREE_MONTHS:
+        return months[month_index - 3:month_index]
+    if baseline == SAME_MONTH_LAST_YEAR:
+        return [months[month_index - 12]]
+    
+    raise ValueError(f"Unknown baseline: {baseline}")
+    

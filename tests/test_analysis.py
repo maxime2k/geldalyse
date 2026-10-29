@@ -7,7 +7,7 @@ import pytest
 from geldalyse.analysis import (
     key_figures, expenses_by_category, incomes_by_category, monthly_totals, 
     count_uncategorized, uncategorized_by_operation, month_range, available_baselines,
-    PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR
+    PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR, baseline_months
 )
 
 TRANSACTIONS = pd.DataFrame([
@@ -193,3 +193,20 @@ def test_month_range_includes_months_without_transactions():
 )
 def test_available_baselines_depend_on_history(month, expected):
     assert available_baselines(MONTHS, month) == expected
+
+
+@pytest.mark.parametrize(
+    "baseline, expected",
+    [
+        (PREVIOUS_MONTH, ["2025-12"]),
+        (LAST_THREE_MONTHS, ["2025-10", "2025-11", "2025-12"]),
+        (SAME_MONTH_LAST_YEAR, ["2025-01"]),
+    ],
+)
+def test_baseline_months_for_each_baseline(baseline, expected):
+    assert baseline_months(MONTHS, "2026-01", baseline) == expected
+
+
+def test_baseline_months_rejects_unknown_baseline():
+    with pytest.raises(ValueError, match="unknown_baseline"):
+        baseline_months(MONTHS, "2026-01", "unknown_baseline")
