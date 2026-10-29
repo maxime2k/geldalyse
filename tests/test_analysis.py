@@ -224,3 +224,16 @@ def test_category_variations_current_month_total():
 
     restauration = variations[variations["category"] == "RESTAURATION"]
     assert restauration["current"].iloc[0] == 35.0
+
+
+def test_category_variations_baseline_counts_empty_months_as_zero():
+     transactions = pd.DataFrame([
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -60.0, "category": "SANTE"},
+        {"date": pd.Timestamp(2026, 4, 10), "amount": -10.0, "category": "SANTE"},
+
+     ])
+
+     baseline = category_variations(transactions, "2026-04", ["2026-01", "2026-02", "2026-03"], expenses_by_category)
+     sante =  baseline[baseline["category"] == "SANTE"]
+
+     assert sante["baseline"].iloc[0] == 20.0 

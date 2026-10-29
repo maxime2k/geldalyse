@@ -140,7 +140,13 @@ def category_variations(
     """Compare the totals by category of the chosen month with the average of its baseline months."""
 
     rows = _month_rows(transactions, [chosen_month])
-    return  totals_by_category(rows).rename(columns={"amount": "current"})
+    current = totals_by_category(rows).rename(columns={"amount": "current"})
+
+    baseline = totals_by_category(_month_rows(transactions, months_of_baseline))
+    baseline = baseline.assign(amount=baseline["amount"] / len(months_of_baseline))
+    baseline = baseline.rename(columns={"amount": "baseline"})
+
+    return current.merge(baseline, on="category")
 
 def _month_rows(transactions: pd.DataFrame, months: list[str]) -> pd.DataFrame:
     """Return the transactions whose month, formatted as YYYY-MM, is in months."""
