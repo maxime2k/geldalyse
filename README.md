@@ -168,7 +168,9 @@ Pour analyser vos propres relevés, **utilisez l'application en local** : vos do
 
 **Interface**
 - [x] Application en plusieurs pages (Vue d'ensemble, Transactions)
-- [ ] Mise en page large, avec colonnes et liens vers les autres pages
+- [x] Mise en page large, chiffres clés en cartes et liens vers les autres pages
+- [ ] Graphiques par catégorie en colonne, à côté des faits marquants
+- [ ] Nom et logo de l'application dans la barre latérale
 
 **Tableau de bord**
 - [x] Correction manuelle de la catégorie d'une opération non catégorisée
