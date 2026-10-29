@@ -56,6 +56,13 @@ def transactions_editor(transactions: pd.DataFrame, options: list[str], key: str
     )
     
 
+def category_changes(original: pd.DataFrame, edited: pd.DataFrame) -> dict[str, str]:
+    """Return the new category of each operation whose category was changed."""
+
+    changed_rows = edited[edited["category"] != original["category"]]
+        
+    return dict(zip(changed_rows["merchant"], changed_rows["category"]))
+
 
 st.title("Geldalyse")
 st.write("Comprendre où part son argent.")
@@ -209,9 +216,23 @@ incomes_transactions = sorted_transactions[sorted_transactions["amount"] > 0]
 
 with st.form("transactions"):
    expenses_transactions_tab, incomes_transactions_tab = st.tabs(["Transactions sorties", "Transactions entrées"])
+   st.caption("Vous pouvez modifier les catégories")
 
    with expenses_transactions_tab:
     edited_expenses = transactions_editor(expenses_transactions, SELECTABLE_EXPENSE_CATEGORIES, "expenses_editor")
 
-    with incomes_transactions_tab:
-        edited_incomes = transactions_editor(incomes_transactions, INCOME_CATEGORY_NAMES, "incomes_editor")
+   with incomes_transactions_tab:
+    edited_incomes = transactions_editor(incomes_transactions, INCOME_CATEGORY_NAMES, "incomes_editor")
+
+   submited = st.form_submit_button("Enregistrer les modifications")
+
+if submited:
+    expense_changes = category_changes(expenses_transactions, edited_expenses)
+    income_changes = category_changes(incomes_transactions, edited_incomes)
+
+    if expense_changes or income_changes:
+        st.session_state[EXPENSE_CHOICES_KEY].update(expense_changes)
+        st.session_state[INCOME_CHOICES_KEY].update(income_changes)
+
+        st.rerun()
+ 
