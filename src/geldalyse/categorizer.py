@@ -32,7 +32,11 @@ INCOME_CATEGORIES = {
 
 EXPENSE_CATEGORY_NAMES = [*EXPENSE_CATEGORIES, DEFAULT_EXPENSE_CATEGORY]
 INCOME_CATEGORY_NAMES = [*INCOME_CATEGORIES, DEFAULT_INCOME_CATEGORY, REFUND_CATEGORY]
-
+SELECTABLE_EXPENSE_CATEGORIES = [
+    category
+    for category in EXPENSE_CATEGORY_NAMES
+    if category != DEFAULT_EXPENSE_CATEGORY
+]
 #Match catégories with labels
 def categorize(label: str, amount: float) -> str:
     """Return the first matching category, else a default that depends on the sign of amount."""
@@ -62,9 +66,16 @@ def _find_category(label: str, categories: dict[str, list[str]]) -> str | None:
 
 
 def apply_manual_categories(transactions: pd.DataFrame, choices: dict[str, str]) -> pd.DataFrame:
-    """Return a copy where each operation in choices gets the chosen category."""
+    """Return a copy where each operation in choices gets the chosen category, if it matches the direction of the money."""
     transactions_copy = transactions.copy()
-    transactions_copy["category"] = transactions_copy["merchant"].map(choices).fillna(transactions["category"])
+    chosen = transactions_copy["merchant"].map(choices)
+    wrong_direction = (
+        (chosen.isin(INCOME_CATEGORY_NAMES) & (transactions_copy["amount"] < 0))
+        | (chosen.isin(EXPENSE_CATEGORY_NAMES) & (transactions_copy["amount"] > 0))
+    )
+    chosen = chosen.mask(wrong_direction)
+
+    transactions_copy["category"] = chosen.fillna(transactions["category"])
 
     return transactions_copy
 
