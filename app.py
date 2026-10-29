@@ -8,6 +8,7 @@ import altair as alt
 
 from geldalyse.analysis import key_figures, expenses_by_category, incomes_by_category, monthly_totals, count_uncategorized, uncategorized_by_operation
 from geldalyse.categorizer import categorize, DEFAULT_EXPENSE_CATEGORY, EXPENSE_CATEGORIES, apply_manual_categories, SELECTABLE_EXPENSE_CATEGORIES, INCOME_CATEGORY_NAMES
+from components import category_chart, transactions_editor, category_changes, plural
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant
 from geldalyse.reader import read_bank_statement
@@ -20,63 +21,7 @@ EXPENSE_CHOICES_KEY = "expense_choices"
 INCOME_CHOICES_KEY = "income_choices"
 NO_TRANSACTION_MSG = "Aucune transaction à afficher. Vérifiez la période sélectionnée ou le contenu de votre relevé."
 
-def details_graph_by_category(total_category: pd.DataFrame) -> alt.Chart:
-    base = alt.Chart(total_category).encode(
-        x=alt.X("amount", title="Montant (€)"),
-        y=alt.Y("category", sort="-x", title=None),
-        tooltip=[
-            alt.Tooltip("category", title="Catégorie"),
-            alt.Tooltip("amount", title="Montant (€)", format=".2f"),
-        ],
-    )
-    bars = base.mark_bar()
-    # Light text: the app theme is dark (.streamlit/config.toml).
-    labels = base.mark_text(align="left", dx=3, color="#FAFAFA").encode(
-        text=alt.Text("amount", format=".2f"),
-    )
-    return bars + labels
 
-
-def transactions_editor(
-        transactions: pd.DataFrame, 
-        options: list[str], 
-        key: str, 
-        empty_message: str
-    ) -> pd.DataFrame:
-    """Show an editable transactions table, where only the category can be changed, or a message if there is no transaction."""
-
-    if transactions.empty:
-        st.info(empty_message)
-        return transactions
-    
-    return st.data_editor(
-        transactions,
-        key=key,
-        hide_index=True,
-        column_order=["date", "merchant", "amount", "category", "label"],
-        column_config={
-            "date": st.column_config.DateColumn("Date", format="DD/MM/YYYY", width="small"),
-            "label": st.column_config.TextColumn("Description"),
-            "amount": st.column_config.NumberColumn("Montant", format="%.2f €", width="small"),
-            "category": st.column_config.SelectboxColumn("Catégorie", options=sorted(options)),
-            "merchant": st.column_config.TextColumn("Opération"),
-        },
-        disabled=["date", "label", "amount", "merchant"],
-    )
-    
-
-def category_changes(original: pd.DataFrame, edited: pd.DataFrame) -> dict[str, str]:
-    """Return the new category of each operation whose category was changed."""
-
-    changed_rows = edited[edited["category"] != original["category"]]
-        
-    return dict(zip(changed_rows["merchant"], changed_rows["category"]))
-
-
-def plural(count: int, word: str) -> str:
-    """Return the count followed by the word, with an s when the count is above 1."""
-    
-    return f"{count} {word}s" if count > 1 else f"{count} {word}"
 
 
 st.title("Geldalyse")
@@ -165,12 +110,12 @@ expenses_tabs, incomes_tabs = st.tabs([":material/arrow_upward: Sorties par cat�
 
 with expenses_tabs:
     total_expenses_by_category = expenses_by_category(transactions=transactions)
-    expenses_details = details_graph_by_category(total_expenses_by_category)
+    expenses_details = category_chart(total_expenses_by_category)
     st.altair_chart(expenses_details, use_container_width=True)
 
 with incomes_tabs:
     total_incomes_by_category = incomes_by_category(transactions=transactions)
-    incomes_details = details_graph_by_category(total_incomes_by_category)
+    incomes_details = category_chart(total_incomes_by_category)
     st.altair_chart(incomes_details, use_container_width=True)
 
 st.caption("Les remboursements de magasins sont déduits de leur catégorie de dépense.")
