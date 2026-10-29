@@ -7,7 +7,7 @@ import streamlit as st
 import altair as alt
 
 from geldalyse.analysis import key_figures, expenses_by_category, incomes_by_category, monthly_totals, count_uncategorized, uncategorized_by_operation
-from geldalyse.categorizer import categorize, DEFAULT_EXPENSE_CATEGORY, EXPENSE_CATEGORIES, apply_manual_categories
+from geldalyse.categorizer import categorize, DEFAULT_EXPENSE_CATEGORY, EXPENSE_CATEGORIES, apply_manual_categories, SELECTABLE_EXPENSE_CATEGORIES, INCOME_CATEGORY_NAMES
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant
 from geldalyse.reader import read_bank_statement
@@ -34,6 +34,27 @@ def details_graph_by_category(total_category: pd.DataFrame) -> alt.Chart:
         text=alt.Text("amount", format=".2f"),
     )
     return bars + labels
+
+
+def transactions_editor(transactions: pd.DataFrame, options: list[str], key: str) -> pd.DataFrame:
+    """Show an editable transactions table, where only the category can be changed."""
+
+    return st.data_editor(
+        transactions,
+        key=key,
+        hide_index=True,
+        column_order=["date", "merchant", "amount", "category", "label"],
+        column_config={
+            "date": st.column_config.DateColumn("Date", format="DD/MM/YYYY", width="small"),
+            "label": st.column_config.TextColumn("Description"),
+            "amount": st.column_config.NumberColumn("Montant", format="%.2f €", width="small"),
+            "category": st.column_config.SelectboxColumn("Catégorie", options=sorted(options)),
+            "merchant": st.column_config.TextColumn("Opération"),
+        },
+        disabled=["date", "label", "amount", "merchant"],
+    )
+    
+
 
 st.title("Geldalyse")
 st.write("Comprendre où part son argent.")
@@ -178,15 +199,15 @@ if not selected:
 else:
     shown_transactions = transactions[transactions["category"].isin(selected)]
 
-st.dataframe(
-    shown_transactions.sort_values("date", ascending=False),
-    hide_index=True,
-    column_order=["date", "merchant", "amount", "category", "label"],
-    column_config={
-        "date": st.column_config.DateColumn("Date", format="DD/MM/YYYY", width="small"),
-        "label": st.column_config.TextColumn("Description"),
-        "amount": st.column_config.NumberColumn("Montant", format="%.2f €", width="small"),
-        "category": st.column_config.TextColumn("Catégorie"),
-        "merchant": st.column_config.TextColumn("Opération"),
-    },
-)
+sorted_transactions = shown_transactions.sort_values("date", ascending=False)
+expenses_transactions = sorted_transactions[sorted_transactions["amount"] <= 0]
+incomes_transactions = sorted_transactions[sorted_transactions["amount"] > 0]
+
+with st.form("transactions"):
+   expenses_transactions_tab, incomes_transactions_tab = st.tabs(["Transactions sorties", "Transactions entrées"])
+
+   with expenses_transactions_tab:
+    edited_expenses = transactions_editor(expenses_transactions, SELECTABLE_EXPENSE_CATEGORIES, "expenses_editor")
+
+    with incomes_transactions_tab:
+        edited_incomes = transactions_editor(incomes_transactions, INCOME_CATEGORY_NAMES, "incomes_editor")
