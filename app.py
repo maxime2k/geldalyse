@@ -20,6 +20,8 @@ UPLOAD_SOURCE = "Importer un relevé ING"
 EXPENSE_CHOICES_KEY = "expense_choices"
 INCOME_CHOICES_KEY = "income_choices"
 NO_TRANSACTION_MSG = "Aucune transaction à afficher. Vérifiez la période sélectionnée ou le contenu de votre relevé."
+ALL_TRANSACTIONS_KEY = "all_transactions"
+PERIOD_TRANSACTIONS_KEY = "period_transactions"
 
 
 
@@ -77,6 +79,11 @@ start, end = period
 
 in_period = all_transactions["date"].between(pd.Timestamp(start), pd.Timestamp(end))
 period_transactions = all_transactions[in_period]
+
+# --- save all and period transactions in the user session ---
+
+st.session_state[ALL_TRANSACTIONS_KEY] = all_transactions
+st.session_state[PERIOD_TRANSACTIONS_KEY] = period_transactions
 
 # --- Empty period ---
 
