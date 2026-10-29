@@ -10,6 +10,9 @@ ALL_TRANSACTIONS_KEY = "all_transactions"
 NO_TRANSACTION_MSG = "Aucune transaction à afficher. Vérifiez la période sélectionnée ou le contenu de votre relevé."
 EXPENSE_CHOICES_KEY = "expense_choices"
 INCOME_CHOICES_KEY = "income_choices"
+TRANSACTIONS_PAGE = "views/transactions.py"
+OVERVIEW_PAGE = "views/overview.py"
+
 
 def category_chart(total_category: pd.DataFrame) -> alt.LayerChart:
     """Build a horizontal bar chart of totals by category, biggest first, with amount labels."""
@@ -80,3 +83,10 @@ def period_transactions_or_stop() -> pd.DataFrame:
         st.stop()
 
     return period_transactions
+
+
+def page_card(page: str, title: str, icon: str, description: str) -> None:
+    """Show a bordered card with a link to a page and a short description."""
+    with st.container(border=True):
+        st.page_link(page, label=f"**{title}**", icon=icon)
+        st.caption(description)
