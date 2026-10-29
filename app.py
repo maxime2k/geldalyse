@@ -18,7 +18,7 @@ DEMO_SOURCE = "Données de démo"
 UPLOAD_SOURCE = "Importer un relevé ING"
 EXPENSE_CHOICES_KEY = "expense_choices"
 INCOME_CHOICES_KEY = "income_choices"
-NO_TRANSACTION_MSG = "Aucune transaction pour cette période."
+NO_TRANSACTION_MSG = "Aucune transaction à afficher. Vérifiez la période sélectionnée ou le contenu de votre relevé."
 
 def details_graph_by_category(total_category: pd.DataFrame) -> alt.Chart:
     base = alt.Chart(total_category).encode(
@@ -99,7 +99,7 @@ else:
 
 # Both sources share the standard format, so everything below is source-agnostic.
 if transactions.empty:
-    st.warning("Aucune transaction à afficher.")
+    st.warning(NO_TRANSACTION_MSG)
     st.stop()
 
 transactions["category"] = transactions.apply(lambda row: categorize(row["label"], row["amount"]), axis=1)
@@ -126,6 +126,12 @@ start, end = period
 
 in_period = transactions["date"].between(pd.Timestamp(start), pd.Timestamp(end))
 transactions = transactions[in_period]
+
+# --- Empty period ---
+
+if transactions.empty:
+    st.warning(NO_TRANSACTION_MSG)
+    st.stop()
 
 # --- Count uncategorized transactions ---
 
