@@ -1,5 +1,7 @@
 """Compute figures and aggregates for the dashboard."""
 
+from collections.abc import Callable
+
 import numpy as np
 import pandas as pd
 from datetime import date
@@ -127,3 +129,22 @@ def baseline_months(months: list[str], chosen_month: str, baseline: str) -> list
     
     raise ValueError(f"Unknown baseline: {baseline}")
     
+
+def category_variations(
+    
+    transactions: pd.DataFrame,
+    chosen_month: str,
+    months_of_baseline: list[str],
+    totals_by_category: Callable[[pd.DataFrame], pd.DataFrame],
+) -> pd.DataFrame:
+    """Compare the totals by category of the chosen month with the average of its baseline months."""
+
+    rows = _month_rows(transactions, [chosen_month])
+    return  totals_by_category(rows).rename(columns={"amount": "current"})
+
+def _month_rows(transactions: pd.DataFrame, months: list[str]) -> pd.DataFrame:
+    """Return the transactions whose month, formatted as YYYY-MM, is in months."""
+
+    month = transactions["date"].dt.strftime("%Y-%m")
+
+    return transactions[month.isin(months)]

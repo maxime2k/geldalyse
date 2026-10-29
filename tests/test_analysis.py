@@ -7,7 +7,8 @@ import pytest
 from geldalyse.analysis import (
     key_figures, expenses_by_category, incomes_by_category, monthly_totals, 
     count_uncategorized, uncategorized_by_operation, month_range, available_baselines,
-    PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR, baseline_months
+    PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR, baseline_months, category_variations,
+    expenses_by_category
 )
 
 TRANSACTIONS = pd.DataFrame([
@@ -210,3 +211,16 @@ def test_baseline_months_for_each_baseline(baseline, expected):
 def test_baseline_months_rejects_unknown_baseline():
     with pytest.raises(ValueError, match="unknown_baseline"):
         baseline_months(MONTHS, "2026-01", "unknown_baseline")
+
+
+def test_category_variations_current_month_total():
+    transactions = pd.DataFrame([
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -30.0, "category": "RESTAURATION"},
+        {"date": pd.Timestamp(2026, 2, 12), "amount": -20.0, "category": "RESTAURATION"},
+        {"date": pd.Timestamp(2026, 2, 25), "amount": -15.0, "category": "RESTAURATION"},
+    ])
+
+    variations = category_variations(transactions, "2026-02", ["2026-01"], expenses_by_category)
+
+    restauration = variations[variations["category"] == "RESTAURATION"]
+    assert restauration["current"].iloc[0] == 35.0
