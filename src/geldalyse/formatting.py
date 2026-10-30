@@ -24,6 +24,8 @@ BASELINE_LABELS = {
     LAST_THREE_MONTHS: "Moyenne des 3 mois précédents",
     SAME_MONTH_LAST_YEAR: "Même mois l’an passé",
 }
+NBSP = "\u00a0"  #espace insécable
+
 
 def format_month(month: str) -> str:
     """Return a YYYY-MM month as its French name and year, like “janvier 2026”."""
@@ -48,3 +50,13 @@ def format_baseline(months: list[str]) -> str:
     preposition = "d'" if start[0] in VOWELS else "de "
 
     return f"la moyenne {preposition}{start} à {end}"
+
+def format_amount(amount: float) -> str:
+    """Return the French amount format, ex: 1234.5 £ = 1 234,50 £.""" 
+    
+    english_format = f"{amount:,.2f}"
+    french_format = english_format.replace(",", NBSP).replace(".", ",")
+
+    return f"{french_format}{NBSP}€"
+
+    
