@@ -146,7 +146,7 @@ def category_variations(
     baseline = baseline.assign(amount=baseline["amount"] / len(months_of_baseline))
     baseline = baseline.rename(columns={"amount": "baseline"})
 
-    return current.merge(baseline, on="category")
+    return current.merge(baseline, on="category", how="outer").fillna(0)
 
 def _month_rows(transactions: pd.DataFrame, months: list[str]) -> pd.DataFrame:
     """Return the transactions whose month, formatted as YYYY-MM, is in months."""
