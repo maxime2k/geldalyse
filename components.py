@@ -5,6 +5,8 @@ import pandas as pd
 import streamlit as st
 import altair as alt
 
+from geldalyse.formatting import format_change, format_amount, NBSP
+
 PERIOD_TRANSACTIONS_KEY = "period_transactions"
 ALL_TRANSACTIONS_KEY = "all_transactions"
 NO_TRANSACTION_MSG = "Aucune transaction à afficher. Vérifiez la période sélectionnée ou le contenu de votre relevé."
@@ -92,3 +94,29 @@ def page_card(page: str, title: str, icon: str, description: str) -> None:
     with st.container(border=True):
         st.page_link(page, label=f"**{title}**", icon=icon)
         st.caption(description)
+
+
+def comparison_metric(
+    label: str,
+    current_amount: float,
+    base_amount: float,
+    base_description: str,
+    delta_color: str = "normal",
+) -> None:
+    """Show a key figure of the chosen month with its change from the baseline."""
+    change = current_amount - base_amount
+    change_pct = change / base_amount if base_amount != 0 else float("nan")
+    is_stable = round(change, 2) == 0
+
+    with st.container(border=True):
+        st.metric(
+            label,
+            format_amount(current_amount),
+            delta=None if is_stable else f"{format_change(change, change_pct)} par rapport à la base",
+            delta_color=delta_color,
+        )
+        if is_stable:
+            caption = f"Identique à {base_description}."
+        else:
+            caption = f"{base_description.capitalize()}{NBSP}: {format_amount(base_amount)}"
+        st.caption(caption)
