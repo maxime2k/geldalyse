@@ -66,15 +66,16 @@ def format_amount(amount: float) -> str:
 def format_change(change: float, change_pct: float) -> str:
     """Return a change as a signd French amount and percentage, like "+120,00 € (+9 %)", or "(nouveau)" without a percentage."""
     
-    sign = "+" if change > 0 else ""
-    amount = sign + format_amount(change)
-
+    amount = _sign(change) + format_amount(change)
     if pd.isna(change_pct):
         return f"{amount} (nouveau)"
     
-    percentage = f" ({sign}{round(change_pct * 100)}{NBSP}%)"
+    return f"{amount} ({_sign(change_pct)}{round(change_pct * 100)}{NBSP}%)"
 
-    return amount + percentage
+
+def _sign(value: float) -> str:
+    """Return "+" for a positive value, nothing otherwise: format_amount already writes the minus sign."""
+    return "+" if value > 0 else ""
 
 
 def format_summary(name: str, month_amount: float, base_amount: float) -> str:
