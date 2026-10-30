@@ -75,3 +75,18 @@ def format_change(change: float, change_pct: float) -> str:
     percentage = f" ({sign}{round(change_pct * 100)}{NBSP}%)"
 
     return amount + percentage
+
+
+def format_summary(name: str, month_amount: float, base_amount: float) -> str:
+    """Return a French sentence summarizing the change of a total, like "Vos sorties ont augmenté de 100,00 € (50 %)."; both amounts must be positive."""
+    
+    variation = month_amount - base_amount
+    if round(variation, 2) == 0:
+        return f"Vos {name} sont stables."
+    verb = "augmenté" if month_amount > base_amount else "diminué"
+    amount = format_amount(abs(variation))
+    if base_amount == 0:
+        return f"Vos {name} ont {verb} de {amount}."
+    percentage = round((abs(variation) / base_amount) * 100)
+
+    return f"Vos {name} ont {verb} de {amount} ({percentage}{NBSP}%)."
