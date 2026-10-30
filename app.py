@@ -10,7 +10,7 @@ from geldalyse.categorizer import categorize, DEFAULT_EXPENSE_CATEGORY, apply_ma
 from components import (
     PERIOD_TRANSACTIONS_KEY, NO_TRANSACTION_MSG, EXPENSE_CHOICES_KEY, 
     INCOME_CHOICES_KEY, ALL_TRANSACTIONS_KEY, PERIOD_TRANSACTIONS_KEY, TRANSACTIONS_PAGE,
-    OVERVIEW_PAGE
+    OVERVIEW_PAGE, EVOLUTION_PAGE
 )
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant
@@ -82,6 +82,7 @@ st.session_state[PERIOD_TRANSACTIONS_KEY] = period_transactions
 
 page = st.navigation([
     st.Page(OVERVIEW_PAGE, title="Vue d'ensemble", icon=":material/dashboard:", default=True),
+    st.Page(EVOLUTION_PAGE, title="Évolution", icon=":material/trending_up:"),
     st.Page(TRANSACTIONS_PAGE, title="Transactions", icon=":material/list:"),
 ])
 page.run()

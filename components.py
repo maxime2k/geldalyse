@@ -10,8 +10,10 @@ ALL_TRANSACTIONS_KEY = "all_transactions"
 NO_TRANSACTION_MSG = "Aucune transaction à afficher. Vérifiez la période sélectionnée ou le contenu de votre relevé."
 EXPENSE_CHOICES_KEY = "expense_choices"
 INCOME_CHOICES_KEY = "income_choices"
+
 TRANSACTIONS_PAGE = "views/transactions.py"
 OVERVIEW_PAGE = "views/overview.py"
+EVOLUTION_PAGE = "views/evolution.py"
 
 
 def category_chart(total_category: pd.DataFrame) -> alt.LayerChart:
