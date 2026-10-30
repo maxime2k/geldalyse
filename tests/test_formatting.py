@@ -4,7 +4,7 @@ import pytest
 
 from geldalyse.formatting import (
     format_month, format_baseline, format_amount, NBSP,
-    format_change, format_summary
+    format_change, format_summary, format_top_variation
 )
 
 
@@ -69,3 +69,14 @@ def test_format_change_writes_amount_and_percentage(change, change_pct, expected
 )
 def test_format_summary_writes_change_summary(name, month_amount, base_amount, expected):
     assert format_summary(name, month_amount, base_amount) == expected
+
+
+@pytest.mark.parametrize(
+        "category, change, expected",
+        [
+            ("ALIMENTATION", 60.0, f"La plus forte variation{NBSP}: alimentation, +60,00{NBSP}€."),
+            ("SANTE", -20.0, f"La plus forte variation{NBSP}: sante, -20,00{NBSP}€."),
+        ]
+)
+def test_format_top_variation_names_category_and_signed_change(category, change, expected):
+    assert format_top_variation(category, change) == expected

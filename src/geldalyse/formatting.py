@@ -91,3 +91,9 @@ def format_summary(name: str, month_amount: float, base_amount: float) -> str:
     percentage = round((abs(variation) / base_amount) * 100)
 
     return f"Vos {name} ont {verb} de {amount} ({percentage}{NBSP}%)."
+
+
+def format_top_variation(category: str, change: float) -> str:
+    """Return a French sentence naming the category with the biggest change, like "La plus forte variation : alimentation, +60,00 €."."""
+
+    return f"La plus forte variation{NBSP}: {category.lower()}, {_sign(change)}{format_amount(change)}."
