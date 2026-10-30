@@ -265,3 +265,14 @@ def test_category_variations_return_proportion_difference():
     assert sante["change"].iloc[0] == 10.0
     assert sante["change_pct"].iloc[0] == 0.5
     assert pd.isna(restauration["change_pct"].iloc[0])
+
+def test_category_variations_biggest_change_first():
+    transactions = pd.DataFrame([
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -100.0, "category": "SANTE"},
+        {"date": pd.Timestamp(2026, 4, 10), "amount": -20.0, "category": "SANTE"},
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -5.0, "category": "RESTAURATION"},
+        {"date": pd.Timestamp(2026, 4, 10), "amount": -20.0, "category": "RESTAURATION"},
+    ])
+    variations = category_variations(transactions, "2026-04", ["2026-01"], expenses_by_category)
+   
+    assert variations["category"].iloc[0] == "SANTE"

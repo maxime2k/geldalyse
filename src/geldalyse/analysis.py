@@ -150,7 +150,10 @@ def category_variations(
     variations = variations.assign(change=variations["current"] - variations["baseline"])
     variations = variations.assign(change_pct=variations["change"] / variations["baseline"].where(variations["baseline"] != 0))
 
-    return variations
+    return ( 
+        variations.sort_values("change", key=abs, ascending=False)
+            .reset_index(drop=True)
+    )
 
 
 def _month_rows(transactions: pd.DataFrame, months: list[str]) -> pd.DataFrame:
