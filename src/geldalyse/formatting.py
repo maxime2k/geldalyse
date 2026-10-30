@@ -2,7 +2,10 @@
 
 import pandas as pd
 
-from geldalyse.analysis import PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR
+from geldalyse.analysis import (
+    PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR,
+
+)
 
 MONTH_NAMES = {
     1: "janvier",
@@ -53,10 +56,22 @@ def format_baseline(months: list[str]) -> str:
 
 def format_amount(amount: float) -> str:
     """Return the French amount format, ex: 1234.5 £ = 1 234,50 £.""" 
-    
+
     english_format = f"{amount:,.2f}"
     french_format = english_format.replace(",", NBSP).replace(".", ",")
 
     return f"{french_format}{NBSP}€"
 
+
+def format_change(change: float, change_pct: float) -> str:
+    """Return a change as a signd French amount and percentage, like "+120,00 € (+9 %)", or "(nouveau)" without a percentage."""
     
+    sign = "+" if change > 0 else ""
+    amount = sign + format_amount(change)
+
+    if pd.isna(change_pct):
+        return f"{amount} (nouveau)"
+    
+    percentage = f" ({sign}{round(change_pct * 100)}{NBSP}%)"
+
+    return amount + percentage
