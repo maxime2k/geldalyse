@@ -250,3 +250,18 @@ def test_category_variations_keeps_categories_on_one_side():
 
     assert sante["current"].iloc[0] == 0.0
     assert restauration["baseline"].iloc[0] == 0.0
+
+
+def test_category_variations_return_proportion_difference():
+    transactions = pd.DataFrame([
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -20.0, "category": "SANTE"},
+        {"date": pd.Timestamp(2026, 4, 10), "amount": -30.0, "category": "SANTE"},
+        {"date": pd.Timestamp(2026, 4, 10), "amount": -20.0, "category": "RESTAURATION"},
+    ])
+    variations = category_variations(transactions, "2026-04", ["2026-01"], expenses_by_category)
+    sante = variations[variations["category"] == "SANTE"]
+    restauration = variations[variations["category"] == "RESTAURATION"]
+
+    assert sante["change"].iloc[0] == 10.0
+    assert sante["change_pct"].iloc[0] == 0.5
+    assert pd.isna(restauration["change_pct"].iloc[0])
