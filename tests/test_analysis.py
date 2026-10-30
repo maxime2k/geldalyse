@@ -8,7 +8,7 @@ from geldalyse.analysis import (
     key_figures, expenses_by_category, incomes_by_category, monthly_totals, 
     count_uncategorized, uncategorized_by_operation, month_range, available_baselines,
     PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR, baseline_months, category_variations,
-    expenses_by_category
+    expenses_by_category, key_figures_variations
 )
 
 TRANSACTIONS = pd.DataFrame([
@@ -276,3 +276,19 @@ def test_category_variations_biggest_change_first():
     variations = category_variations(transactions, "2026-04", ["2026-01"], expenses_by_category)
    
     assert variations["category"].iloc[0] == "SANTE"
+
+
+def test_key_figures_variations_return_chosen_month_and_base_key_figures():
+    transactions = pd.DataFrame([
+        {"date": pd.Timestamp(2026, 1, 10), "amount": 1000.0, "category": "SALAIRE"},
+        {"date": pd.Timestamp(2026, 2, 10), "amount": 1200.0, "category": "SALAIRE"},
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -300.0, "category": "RESTAURATION"},
+        {"date": pd.Timestamp(2026, 2, 10), "amount": -500.0, "category": "RESTAURATION"},
+        {"date": pd.Timestamp(2026, 3, 10), "amount": 1100.0, "category": "SALAIRE"},
+        {"date": pd.Timestamp(2026, 3, 15), "amount": -350.0, "category": "RESTAURATION"},
+    ])
+    
+    current, baseline = key_figures_variations(transactions, "2026-03", ["2026-01", "2026-02"])
+
+    assert current == (1100.0, -350.0, 750.0)
+    assert baseline == (1100.0, -400.0, 700.0)

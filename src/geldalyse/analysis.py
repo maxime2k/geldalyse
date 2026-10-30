@@ -162,3 +162,17 @@ def _month_rows(transactions: pd.DataFrame, months: list[str]) -> pd.DataFrame:
     month = transactions["date"].dt.strftime("%Y-%m")
 
     return transactions[month.isin(months)]
+
+
+def key_figures_variations(
+    transactions: pd.DataFrame,
+    chosen_month: str,
+    months_of_baseline: list[str],
+) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
+    """Return the key figures of the chosen month and the average key figures of its baseline months."""
+
+    current_key_figures = key_figures(_month_rows(transactions, [chosen_month]))
+    baseline_totals = key_figures(_month_rows(transactions, months_of_baseline))
+    baseline_key_figures = tuple(value / len(months_of_baseline) for value in baseline_totals)
+
+    return current_key_figures, baseline_key_figures
