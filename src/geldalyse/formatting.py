@@ -73,9 +73,13 @@ def format_change(change: float, change_pct: float) -> str:
     if pd.isna(change_pct):
         return f"{amount} (nouveau)"
     variation_pct = round(change_pct * 100)
+    percentage = (
+        f"<{NBSP}1" if variation_pct == 0 and round(change, 2) != 0 
+        else variation_pct
+    )
 
     
-    return f"{amount} ({_sign(variation_pct)}{variation_pct}{NBSP}%)"
+    return f"{amount} ({_sign(variation_pct)}{percentage}{NBSP}%)"
 
 
 def _sign(value: float) -> str:
