@@ -5,7 +5,9 @@ import pandas as pd
 import streamlit as st
 import altair as alt
 
-from geldalyse.formatting import format_change, format_amount, NBSP
+from geldalyse.formatting import (
+    format_change, format_amount, NBSP, format_top_variation
+)
 
 PERIOD_TRANSACTIONS_KEY = "period_transactions"
 ALL_TRANSACTIONS_KEY = "all_transactions"
@@ -123,3 +125,14 @@ def comparison_metric(
         else:
             caption = f"{base_description.capitalize()}{NBSP}: {format_amount(base_amount)}"
         st.caption(caption)
+
+
+def variation_tab(variations: pd.DataFrame, name: str) -> None:
+    """Show the top category change for one tab."""
+
+    top_variation = variations.iloc[0]
+    category = top_variation["category"]
+    change = top_variation["change"]
+
+    if round(change, 2) != 0:
+        st.markdown(f"**{format_top_variation(category, change)}**")

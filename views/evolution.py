@@ -2,8 +2,11 @@
 
 import streamlit as st
 
-from components import ALL_TRANSACTIONS_KEY, comparison_metric
-from geldalyse.analysis import month_range, available_baselines, LAST_THREE_MONTHS, baseline_months, key_figures_variations
+from components import ALL_TRANSACTIONS_KEY, comparison_metric, variation_tab
+from geldalyse.analysis import (
+    month_range, available_baselines, LAST_THREE_MONTHS, baseline_months, key_figures_variations,
+    category_variations, expenses_by_category, incomes_by_category
+)
 from geldalyse.formatting import (
     format_month, BASELINE_LABELS, format_baseline, format_amount
 )
@@ -36,10 +39,10 @@ months_of_baseline = baseline_months(months, chosen_month, chosen_baseline)
 st.caption(f"{format_month(chosen_month).capitalize()}, comparé à {format_baseline(months_of_baseline)}.")
 
 
-current, baseline = key_figures_variations(all_transactions, chosen_month, months_of_baseline)
+month_figures, base_figures = key_figures_variations(all_transactions, chosen_month, months_of_baseline)
 
-current_incomes, current_expenses, current_balance = current
-base_incomes, base_expenses, base_balance = baseline
+current_incomes, current_expenses, current_balance = month_figures
+base_incomes, base_expenses, base_balance = base_figures
 base_description = format_baseline(months_of_baseline)
 month_name = format_month(chosen_month)
 
@@ -56,3 +59,13 @@ with expenses_col:
     )
 with balance_col:
     comparison_metric(f"Solde en {month_name}", current_balance, base_balance, base_description, show_pct=False)
+
+expenses_tab, income_tab = st.tabs(["Sorties par catégorie", "Entrées par catégorie"])
+
+with expenses_tab:
+    variations = category_variations(all_transactions, chosen_month, months_of_baseline, expenses_by_category)
+    variation_tab(variations, "sorties")
+
+with income_tab:
+    variations = category_variations(all_transactions, chosen_month, months_of_baseline, incomes_by_category)
+    variation_tab(variations, "entrées")
