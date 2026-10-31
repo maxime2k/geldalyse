@@ -16,17 +16,16 @@ Geldalyse est une application Python qui importe un relevé bancaire, catégoris
 
 - **Deux sources de données** : des transactions fictives générées à la volée, ou un export CSV d'ING Belgique (en français)
 - **Nettoyage automatique** : colonnes renommées, dates converties, libellés normalisés, lignes vides supprimées
-- **Catégorisation automatique** selon les mots-clés et le signe du montant :
-  - une sortie reçoit une catégorie de sortie (alimentation, transport, logement…) ;
-  - une entrée reçoit une catégorie d'entrée (salaire, intérêts) ; à défaut, un virement reçu est classé en remboursement, et toute autre entrée en « autres entrées » ;
-  - un remboursement de magasin garde la catégorie de sa dépense, et la réduit
+- **Catégorisation automatique** selon les mots-clés et le sens de l'argent : entrées et sorties ont leurs propres catégories
 - **Libellé court lisible** : le commerçant, le bénéficiaire d'un virement ou la nature d'une opération bancaire, extrait de la longue description de la banque
-- **Correction manuelle des catégories** : pour une opération non catégorisée, ou depuis le tableau des transactions. Un choix s'applique à toutes les transactions de l'opération, sans jamais transformer une entrée en sortie
+- **Correction manuelle des catégories**, pour toutes les transactions d'une même opération
 - **Gestion des erreurs d'import** : un fichier au mauvais format affiche un message clair, sans faire planter l'application
-- **Tableau de bord interactif**, en deux pages :
-  - **Vue d'ensemble** : entrées, sorties et solde de la période ; sorties et entrées par catégorie, en deux onglets, avec le montant de chaque catégorie ; entrées et sorties mois par mois
-  - **Transactions** : transactions non catégorisées, regroupées par opération ; tableau détaillé, en deux onglets, avec un libellé court et la description complète
-  - filtre de période, filtre des transactions par catégorie et indicateur des transactions non catégorisées, dans la barre latérale
+- **Tableau de bord interactif**, en trois pages :
+  - **Vue d'ensemble** : entrées, sorties et solde de la période, détail par catégorie et mois par mois
+  - **Transactions** : opérations à classer et tableau détaillé des transactions
+  - **Évolution** : un mois comparé au mois précédent, à la moyenne des 3 mois précédents ou au même mois l'an passé, avec les écarts par catégorie
+
+Le contenu de chaque page et les règles de calcul sont décrits dans la [conception du tableau de bord](docs/dashboard.md).
 
 ## Architecture
 
@@ -43,6 +42,7 @@ Le projet suit un schéma **ETL** (*Extract, Transform, Load*). Chaque étape es
 | Load | `app.py` | Point d'entrée : barre latérale, chargement des données et navigation |
 | Load | `views/` | Une page du tableau de bord par fichier |
 | Load | `components.py` | Fonctions d'affichage partagées par les pages |
+| Load | `formatting.py` | Met en forme les résultats en français (mois, montants, écarts) |
 
 Toutes les sources de données produisent le même **format standard**, défini dans `schema.py`. Ajouter une nouvelle banque ne demande donc qu'un nouveau lecteur : le reste de l'application ne change pas.
 
@@ -53,11 +53,13 @@ geldalyse/
 ├── app.py                  # Point d'entrée : barre latérale, chargement et navigation
 ├── components.py           # Fonctions d'affichage partagées par les pages
 ├── views/
+│   ├── evolution.py        # Évolution : un mois comparé à une base
 │   ├── overview.py         # Vue d'ensemble : chiffres clés, catégories, mois par mois
 │   └── transactions.py     # Transactions : non catégorisées et tableau modifiable
 ├── src/geldalyse/
-│   ├── analysis.py         # Chiffres clés et agrégats
+│   ├── analysis.py         # Chiffres clés, agrégats et variations
 │   ├── categorizer.py      # Catégorisation par mots-clés et signe du montant
+│   ├── formatting.py       # Textes en français : mois, montants, écarts
 │   ├── generator.py        # Transactions fictives
 │   ├── merchant.py         # Libellé court et reconnaissance des virements reçus
 │   ├── reader.py           # Lecture des exports ING
@@ -167,21 +169,21 @@ Pour analyser vos propres relevés, **utilisez l'application en local** : vos do
 - [ ] Correction de la catégorie d'une seule transaction
 
 **Interface**
-- [x] Application en plusieurs pages (Vue d'ensemble, Transactions)
+- [x] Application en plusieurs pages (Vue d'ensemble, Transactions, Évolution)
 - [x] Mise en page large, chiffres clés en cartes et liens vers les autres pages
 - [ ] Graphiques par catégorie en colonne, à côté des faits marquants
 - [ ] Nom et logo de l'application dans la barre latérale
 
 **Tableau de bord**
+- [x] Transactions non catégorisées regroupées par opération, pour enrichir les mots-clés
 - [x] Correction manuelle de la catégorie d'une opération non catégorisée
-- [ ] Comparaison d'un mois avec la moyenne des mois précédents (page Évolution)
+- [x] Comparaison d'un mois au mois précédent, à la moyenne des 3 mois précédents ou au même mois l'an passé, avec les écarts par catégorie (page Évolution)
 - [ ] Faits marquants sur la vue d'ensemble (plus forte variation du mois)
-- [ ] Paiements récurrents et total des charges fixes (page Habitudes)
+- [ ] Paiements récurrents et total des charges fixes (page Habitudes), détectés par libellé, montant proche et fréquence mensuelle
 - [ ] Top des dépenses variables, hors paiements récurrents
 - [ ] Sorties regroupées par commerçant (nombre d'achats et total), filtrables par catégorie
 - [ ] Détection des dépenses inhabituelles
 - [ ] Budgets par catégorie avec alertes
-- [ ] Évolution du solde, à partir du solde actuel saisi par l'utilisateur
 
 **Qualité**
 - [ ] Tests sur plusieurs versions de Python (matrice CI)
