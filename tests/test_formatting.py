@@ -68,8 +68,8 @@ def test_format_change_writes_amount_and_percentage(change, change_pct, expected
 @pytest.mark.parametrize(
         "category, change, expected",
         [
-            ("ALIMENTATION", 60.0, f"La plus forte variation{NBSP}: alimentation, +60,00{NBSP}€."),
-            ("SANTE", -20.0, f"La plus forte variation{NBSP}: sante, -20,00{NBSP}€."),
+            ("ALIMENTATION", 60.0, f"La plus forte variation{NBSP}: alimentation, en hausse de 60,00{NBSP}€."),
+            ("SANTE", -20.0, f"La plus forte variation{NBSP}: sante, en baisse de 20,00{NBSP}€."),
         ]
 )
 def test_format_top_variation_names_category_and_signed_change(category, change, expected):

@@ -87,6 +87,7 @@ def _sign(value: float) -> str:
     return "+" if value > 0 else ""
 
 def format_top_variation(category: str, change: float) -> str:
-    """Return a French sentence naming the category with the biggest change, like "La plus forte variation : alimentation, +60,00 €."."""
+    """Return a sentence naming the category with the biggest change."""
 
-    return f"La plus forte variation{NBSP}: {category.lower()}, {format_amount(change, signed=True)}."
+    direction = "en hausse" if change > 0 else "en baisse"
+    return f"La plus forte variation{NBSP}: {category.lower()}, {direction} de {format_amount(abs(change))}."
