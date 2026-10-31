@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 import altair as alt
 
-from geldalyse.formatting import format_change, format_amount, NBSP, _sign
+from geldalyse.formatting import format_change, format_amount, NBSP
 
 PERIOD_TRANSACTIONS_KEY = "period_transactions"
 ALL_TRANSACTIONS_KEY = "all_transactions"
@@ -114,7 +114,7 @@ def comparison_metric(
         change_pct = change / base_amount if base_amount != 0 else float("nan")
         delta = format_change(change, change_pct)
     else:
-        delta = _sign(change) + format_amount(change)
+        delta = format_amount(change, signed=True)
 
     with st.container(border=True):
         st.metric(label, format_amount(current_amount), delta=delta, delta_color=delta_color)

@@ -54,10 +54,13 @@ def format_baseline(months: list[str]) -> str:
 
     return f"la moyenne {preposition}{start} à {end}"
 
-def format_amount(amount: float) -> str:
-    """Return the French amount format, ex: 1234.5 £ = 1 234,50 £.""" 
-
-    english_format = f"{amount:,.2f}"
+def format_amount(amount: float, signed: bool = False) -> str:
+    """Return the French amount format, ex: 1234.5 € = 1 234,50 €.""" 
+    
+    if round(amount, 2) == 0:
+        amount = 0.0
+    spec = "+,.2f" if signed and amount != 0 else ",.2f" 
+    english_format = f"{amount:{spec}}"
     french_format = english_format.replace(",", NBSP).replace(".", ",")
 
     return f"{french_format}{NBSP}€"
@@ -66,11 +69,13 @@ def format_amount(amount: float) -> str:
 def format_change(change: float, change_pct: float) -> str:
     """Return a change as a signd French amount and percentage, like "+120,00 € (+9 %)", or "(nouveau)" without a percentage."""
     
-    amount = _sign(change) + format_amount(change)
+    amount = format_amount(change, signed=True)
     if pd.isna(change_pct):
         return f"{amount} (nouveau)"
+    variation_pct = round(change_pct * 100)
+
     
-    return f"{amount} ({_sign(change_pct)}{round(change_pct * 100)}{NBSP}%)"
+    return f"{amount} ({_sign(variation_pct)}{variation_pct}{NBSP}%)"
 
 
 def _sign(value: float) -> str:
@@ -96,4 +101,4 @@ def format_summary(name: str, month_amount: float, base_amount: float) -> str:
 def format_top_variation(category: str, change: float) -> str:
     """Return a French sentence naming the category with the biggest change, like "La plus forte variation : alimentation, +60,00 €."."""
 
-    return f"La plus forte variation{NBSP}: {category.lower()}, {_sign(change)}{format_amount(change)}."
+    return f"La plus forte variation{NBSP}: {category.lower()}, {format_amount(change, signed=True)}."

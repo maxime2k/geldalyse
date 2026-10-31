@@ -33,16 +33,21 @@ def test_format_baseline_describes_its_months(months, expected):
 
 
 @pytest.mark.parametrize(
-    "amount, expected",
+    "amount, signed, expected",
     [
-        (1234.5, f"1{NBSP}234,50{NBSP}€"),
-        (45.0, f"45,00{NBSP}€"),
-        (0.0, f"0,00{NBSP}€"),
-        (1234567.0, f"1{NBSP}234{NBSP}567,00{NBSP}€"),
+        (1234.5, False, f"1{NBSP}234,50{NBSP}€"),
+        (45.0, False, f"45,00{NBSP}€"),
+        (0.0, False, f"0,00{NBSP}€"),
+        (1234567.0, False, f"1{NBSP}234{NBSP}567,00{NBSP}€"),
+        (25.0, True, f"+25,00{NBSP}€"),
+        (-10.0, True, f"-10,00{NBSP}€"),
+        (0.0, True, f"0,00{NBSP}€"),
+        (-0.001, True, f"0,00{NBSP}€"),
+        (-0.001, False, f"0,00{NBSP}€"),
     ],
 )
-def test_format_amount_writes_french_format(amount, expected):
-    assert format_amount(amount) == expected
+def test_format_amount_writes_french_format(amount, signed, expected):
+    assert format_amount(amount, signed=signed) == expected
 
 
 @pytest.mark.parametrize(
