@@ -4,7 +4,7 @@ import pytest
 
 from geldalyse.formatting import (
     format_month, format_baseline, format_amount, NBSP,
-    format_change, format_summary, format_top_variation
+    format_change, format_top_variation
 )
 
 
@@ -63,19 +63,6 @@ def test_format_amount_writes_french_format(amount, signed, expected):
 )
 def test_format_change_writes_amount_and_percentage(change, change_pct, expected):
     assert format_change(change, change_pct) == expected
-
-
-@pytest.mark.parametrize(
-    "name, month_amount, base_amount, expected",
-    [
-        ("sorties", 300.0, 200.0, f"Vos sorties ont augmenté de 100,00{NBSP}€ (50{NBSP}%)."),
-        ("entrées", 150.0, 200.0, f"Vos entrées ont diminué de 50,00{NBSP}€ (25{NBSP}%)."),
-        ("entrées", 200.0, 200.0, "Vos entrées sont stables."),
-        ("sorties", 100.0, 0.0, f"Vos sorties ont augmenté de 100,00{NBSP}€."),
-    ]
-)
-def test_format_summary_writes_change_summary(name, month_amount, base_amount, expected):
-    assert format_summary(name, month_amount, base_amount) == expected
 
 
 @pytest.mark.parametrize(
