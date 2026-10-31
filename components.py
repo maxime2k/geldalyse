@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 import altair as alt
 
-from geldalyse.formatting import format_change, format_amount, NBSP
+from geldalyse.formatting import format_change, format_amount, NBSP, _sign
 
 PERIOD_TRANSACTIONS_KEY = "period_transactions"
 ALL_TRANSACTIONS_KEY = "all_transactions"
@@ -102,19 +102,22 @@ def comparison_metric(
     base_amount: float,
     base_description: str,
     delta_color: str = "normal",
+    show_pct: bool = True,
 ) -> None:
     """Show a key figure of the chosen month with its change from the baseline."""
     change = current_amount - base_amount
-    change_pct = change / base_amount if base_amount != 0 else float("nan")
     is_stable = round(change, 2) == 0
 
+    if is_stable:
+        delta = None
+    elif show_pct:
+        change_pct = change / base_amount if base_amount != 0 else float("nan")
+        delta = format_change(change, change_pct)
+    else:
+        delta = _sign(change) + format_amount(change)
+
     with st.container(border=True):
-        st.metric(
-            label,
-            format_amount(current_amount),
-            delta=None if is_stable else f"{format_change(change, change_pct)} par rapport à la base",
-            delta_color=delta_color,
-        )
+        st.metric(label, format_amount(current_amount), delta=delta, delta_color=delta_color)
         if is_stable:
             caption = f"Identique à {base_description}."
         else:

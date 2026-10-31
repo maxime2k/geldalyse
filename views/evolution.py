@@ -41,7 +41,7 @@ current, baseline = key_figures_variations(all_transactions, chosen_month, month
 current_incomes, current_expenses, current_balance = current
 base_incomes, base_expenses, base_balance = baseline
 base_description = format_baseline(months_of_baseline)
-month_name = format_month(chosen_month).capitalize()
+month_name = format_month(chosen_month)
 
 incomes_col, expenses_col, balance_col = st.columns(3)
 with incomes_col:
@@ -55,4 +55,4 @@ with expenses_col:
         delta_color="inverse",
     )
 with balance_col:
-    comparison_metric(f"Solde en {month_name}", current_balance, base_balance, base_description)
+    comparison_metric(f"Solde en {month_name}", current_balance, base_balance, base_description, show_pct=False)
