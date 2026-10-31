@@ -4,7 +4,10 @@ import streamlit as st
 import altair as alt
 
 from geldalyse.analysis import key_figures, expenses_by_category, incomes_by_category, monthly_totals, count_uncategorized
-from components import category_chart, period_transactions_or_stop, page_card, TRANSACTIONS_PAGE
+from components import (
+    category_chart, period_transactions_or_stop, page_card, TRANSACTIONS_PAGE,
+    EVOLUTION_PAGE
+)
 
 
 period_transactions = period_transactions_or_stop()
@@ -55,6 +58,14 @@ st.altair_chart(chart, use_container_width=True)
 st.subheader("Aller plus loin")
 
 evolution_col, transactions_col, habits_col = st.columns(3)
+
+with evolution_col:
+    page_card(
+        page=EVOLUTION_PAGE,
+        title="Évolution",
+        icon=":material/trending_up:",
+        description="Suivre l'évolution de vos transactions",
+    )
 
 with transactions_col:
     page_card(

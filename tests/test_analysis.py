@@ -2,7 +2,14 @@
 
 import pandas as pd
 
-from geldalyse.analysis import key_figures, expenses_by_category, incomes_by_category, monthly_totals, count_uncategorized, uncategorized_by_operation
+import pytest
+
+from geldalyse.analysis import (
+    key_figures, expenses_by_category, incomes_by_category, monthly_totals, 
+    count_uncategorized, uncategorized_by_operation, month_range, available_baselines,
+    PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR, baseline_months, category_variations,
+    expenses_by_category, key_figures_variations
+)
 
 TRANSACTIONS = pd.DataFrame([
     {"date": pd.Timestamp(2026, 3, 10), "label": "INTÉRÊTS-FRAIS EPARGNE", "amount": 100.0, "category": "INVESTISSEMENT"},
@@ -28,6 +35,8 @@ UNCATEGORIZED_TRANSACTIONS = pd.DataFrame([
     {"date": pd.Timestamp(2026, 1, 20), "label": "PAIEMENT CARTE - 20/01 14:20 - FRITERIE AS 1050", "amount": -20.0, "category": "INCONNU", "merchant": "FRITERIE AS"},
     {"date": pd.Timestamp(2026, 3, 17), "label": "PAIEMENT CARTE - 17/03 10:12 - BOULANGERIE DUPONT 1000", "amount": -30.0, "category": "INCONNU", "merchant": "BOULANGERIE DUPONT"},
 ])
+
+MONTHS = pd.period_range("2025-01", "2026-01", freq="M").strftime("%Y-%m").tolist()
 
 # --- Key figures ---
 
@@ -160,3 +169,126 @@ def test_uncategorized_by_operation_ties_sorted_by_amount():
     ])
     uncategorized = uncategorized_by_operation(tied_transactions)
     assert uncategorized["merchant"].iloc[0] == "FRITERIE AS"
+
+
+def test_month_range_includes_months_without_transactions():
+    transactions = pd.DataFrame({
+        "date": [
+            pd.Timestamp(2026, 1, 15),
+            pd.Timestamp(2026, 2, 3),
+            pd.Timestamp(2026, 4, 28),
+        ],
+    })
+
+    assert month_range(transactions) == ["2026-01", "2026-02", "2026-03", "2026-04"]
+
+
+@pytest.mark.parametrize(
+    "month, expected",
+    [
+        ("2025-01", []),
+        ("2025-02", [PREVIOUS_MONTH]),
+        ("2025-04", [PREVIOUS_MONTH, LAST_THREE_MONTHS]),
+        ("2026-01", [PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR]),
+    ],
+)
+def test_available_baselines_depend_on_history(month, expected):
+    assert available_baselines(MONTHS, month) == expected
+
+
+@pytest.mark.parametrize(
+    "baseline, expected",
+    [
+        (PREVIOUS_MONTH, ["2025-12"]),
+        (LAST_THREE_MONTHS, ["2025-10", "2025-11", "2025-12"]),
+        (SAME_MONTH_LAST_YEAR, ["2025-01"]),
+    ],
+)
+def test_baseline_months_for_each_baseline(baseline, expected):
+    assert baseline_months(MONTHS, "2026-01", baseline) == expected
+
+
+def test_baseline_months_rejects_unknown_baseline():
+    with pytest.raises(ValueError, match="unknown_baseline"):
+        baseline_months(MONTHS, "2026-01", "unknown_baseline")
+
+
+def test_category_variations_current_month_total():
+    transactions = pd.DataFrame([
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -30.0, "category": "RESTAURATION"},
+        {"date": pd.Timestamp(2026, 2, 12), "amount": -20.0, "category": "RESTAURATION"},
+        {"date": pd.Timestamp(2026, 2, 25), "amount": -15.0, "category": "RESTAURATION"},
+    ])
+
+    variations = category_variations(transactions, "2026-02", ["2026-01"], expenses_by_category)
+
+    restauration = variations[variations["category"] == "RESTAURATION"]
+    assert restauration["current"].iloc[0] == 35.0
+
+
+def test_category_variations_baseline_counts_empty_months_as_zero():
+     transactions = pd.DataFrame([
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -60.0, "category": "SANTE"},
+        {"date": pd.Timestamp(2026, 4, 10), "amount": -10.0, "category": "SANTE"},
+
+     ])
+
+     variations = category_variations(transactions, "2026-04", ["2026-01", "2026-02", "2026-03"], expenses_by_category)
+     sante =  variations[variations["category"] == "SANTE"]
+
+     assert sante["baseline"].iloc[0] == 20.0 
+
+
+def test_category_variations_keeps_categories_on_one_side():
+    transactions = pd.DataFrame([
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -60.0, "category": "SANTE"},
+        {"date": pd.Timestamp(2026, 4, 10), "amount": -20.0, "category": "RESTAURATION"},
+    ])
+    variations = category_variations(transactions, "2026-04", ["2026-01", "2026-02", "2026-03"], expenses_by_category)
+    sante = variations[variations["category"] == "SANTE"]
+    restauration = variations[variations["category"] == "RESTAURATION"]
+
+    assert sante["current"].iloc[0] == 0.0
+    assert restauration["baseline"].iloc[0] == 0.0
+
+
+def test_category_variations_return_proportion_difference():
+    transactions = pd.DataFrame([
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -20.0, "category": "SANTE"},
+        {"date": pd.Timestamp(2026, 4, 10), "amount": -30.0, "category": "SANTE"},
+        {"date": pd.Timestamp(2026, 4, 10), "amount": -20.0, "category": "RESTAURATION"},
+    ])
+    variations = category_variations(transactions, "2026-04", ["2026-01"], expenses_by_category)
+    sante = variations[variations["category"] == "SANTE"]
+    restauration = variations[variations["category"] == "RESTAURATION"]
+
+    assert sante["change"].iloc[0] == 10.0
+    assert sante["change_pct"].iloc[0] == 0.5
+    assert pd.isna(restauration["change_pct"].iloc[0])
+
+def test_category_variations_biggest_change_first():
+    transactions = pd.DataFrame([
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -100.0, "category": "SANTE"},
+        {"date": pd.Timestamp(2026, 4, 10), "amount": -20.0, "category": "SANTE"},
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -5.0, "category": "RESTAURATION"},
+        {"date": pd.Timestamp(2026, 4, 10), "amount": -20.0, "category": "RESTAURATION"},
+    ])
+    variations = category_variations(transactions, "2026-04", ["2026-01"], expenses_by_category)
+   
+    assert variations["category"].iloc[0] == "SANTE"
+
+
+def test_key_figures_variations_return_chosen_month_and_base_key_figures():
+    transactions = pd.DataFrame([
+        {"date": pd.Timestamp(2026, 1, 10), "amount": 1000.0, "category": "SALAIRE"},
+        {"date": pd.Timestamp(2026, 2, 10), "amount": 1200.0, "category": "SALAIRE"},
+        {"date": pd.Timestamp(2026, 1, 10), "amount": -300.0, "category": "RESTAURATION"},
+        {"date": pd.Timestamp(2026, 2, 10), "amount": -500.0, "category": "RESTAURATION"},
+        {"date": pd.Timestamp(2026, 3, 10), "amount": 1100.0, "category": "SALAIRE"},
+        {"date": pd.Timestamp(2026, 3, 15), "amount": -350.0, "category": "RESTAURATION"},
+    ])
+    
+    current, baseline = key_figures_variations(transactions, "2026-03", ["2026-01", "2026-02"])
+
+    assert current == (1100.0, -350.0, 750.0)
+    assert baseline == (1100.0, -400.0, 700.0)

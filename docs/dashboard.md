@@ -1,6 +1,6 @@
-# Dashboard Geldalyse — conception et suivi
+# Dashboard Geldalyse — conception
 
-Ce document décrit le contenu du tableau de bord et suit l'avancement de sa construction.
+Ce document décrit le contenu du tableau de bord, ses règles de calcul et les choix de conception. Les fonctionnalités et l'avancement du projet sont dans le [README](../README.md).
 
 ## Objectif
 
@@ -12,14 +12,7 @@ Permettre à l'utilisateur de répondre en un coup d'œil à trois questions :
 
 ## Sources de données
 
-Le dashboard fonctionne avec **les deux sources**, au choix de l'utilisateur :
-
-| Source | Fonctionnement | Module utilisé |
-|---|---|---|
-| Données de démo | Transactions fictives générées à la volée | `generator.py` |
-| Relevé importé | Export ING en français, importé par l'utilisateur | `reader.py` |
-
-Les deux sources produisent le **format standard** (`schema.py`). Tout ce qui suit le choix de la source est donc identique, quelle que soit l'origine des données.
+Les données de démo et un relevé importé produisent le même **format standard** (voir l'[architecture](../README.md#architecture)). Tout le tableau de bord fonctionne donc de la même façon, quelle que soit la source.
 
 ## Mise en page
 
@@ -35,6 +28,11 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 | 6 | Vue d'ensemble | Aller plus loin | Une carte par page, en bas de page | Que puis-je regarder ensuite ? |
 | 7 | Transactions | Transactions non catégorisées, par opération | Tableau modifiable : une catégorie à choisir par opération | Que reste-t-il à classer ? |
 | 8 | Transactions | Transactions, avec filtre par catégorie | Tableau modifiable en deux onglets, sorties et entrées, les plus récentes en premier | Quelles opérations se cachent derrière les chiffres ? |
+| 9 | Évolution | Mois et base de comparaison | Deux listes déroulantes, côte à côte | Quel mois comparer, et à quoi ? |
+| 10 | Évolution | Rappel de la comparaison | Phrase sous les listes | Qu'est-ce que je suis en train de comparer ? |
+| 11 | Évolution | Chiffres clés | Trois cartes : Entrées, Sorties, Solde, avec l'écart et la valeur de la base | Globalement, ce mois est-il meilleur ou moins bon que d'habitude ? |
+| 12 | Évolution | Plus forte variation | Phrase en gras, dans les onglets Sorties et Entrées | Quelle catégorie a le plus changé ? |
+| 13 | Évolution | Écarts par catégorie | Barres divergentes, vert si favorable, rouge sinon, avec le montant au bout | Quelles catégories ont augmenté ou baissé, et de combien ? |
 
 ## Règles de conception
 
@@ -54,36 +52,21 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **Le libellé court** est affiché en priorité ; **la description complète** reste disponible en dernière colonne, pour ne rien cacher.
 - **Le contenu avant la navigation** : les liens vers les autres pages sont en bas de la vue d'ensemble. Sur mobile, les colonnes s'empilent, et l'utilisateur voit ses résultats en premier.
 
+### Règles de la page Évolution
+
+- **Des mois entiers** : la page compare un mois complet à une base, et n'utilise pas le filtre de période.
+- **Le mois par défaut est l'avant-dernier** : le dernier mois du relevé est souvent incomplet.
+- **La base par défaut est la moyenne des 3 mois précédents**, moins sensible à un mois exceptionnel. Le mois précédent et le même mois l'an passé sont proposés quand l'historique le permet. Sans historique, la page affiche un message.
+- **Les euros avant les pourcentages** : l'écart s'affiche en euros, puis en pourcentage de la base. « < 1 % » signale un écart trop petit pour être arrondi, et « (nouveau) » une base nulle.
+- **Pas de pourcentage sur le solde** : il peut changer de signe ou être proche de zéro, et le pourcentage n'aurait alors plus de sens.
+- **La couleur dit si l'écart est favorable** : une hausse des sorties est en rouge, une hausse des entrées en vert. La position des barres et le signe des montants portent la même information, pour ne pas dépendre de la couleur.
+- **Les deux vues de l'argent s'appliquent aussi ici** : les chiffres clés suivent le compte bancaire, les onglets sont nets des remboursements. La somme des barres peut donc différer de l'écart des chiffres clés.
+- **Une seule réponse par question** : les chiffres clés donnent le total, les onglets donnent le détail par catégorie. Une phrase résumé dans les onglets a été retirée, car elle répétait les chiffres clés avec un montant différent.
+- **Chaque bloc se lit seul** : les titres des cartes et la légende du graphique rappellent le mois et la base, car sur mobile le haut de la page n'est plus visible.
+
 ## Limites connues
 
 - **Un choix manuel s'applique à toute l'opération**, pour toutes ses transactions du même sens. La correction d'une seule transaction nécessite un identifiant de transaction.
 - **Les choix manuels sont conservés pendant la session uniquement** : ils sont perdus si la page est rechargée.
 - **Un salaire versé par un commerçant** dont le nom est un mot-clé, sans le mot « SALAIRE » dans le libellé, est classé comme un remboursement de ce magasin. Une règle manuelle le corrige.
-
-## Suivi de construction
-
-- [x] Squelette de l'application (`app.py`) qui se lance avec `streamlit run app.py`
-- [x] Barre latérale : choix de la source (démo ou relevé importé)
-- [x] Chargement des données et ajout de la colonne `category`
-- [x] Filtre de période
-- [x] Trois chiffres clés
-- [x] Dépenses par catégorie
-- [x] Revenus et dépenses par mois
-- [x] Tableau des transactions
-- [x] Gestion des erreurs d'import (fichier au mauvais format, fichier vide, relevé sans transaction)
-- [x] Filtre du tableau par catégorie
-- [x] Indicateur des transactions non catégorisées
-
-## Prévu pour la V2
-
-- [x] Libellé court des transactions
-- [x] Regroupement des transactions non catégorisées par opération, pour enrichir les mots-clés
-- [x] Correction manuelle de la catégorie d'une opération non catégorisée (`st.data_editor`)
-- [x] Catégories d'entrée attribuées automatiquement (salaire, intérêts, remboursement d'une personne, autres entrées) ; un remboursement de magasin garde la catégorie de sa dépense
-- [x] Chiffres clés Entrées / Sorties / Solde, et onglets des sorties et des entrées par catégorie
-- [x] Totaux nets par catégorie : un remboursement de magasin réduit sa catégorie de dépense
-- [x] Correction manuelle de la catégorie depuis le tableau des transactions, pour toute l'opération
-- [ ] Dépenses regroupées par commerçant (nombre d'achats et total), filtrables par catégorie
-- [ ] Correction de la catégorie d'une seule transaction, avec le numéro de mouvement ING
-- [ ] Indicateurs clés du mois, avec comparaison au mois précédent (`st.metric` avec `delta`)
-- [ ] Paiements récurrents, sous forme de tableau (nécessite un algorithme de détection : même libellé, montant proche, chaque mois)
+- **Un mois sans transaction compte pour 0** dans la moyenne de la page Évolution.
