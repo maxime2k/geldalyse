@@ -1,7 +1,7 @@
 """Read ING descriptions: merchant (or counterparty) name and transfer direction.
 
 Merchant name, by family of description:
-- Card payment ("PAIEMENT ..."): 3rd segment between " - ", without the trailing postal code
+- Card payment ("PAIEMENT ..."): 3rd segment between " - ", without postal code
 - Cash withdrawal ("RETRAIT D'ESPÈCES ..."): the fixed value "RETRAIT D'ESPÈCES"
 - Transfer ("VIREMENT ..."): text between "DE:" or "VERS:" and the next " - "
 - Bank operation ("DÉCOMPTE DE FRAIS"): the fixed value "FRAIS COMPTE ING"
@@ -10,7 +10,6 @@ Merchant name, by family of description:
 
 Received transfer: a "VIREMENT ..." description containing "DE:".
 """
-
 
 SEPARATOR = " - "
 
@@ -29,6 +28,7 @@ TRANSFER_MARKERS = (TRANSFER_RECEIVED_MARKER, TRANSFER_SENT_MARKER)
 
 CARD_PAYMENT_PREFIX = "PAIEMENT"
 
+
 def extract_merchant(label: str) -> str:
     """Return a short, readable name for a bank transaction description."""
 
@@ -39,19 +39,19 @@ def extract_merchant(label: str) -> str:
     for prefix, name in FIXED_NAMES.items():
         if label.startswith(prefix):
             return name
-        
-    #2. Transfer rule: text between "DE:" or "VERS:" and the next " - "
+
+    # 2. Transfer rule: text between "DE:" or "VERS:" and the next " - "
     if label.startswith(TRANSFER_PREFIX):
         for marker in TRANSFER_MARKERS:
             if marker in label:
                 after_marker = label.partition(marker)[2]
                 return after_marker.split(SEPARATOR)[0]
         return label
-    
+
     # 3. Not a card payment: no reliable rule, keep the description.
     if not label.startswith(CARD_PAYMENT_PREFIX):
         return label
-    
+
     # 4. Card payment: 3rd segment, without the postal code.
     # Spaces matter: city names such as LOUVAIN-LA-NE contain hyphens.
     segments = label.split(SEPARATOR)
@@ -59,7 +59,7 @@ def extract_merchant(label: str) -> str:
         return label
     merchant = segments[2]
     merchant_name = _remove_postal_code(name=merchant)
-    
+
     return merchant_name
 
 
@@ -78,4 +78,3 @@ def is_received_transfer(label: str) -> bool:
     label = label.upper()
 
     return label.startswith(TRANSFER_PREFIX) and TRANSFER_RECEIVED_MARKER in label
-

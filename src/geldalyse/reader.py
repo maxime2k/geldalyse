@@ -6,17 +6,16 @@ import pandas as pd
 
 from geldalyse.schema import STANDARD_COLUMNS
 
-#ING columns to Geldalyse columns
+# ING columns to Geldalyse columns
 COLUMN_MAPPING = {
     "Date valeur": "date",
     "Libellés": "label",
     "Montant": "amount",
-    
 }
 
 
 def read_bank_statement(path: Path) -> pd.DataFrame:
-    """Raise KeyError, ValueError or EmptyDataError if the file is not a valid ING export."""
+    """Raise KeyError, ValueError, EmptyDataError if the file is invalid ING export."""
 
     df = pd.read_csv(path, sep=";", decimal=",")
     transactions = df[list(COLUMN_MAPPING)]

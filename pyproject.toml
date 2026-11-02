@@ -7,7 +7,16 @@ name = "geldalyse"
 version = "0.1.0"
 description = "Analyse et catégorisation de dépenses bancaires"
 requires-python = ">=3.10"
-dependencies = ["pandas", "streamlit", "numpy", "altair", "pytest"]
+dependencies = ["pandas", "streamlit", "numpy", "altair"]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
