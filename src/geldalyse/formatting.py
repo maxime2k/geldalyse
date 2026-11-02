@@ -3,8 +3,9 @@
 import pandas as pd
 
 from geldalyse.analysis import (
-    PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR,
-
+    LAST_THREE_MONTHS,
+    PREVIOUS_MONTH,
+    SAME_MONTH_LAST_YEAR,
 )
 
 MONTH_NAMES = {

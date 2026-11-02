@@ -1,14 +1,21 @@
 """Overview page: key figures, totals by category and month by month."""
 
-import streamlit as st
 import altair as alt
+import streamlit as st
 
-from geldalyse.analysis import key_figures, expenses_by_category, incomes_by_category, monthly_totals, count_uncategorized
 from components import (
-    category_chart, period_transactions_or_stop, page_card, TRANSACTIONS_PAGE,
-    EVOLUTION_PAGE
+    EVOLUTION_PAGE,
+    TRANSACTIONS_PAGE,
+    category_chart,
+    page_card,
+    period_transactions_or_stop,
 )
-
+from geldalyse.analysis import (
+    expenses_by_category,
+    incomes_by_category,
+    key_figures,
+    monthly_totals,
+)
 
 period_transactions = period_transactions_or_stop()
 # --- Key figures ---------------------------------------------------------

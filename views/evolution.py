@@ -2,15 +2,22 @@
 
 import streamlit as st
 
-from components import ALL_TRANSACTIONS_KEY, comparison_metric, variation_tab, variation_chart
+from components import (
+    ALL_TRANSACTIONS_KEY,
+    comparison_metric,
+    variation_tab,
+)
 from geldalyse.analysis import (
-    month_range, available_baselines, LAST_THREE_MONTHS, baseline_months, key_figures_variations,
-    category_variations, expenses_by_category, incomes_by_category
+    LAST_THREE_MONTHS,
+    available_baselines,
+    baseline_months,
+    category_variations,
+    expenses_by_category,
+    incomes_by_category,
+    key_figures_variations,
+    month_range,
 )
-from geldalyse.formatting import (
-    format_month, BASELINE_LABELS, format_baseline
-)
-
+from geldalyse.formatting import BASELINE_LABELS, format_baseline, format_month
 
 st.title("Évolution")
 st.caption("Comparez un mois à vos habitudes. Cette page compare des mois entiers : elle n’utilise pas le filtre de période.")

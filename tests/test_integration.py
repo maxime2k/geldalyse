@@ -1,11 +1,10 @@
 """Integration tests: modules must work together on generated and ING data."""
 
 from datetime import date
-from pathlib import Path
 
 import pandas as pd
 
-from geldalyse.categorizer import categorize, DEFAULT_EXPENSE_CATEGORY
+from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, categorize
 from geldalyse.generator import MERCHANTS, RECURRING, generate_transactions
 from geldalyse.merchant import extract_merchant
 from geldalyse.reader import read_bank_statement

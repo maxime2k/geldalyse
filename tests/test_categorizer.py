@@ -1,10 +1,16 @@
 """Unit tests for the keyword-based categorizer."""
 
 import pandas as pd
-
 import pytest
 
-from geldalyse.categorizer import categorize, DEFAULT_INCOME_CATEGORY, DEFAULT_EXPENSE_CATEGORY, apply_manual_categories, REFUND_CATEGORY, SELECTABLE_EXPENSE_CATEGORIES, INCOME_CATEGORY_NAMES
+from geldalyse.categorizer import (
+    DEFAULT_EXPENSE_CATEGORY,
+    DEFAULT_INCOME_CATEGORY,
+    REFUND_CATEGORY,
+    SELECTABLE_EXPENSE_CATEGORIES,
+    apply_manual_categories,
+    categorize,
+)
 
 
 def test_supermarket_is_food():

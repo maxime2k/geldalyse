@@ -1,16 +1,24 @@
 """Geldalyse entry point: sidebar, data loading and navigation between pages."""
 
-import pandas as pd
 from datetime import date
 
+import pandas as pd
 import streamlit as st
 
-from geldalyse.analysis import count_uncategorized
-from geldalyse.categorizer import categorize, DEFAULT_EXPENSE_CATEGORY, apply_manual_categories
 from components import (
-    PERIOD_TRANSACTIONS_KEY, NO_TRANSACTION_MSG, EXPENSE_CHOICES_KEY, 
-    INCOME_CHOICES_KEY, ALL_TRANSACTIONS_KEY, PERIOD_TRANSACTIONS_KEY, TRANSACTIONS_PAGE,
-    OVERVIEW_PAGE, EVOLUTION_PAGE
+    ALL_TRANSACTIONS_KEY,
+    EVOLUTION_PAGE,
+    EXPENSE_CHOICES_KEY,
+    INCOME_CHOICES_KEY,
+    NO_TRANSACTION_MSG,
+    OVERVIEW_PAGE,
+    PERIOD_TRANSACTIONS_KEY,
+    TRANSACTIONS_PAGE,
+)
+from geldalyse.analysis import count_uncategorized
+from geldalyse.categorizer import (
+    apply_manual_categories,
+    categorize,
 )
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant

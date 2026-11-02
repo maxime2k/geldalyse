@@ -1,14 +1,23 @@
 """Unit tests for transactions analysis."""
 
 import pandas as pd
-
 import pytest
 
 from geldalyse.analysis import (
-    key_figures, expenses_by_category, incomes_by_category, monthly_totals, 
-    count_uncategorized, uncategorized_by_operation, month_range, available_baselines,
-    PREVIOUS_MONTH, LAST_THREE_MONTHS, SAME_MONTH_LAST_YEAR, baseline_months, category_variations,
-    expenses_by_category, key_figures_variations
+     LAST_THREE_MONTHS,
+     PREVIOUS_MONTH,
+     SAME_MONTH_LAST_YEAR,
+     available_baselines,
+     baseline_months,
+     category_variations,
+     count_uncategorized,
+     expenses_by_category,
+     incomes_by_category,
+     key_figures,
+     key_figures_variations,
+     month_range,
+     monthly_totals,
+     uncategorized_by_operation,
 )
 
 TRANSACTIONS = pd.DataFrame([

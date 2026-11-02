@@ -2,15 +2,21 @@
 
 import streamlit as st
 
-from geldalyse.analysis import count_uncategorized, uncategorized_by_operation
-from geldalyse.categorizer import EXPENSE_CATEGORIES, SELECTABLE_EXPENSE_CATEGORIES, INCOME_CATEGORY_NAMES
 from components import (
-    transactions_editor, category_changes, plural, 
-    NO_TRANSACTION_MSG, EXPENSE_CHOICES_KEY, INCOME_CHOICES_KEY, period_transactions_or_stop
+    EXPENSE_CHOICES_KEY,
+    INCOME_CHOICES_KEY,
+    NO_TRANSACTION_MSG,
+    category_changes,
+    period_transactions_or_stop,
+    plural,
+    transactions_editor,
 )
-
-
-
+from geldalyse.analysis import count_uncategorized, uncategorized_by_operation
+from geldalyse.categorizer import (
+    EXPENSE_CATEGORIES,
+    INCOME_CATEGORY_NAMES,
+    SELECTABLE_EXPENSE_CATEGORIES,
+)
 
 # --- Uncategorized transactions table -------------------------
 period_transactions = period_transactions_or_stop()

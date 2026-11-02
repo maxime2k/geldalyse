@@ -4,9 +4,12 @@ from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
-from datetime import date
 
-from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, EXPENSE_CATEGORY_NAMES, INCOME_CATEGORY_NAMES
+from geldalyse.categorizer import (
+    DEFAULT_EXPENSE_CATEGORY,
+    EXPENSE_CATEGORY_NAMES,
+    INCOME_CATEGORY_NAMES,
+)
 
 PREVIOUS_MONTH = "previous_month"
 LAST_THREE_MONTHS = "last_three_months"

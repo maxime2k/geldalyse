@@ -3,8 +3,12 @@
 import pytest
 
 from geldalyse.formatting import (
-    format_month, format_baseline, format_amount, NBSP,
-    format_change, format_top_variation
+    NBSP,
+    format_amount,
+    format_baseline,
+    format_change,
+    format_month,
+    format_top_variation,
 )
 
 

@@ -1,12 +1,14 @@
 """Streamlit display helpers shared by the pages."""
 
-import pandas as pd
-
-import streamlit as st
 import altair as alt
+import pandas as pd
+import streamlit as st
 
 from geldalyse.formatting import (
-    format_change, format_amount, NBSP, format_top_variation
+    NBSP,
+    format_amount,
+    format_change,
+    format_top_variation,
 )
 
 PERIOD_TRANSACTIONS_KEY = "period_transactions"
