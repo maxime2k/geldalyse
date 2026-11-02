@@ -28,7 +28,10 @@ def test_format_month_writes_french_name(month, expected):
     [
         (["2026-08"], "août 2026"),
         (["2026-06", "2026-07", "2026-08"], "la moyenne de juin à août 2026"),
-        (["2025-11", "2025-12", "2026-01"], "la moyenne de novembre 2025 à janvier 2026"),
+        (
+            ["2025-11", "2025-12", "2026-01"],
+            "la moyenne de novembre 2025 à janvier 2026",
+        ),
         (["2026-04", "2026-05", "2026-06"], "la moyenne d'avril à juin 2026"),
     ],
 )
@@ -70,11 +73,21 @@ def test_format_change_writes_amount_and_percentage(change, change_pct, expected
 
 
 @pytest.mark.parametrize(
-        "category, change, expected",
-        [
-            ("ALIMENTATION", 60.0, f"La plus forte variation{NBSP}: alimentation, en hausse de 60,00{NBSP}€."),
-            ("SANTE", -20.0, f"La plus forte variation{NBSP}: sante, en baisse de 20,00{NBSP}€."),
-        ]
+    "category, change, expected",
+    [
+        (
+            "ALIMENTATION",
+            60.0,
+            f"La plus forte variation{NBSP}: alimentation, en hausse de 60,00{NBSP}€.",
+        ),
+        (
+            "SANTE",
+            -20.0,
+            f"La plus forte variation{NBSP}: sante, en baisse de 20,00{NBSP}€.",
+        ),
+    ],
 )
-def test_format_top_variation_names_category_and_signed_change(category, change, expected):
+def test_format_top_variation_names_category_and_signed_change(
+    category, change, expected
+):
     assert format_top_variation(category, change) == expected

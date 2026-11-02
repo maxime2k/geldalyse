@@ -17,6 +17,7 @@ SAME_MONTH_LAST_YEAR = "same_month_last_year"
 
 # --- Key figures ---------------------------------------------------------
 
+
 def key_figures(transactions: pd.DataFrame) -> tuple[float, float, float]:
     """Return incomes, expenses and balance. Expenses stay negative."""
     income_rows = transactions[transactions["amount"] > 0]
@@ -25,16 +26,18 @@ def key_figures(transactions: pd.DataFrame) -> tuple[float, float, float]:
     incomes = income_rows["amount"].sum()
     expenses = expense_rows["amount"].sum()  # Negative: money going out.
     balance = incomes + expenses
- 
+
     return incomes, expenses, balance
 
+
 # --- Expenses by category ---
+
 
 def expenses_by_category(transactions: pd.DataFrame) -> pd.DataFrame:
     """Return total expenses per category, as positive amounts, biggest first."""
     expense_rows = transactions[transactions["category"].isin(EXPENSE_CATEGORY_NAMES)]
     expense_rows = expense_rows.assign(amount=-expense_rows["amount"])
-  
+
     return _totals_by_category(expense_rows)
 
 
@@ -56,6 +59,7 @@ def _totals_by_category(rows: pd.DataFrame) -> pd.DataFrame:
 
     return total
 
+
 # --- Monthly transactions ---
 
 
@@ -63,23 +67,26 @@ def monthly_totals(transactions: pd.DataFrame) -> pd.DataFrame:
     # Copy: adding a column must not modify the caller's DataFrame.
     transactions_copy = transactions.copy()
     transactions_copy["month"] = transactions_copy["date"].dt.strftime("%Y-%m")
-    transactions_copy["flow"] = np.where(transactions_copy["amount"] > 0, "income", "expense")
+    transactions_copy["flow"] = np.where(
+        transactions_copy["amount"] > 0, "income", "expense"
+    )
 
     total_monthly_transactions = (
         transactions_copy.groupby(["month", "flow"])["amount"]
         .sum()
         .abs()
         .reset_index()
-            # "YYYY-MM" strings sort in chronological order.
-        .sort_values("month")  # Explicit: groupby already sorts, but the order is intended.
-        
+        # "YYYY-MM" strings sort in chronological order.
+        .sort_values(
+            "month"
+        )  # Explicit: groupby already sorts, but the order is intended.
     )
 
     return total_monthly_transactions
 
 
-def count_uncategorized(transactions:pd.DataFrame) -> int:
-        # int(): .sum() returns a NumPy integer, not a Python int.
+def count_uncategorized(transactions: pd.DataFrame) -> int:
+    # int(): .sum() returns a NumPy integer, not a Python int.
 
     return int((transactions["category"] == DEFAULT_EXPENSE_CATEGORY).sum())
 
@@ -89,7 +96,7 @@ def uncategorized_by_operation(transactions: pd.DataFrame) -> pd.DataFrame:
     uncategorized = transactions[transactions["category"] == DEFAULT_EXPENSE_CATEGORY]
     grouped_uncategorized = (
         uncategorized.groupby("merchant")
-        .agg(transaction_count=("amount", "count"), total_amount=("amount", "sum")) 
+        .agg(transaction_count=("amount", "count"), total_amount=("amount", "sum"))
         .reset_index()
         .sort_values(["transaction_count", "total_amount"], ascending=[False, True])
     )
@@ -99,8 +106,10 @@ def uncategorized_by_operation(transactions: pd.DataFrame) -> pd.DataFrame:
 
 def month_range(transactions: pd.DataFrame) -> list[str]:
     """Return the list of months, enven if, there are no transactions"""
-    date_range = pd.period_range(transactions["date"].min(), transactions["date"].max(), freq="M")
-    
+    date_range = pd.period_range(
+        transactions["date"].min(), transactions["date"].max(), freq="M"
+    )
+
     return date_range.strftime("%Y-%m").tolist()
 
 
@@ -126,15 +135,14 @@ def baseline_months(months: list[str], chosen_month: str, baseline: str) -> list
     if baseline == PREVIOUS_MONTH:
         return [months[month_index - 1]]
     if baseline == LAST_THREE_MONTHS:
-        return months[month_index - 3:month_index]
+        return months[month_index - 3 : month_index]
     if baseline == SAME_MONTH_LAST_YEAR:
         return [months[month_index - 12]]
-    
+
     raise ValueError(f"Unknown baseline: {baseline}")
-    
+
 
 def category_variations(
-    
     transactions: pd.DataFrame,
     chosen_month: str,
     months_of_baseline: list[str],
@@ -148,14 +156,18 @@ def category_variations(
     baseline = totals_by_category(_month_rows(transactions, months_of_baseline))
     baseline = baseline.assign(amount=baseline["amount"] / len(months_of_baseline))
     baseline = baseline.rename(columns={"amount": "baseline"})
-   
-    variations = current.merge(baseline, on="category", how="outer").fillna(0)
-    variations = variations.assign(change=variations["current"] - variations["baseline"])
-    variations = variations.assign(change_pct=variations["change"] / variations["baseline"].where(variations["baseline"] != 0))
 
-    return ( 
-        variations.sort_values("change", key=abs, ascending=False)
-            .reset_index(drop=True)
+    variations = current.merge(baseline, on="category", how="outer").fillna(0)
+    variations = variations.assign(
+        change=variations["current"] - variations["baseline"]
+    )
+    variations = variations.assign(
+        change_pct=variations["change"]
+        / variations["baseline"].where(variations["baseline"] != 0)
+    )
+
+    return variations.sort_values("change", key=abs, ascending=False).reset_index(
+        drop=True
     )
 
 
@@ -176,6 +188,8 @@ def key_figures_variations(
 
     current_key_figures = key_figures(_month_rows(transactions, [chosen_month]))
     baseline_totals = key_figures(_month_rows(transactions, months_of_baseline))
-    baseline_key_figures = tuple(value / len(months_of_baseline) for value in baseline_totals)
+    baseline_key_figures = tuple(
+        value / len(months_of_baseline) for value in baseline_totals
+    )
 
     return current_key_figures, baseline_key_figures

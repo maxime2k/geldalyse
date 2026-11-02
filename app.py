@@ -44,10 +44,10 @@ else:
     if uploaded_file is None:
         st.info("Importez un relevé ING pour commencer.")
         st.stop()  # Nothing below can run without data.
-        
-        #A file in another format must not crash the app.
 
-    try:  
+        # A file in another format must not crash the app.
+
+    try:
         all_transactions = read_bank_statement(uploaded_file)
     except (KeyError, ValueError, UnicodeDecodeError, pd.errors.EmptyDataError):
         st.error("Veuillez importer un relevé ING en français, au format CSV")
@@ -58,7 +58,9 @@ if all_transactions.empty:
     st.warning(NO_TRANSACTION_MSG)
     st.stop()
 
-all_transactions["category"] = all_transactions.apply(lambda row: categorize(row["label"], row["amount"]), axis=1)
+all_transactions["category"] = all_transactions.apply(
+    lambda row: categorize(row["label"], row["amount"]), axis=1
+)
 # Short, readable name shown in the table; the full description is kept too.
 all_transactions["merchant"] = all_transactions["label"].apply(extract_merchant)
 
@@ -69,8 +71,12 @@ if EXPENSE_CHOICES_KEY not in st.session_state:
 if INCOME_CHOICES_KEY not in st.session_state:
     st.session_state[INCOME_CHOICES_KEY] = {}
 
-all_transactions = apply_manual_categories(all_transactions, st.session_state[EXPENSE_CHOICES_KEY])
-all_transactions = apply_manual_categories(all_transactions, st.session_state[INCOME_CHOICES_KEY])
+all_transactions = apply_manual_categories(
+    all_transactions, st.session_state[EXPENSE_CHOICES_KEY]
+)
+all_transactions = apply_manual_categories(
+    all_transactions, st.session_state[INCOME_CHOICES_KEY]
+)
 
 # --- Filter by period ---
 first_date = all_transactions["date"].min()
@@ -88,11 +94,18 @@ period_transactions = all_transactions[in_period]
 st.session_state[ALL_TRANSACTIONS_KEY] = all_transactions
 st.session_state[PERIOD_TRANSACTIONS_KEY] = period_transactions
 
-page = st.navigation([
-    st.Page(OVERVIEW_PAGE, title="Vue d'ensemble", icon=":material/dashboard:", default=True),
-    st.Page(EVOLUTION_PAGE, title="Évolution", icon=":material/trending_up:"),
-    st.Page(TRANSACTIONS_PAGE, title="Transactions", icon=":material/list:"),
-])
+page = st.navigation(
+    [
+        st.Page(
+            OVERVIEW_PAGE,
+            title="Vue d'ensemble",
+            icon=":material/dashboard:",
+            default=True,
+        ),
+        st.Page(EVOLUTION_PAGE, title="Évolution", icon=":material/trending_up:"),
+        st.Page(TRANSACTIONS_PAGE, title="Transactions", icon=":material/list:"),
+    ]
+)
 page.run()
 
 
@@ -103,10 +116,12 @@ if total_uncategorized == 0:
     st.sidebar.success("Toutes vos transactions sont dans une catégorie.")
 else:
     message = (
-    f"{total_uncategorized} transactions non catégorisées."
-    if total_uncategorized > 1
-    else "Une transaction n'a pas de catégorie."
+        f"{total_uncategorized} transactions non catégorisées."
+        if total_uncategorized > 1
+        else "Une transaction n'a pas de catégorie."
     )
     with st.sidebar.container(border=True):
         st.warning(message)
-        st.page_link(TRANSACTIONS_PAGE, label="Les classer", icon=":material/arrow_forward:")
+        st.page_link(
+            TRANSACTIONS_PAGE, label="Les classer", icon=":material/arrow_forward:"
+        )

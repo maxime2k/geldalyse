@@ -45,47 +45,50 @@ def category_chart(total_category: pd.DataFrame) -> alt.LayerChart:
     return bars + labels
 
 
-
 def transactions_editor(
-        transactions: pd.DataFrame, 
-        options: list[str], 
-        key: str, 
-        empty_message: str
-    ) -> pd.DataFrame:
+    transactions: pd.DataFrame, options: list[str], key: str, empty_message: str
+) -> pd.DataFrame:
     """Show an editable transactions table, where only the category can be changed, or a message if there is no transaction."""
 
     if transactions.empty:
         st.info(empty_message)
         return transactions
-    
+
     return st.data_editor(
         transactions,
         key=key,
         hide_index=True,
         column_order=["date", "merchant", "amount", "category", "label"],
         column_config={
-            "date": st.column_config.DateColumn("Date", format="DD/MM/YYYY", width="small"),
+            "date": st.column_config.DateColumn(
+                "Date", format="DD/MM/YYYY", width="small"
+            ),
             "label": st.column_config.TextColumn("Description"),
-            "amount": st.column_config.NumberColumn("Montant", format="%.2f €", width="small"),
-            "category": st.column_config.SelectboxColumn("Catégorie", options=sorted(options)),
+            "amount": st.column_config.NumberColumn(
+                "Montant", format="%.2f €", width="small"
+            ),
+            "category": st.column_config.SelectboxColumn(
+                "Catégorie", options=sorted(options)
+            ),
             "merchant": st.column_config.TextColumn("Opération"),
         },
         disabled=["date", "label", "amount", "merchant"],
     )
-    
+
 
 def category_changes(original: pd.DataFrame, edited: pd.DataFrame) -> dict[str, str]:
     """Return the new category of each operation whose category was changed."""
 
     changed_rows = edited[edited["category"] != original["category"]]
-        
+
     return dict(zip(changed_rows["merchant"], changed_rows["category"]))
 
 
 def plural(count: int, word: str) -> str:
     """Return the count followed by the word, with an s when the count is above 1."""
-    
+
     return f"{count} {word}s" if count > 1 else f"{count} {word}"
+
 
 def period_transactions_or_stop() -> pd.DataFrame:
     """Return the transactions of the selected period, or stop the page if there are none."""
@@ -125,34 +128,38 @@ def comparison_metric(
         delta = format_amount(change, signed=True)
 
     with st.container(border=True):
-        st.metric(label, format_amount(current_amount), delta=delta, delta_color=delta_color)
+        st.metric(
+            label, format_amount(current_amount), delta=delta, delta_color=delta_color
+        )
         if is_stable:
             caption = f"Identique à {base_description}."
         else:
-            caption = f"{base_description.capitalize()}{NBSP}: {format_amount(base_amount)}"
+            caption = (
+                f"{base_description.capitalize()}{NBSP}: {format_amount(base_amount)}"
+            )
         st.caption(caption)
 
 
 def variation_tab(
-        variations: pd.DataFrame,
-        name: str,
-        month_name: str,
-        base_description: str, 
-        delta_color: str = "normal"
+    variations: pd.DataFrame,
+    name: str,
+    month_name: str,
+    base_description: str,
+    delta_color: str = "normal",
 ) -> None:
     """Show the top category change for one tab."""
 
     if variations.empty:
         st.info(f"Pas de {name} ce mois-ci, ni dans la base de comparaison.")
         return
-    
+
     top_variation = variations.iloc[0]
     category = top_variation["category"]
     change = top_variation["change"]
 
     if round(change, 2) == 0:
-            st.info(f"Vos {name} sont identiques dans chaque catégorie.")
-            return
+        st.info(f"Vos {name} sont identiques dans chaque catégorie.")
+        return
 
     st.markdown(f"**{format_top_variation(category, change)}**")
     st.caption(
@@ -170,10 +177,8 @@ def variation_chart(
     key_variations = variations[variations["change"].round(2) != 0]
     change = key_variations["change"]
     key_variations = key_variations.assign(
-        label=change.map(
-            lambda value: format_amount(value, signed=True)
-        ),
-        favorable=(change > 0) if delta_color == "normal" else (change < 0)
+        label=change.map(lambda value: format_amount(value, signed=True)),
+        favorable=(change > 0) if delta_color == "normal" else (change < 0),
     )
     margin = change.abs().max() * LABEL_MARGIN
     low = min(change.min(), 0) - margin
@@ -195,7 +200,7 @@ def variation_chart(
             alt.value(UNFAVORABLE_COLOR),
         )
     )
-   
+
     increase_labels = (
         base.mark_text(align="left", dx=3, color=LABEL_COLOR)
         .encode(text="label")
@@ -207,4 +212,3 @@ def variation_chart(
         .transform_filter(alt.datum.change < 0)
     )
     return bars + increase_labels + decrease_labels
-    

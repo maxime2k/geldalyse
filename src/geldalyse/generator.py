@@ -1,6 +1,5 @@
 """Generate fake bank transactions for Geldalyse (fictional data only)."""
 
-
 import random
 from datetime import date, timedelta
 from pathlib import Path
@@ -54,12 +53,13 @@ def generate_transactions(start: date, days: int, seed: int = 42) -> pd.DataFram
             low, high = MERCHANTS[shop]
             amount = -round(rng.uniform(low, high), 2)
             transactions.append(make_transaction(day, shop, amount))
-        
+
     transactions = pd.DataFrame(transactions, columns=STANDARD_COLUMNS)
-        # Same date type as reader.py: both sources must share the standard format.
+    # Same date type as reader.py: both sources must share the standard format.
     transactions["date"] = pd.to_datetime(transactions["date"])
 
     return transactions
+
 
 def save_csv(transactions: pd.DataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)

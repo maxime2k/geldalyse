@@ -30,7 +30,12 @@ left, right = st.columns([3, 2])
 
 # --- Transactions details by category ---
 with left:
-    expenses_tabs, incomes_tabs = st.tabs([":material/arrow_upward: Sorties par catégorie", ":material/arrow_downward: Entrées par catégorie"])
+    expenses_tabs, incomes_tabs = st.tabs(
+        [
+            ":material/arrow_upward: Sorties par catégorie",
+            ":material/arrow_downward: Entrées par catégorie",
+        ]
+    )
     with expenses_tabs:
         total_expenses_by_category = expenses_by_category(period_transactions)
         expenses_details = category_chart(total_expenses_by_category)
@@ -40,11 +45,15 @@ with left:
         incomes_details = category_chart(total_incomes_by_category)
         st.altair_chart(incomes_details, use_container_width=True)
 
-    st.caption("Les remboursements de magasins sont déduits de leur catégorie de dépense.")
+    st.caption(
+        "Les remboursements de magasins sont déduits de leur catégorie de dépense."
+    )
 
 # -- Monthly transactions ---
 total_monthly_transactions = monthly_totals(period_transactions)
-total_monthly_transactions["flow"] = total_monthly_transactions["flow"].replace({"income": "Entrées", "expense": "Sorties"})
+total_monthly_transactions["flow"] = total_monthly_transactions["flow"].replace(
+    {"income": "Entrées", "expense": "Sorties"}
+)
 
 # -- graph monthly transactions ---
 st.subheader("Entrées et Sorties par mois")

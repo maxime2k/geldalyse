@@ -6,12 +6,11 @@ import pandas as pd
 
 from geldalyse.schema import STANDARD_COLUMNS
 
-#ING columns to Geldalyse columns
+# ING columns to Geldalyse columns
 COLUMN_MAPPING = {
     "Date valeur": "date",
     "Libellés": "label",
     "Montant": "amount",
-    
 }
 
 

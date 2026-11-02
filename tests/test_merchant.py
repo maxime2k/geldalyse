@@ -52,7 +52,7 @@ def test_card_payment_without_postcode_keeps_full_name():
 def test_malformed_card_payment_is_returned_unchanged():
     assert extract_merchant(MALFORMED_CARD_PAYMENT) == MALFORMED_CARD_PAYMENT
 
-    
+
 # --- Fixed names ---
 
 
@@ -76,6 +76,7 @@ def test_every_fixed_prefix_returns_its_name(prefix, name):
 
 # --- Unknown descriptions ---
 
+
 @pytest.mark.parametrize("label", ["opération diverse", "abc - def"])
 def test_unknown_description_is_returned_in_uppercase(label):
     assert extract_merchant(label) == label.upper()
@@ -84,7 +85,9 @@ def test_unknown_description_is_returned_in_uppercase(label):
 def test_unknown_description_with_segments_is_returned_unchanged():
     assert extract_merchant(UNKNOWN_WITH_SEGMENTS) == UNKNOWN_WITH_SEGMENTS
 
+
 # --- Transfers ---
+
 
 def test_transfer_receive():
     assert extract_merchant(TRANSFER_RECEIVED) == "SOCIÉTÉ FICTIVE SA"
@@ -108,4 +111,3 @@ def test_is_received_transfer_false_for_sent_transfer():
 
 def test_is_received_transfer_false_for_card_payment():
     assert not is_received_transfer(CARD_PAYMENT)
-

@@ -16,13 +16,17 @@ from geldalyse.schema import STANDARD_COLUMNS
 
 def test_all_merchants_are_categorized():
     for merchant, (low, high) in MERCHANTS.items():
-        assert categorize(merchant, -low) != DEFAULT_EXPENSE_CATEGORY, f"{merchant} does not have a category"
+        assert categorize(merchant, -low) != DEFAULT_EXPENSE_CATEGORY, (
+            f"{merchant} does not have a category"
+        )
 
 
 def test_all_recurring_labels_are_categorized():
     for _, label, amount in RECURRING:
-        assert categorize(label, amount) != DEFAULT_EXPENSE_CATEGORY, f"{label} does not have a category"
-        
+        assert categorize(label, amount) != DEFAULT_EXPENSE_CATEGORY, (
+            f"{label} does not have a category"
+        )
+
 
 def test_output_generator_columns_match_standard_columns():
     transactions = generate_transactions(start=date(2026, 1, 1), days=10)
@@ -45,7 +49,9 @@ def test_reader_dates_are_datetime(ing_sample):
 
 def test_reader_output_can_be_categorized(ing_sample):
     transactions = read_bank_statement(ing_sample)
-    categories = transactions.apply(lambda row: categorize(row["label"], row["amount"]), axis=1)
+    categories = transactions.apply(
+        lambda row: categorize(row["label"], row["amount"]), axis=1
+    )
     assert categories.notna().all()
 
 

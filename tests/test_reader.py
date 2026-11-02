@@ -48,7 +48,7 @@ def test_non_ing_date_format_raises_value_error():
 def test_empty_file_raises_empty_data_error():
     with pytest.raises(pd.errors.EmptyDataError):
         read_bank_statement(EMPTY_FILE)
-        
+
 
 def test_header_only_returns_empty_table():
     transactions = read_bank_statement(HEADER_ONLY)
