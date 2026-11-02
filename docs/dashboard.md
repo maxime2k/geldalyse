@@ -52,6 +52,17 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **Le libellé court** est affiché en priorité ; **la description complète** reste disponible en dernière colonne, pour ne rien cacher.
 - **Le contenu avant la navigation** : les liens vers les autres pages sont en bas de la vue d'ensemble. Sur mobile, les colonnes s'empilent, et l'utilisateur voit ses résultats en premier.
 
+### Règles de l'import
+
+- **Un relevé faux est refusé, jamais corrigé en silence** : un montant ou une date invalide refuse tout le fichier. Ignorer la ligne fausserait les totaux sans que l'utilisateur le sache.
+- **Le message donne la cause et l'action** : le fichier ne correspond pas à un export ING, il faut le télécharger à nouveau sans l'ouvrir dans Excel. Le détail (la ligne et la valeur en cause) s'affiche en dessous.
+- **Les séparateurs de milliers sont acceptés** (`1.234,56` ou `1 234,56`) à une condition : chaque groupe a exactement trois chiffres. Un point suivi de deux chiffres (`12.50`) est refusé, pour ne jamais lire 12,50 € comme 1 250 €.
+- **Les dates sont lues jour d'abord** (`03/01/2026` est le 3 janvier). Une date qui n'existe pas, comme le 30 février, est refusée.
+- **Une ligne sans aucune valeur est ignorée** : c'est une ligne de mise en page, pas une transaction.
+- **Une transaction sans description est gardée**, avec la description « SANS DESCRIPTION » : son montant compte dans les totaux, et elle apparaît dans les opérations à classer.
+- **L'utilisateur coche une case avant d'importer** : son relevé est traité sur Streamlit Cloud. Une case à cocher a été préférée à une fenêtre d'acceptation, que les utilisateurs ont pris l'habitude de valider sans lire.
+- **La démo publique est protégée** : un fichier importé est limité à 2 Mo (un relevé ING couvre un an au plus, soit environ 1 Mo pour un compte très actif), et une erreur imprévue n'affiche aucun détail technique.
+
 ### Règles de la page Évolution
 
 - **Des mois entiers** : la page compare un mois complet à une base, et n'utilise pas le filtre de période.
@@ -70,3 +81,6 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **Les choix manuels sont conservés pendant la session uniquement** : ils sont perdus si la page est rechargée.
 - **Un salaire versé par un commerçant** dont le nom est un mot-clé, sans le mot « SALAIRE » dans le libellé, est classé comme un remboursement de ce magasin. Une règle manuelle le corrige.
 - **Un mois sans transaction compte pour 0** dans la moyenne de la page Évolution.
+- **Seule la première valeur invalide est signalée** : un relevé qui en contient plusieurs les révèle une par une, à chaque nouvel import.
+- **Les transactions sans description forment une seule opération** : un choix manuel s'applique donc à toutes, même si ce sont des dépenses différentes.
+- **Les séparateurs de milliers n'ont pas été vus dans un vrai export ING** : leur prise en charge repose sur la règle des trois chiffres, sans exemple réel pour la confirmer.
