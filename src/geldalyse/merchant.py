@@ -1,7 +1,7 @@
 """Read ING descriptions: merchant (or counterparty) name and transfer direction.
 
 Merchant name, by family of description:
-- Card payment ("PAIEMENT ..."): 3rd segment between " - ", without the trailing postal code
+- Card payment ("PAIEMENT ..."): 3rd segment between " - ", without postal code
 - Cash withdrawal ("RETRAIT D'ESPÈCES ..."): the fixed value "RETRAIT D'ESPÈCES"
 - Transfer ("VIREMENT ..."): text between "DE:" or "VERS:" and the next " - "
 - Bank operation ("DÉCOMPTE DE FRAIS"): the fixed value "FRAIS COMPTE ING"

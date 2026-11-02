@@ -1,4 +1,4 @@
-"""Turn analysis results into French text for the dashboard: months, baselines and summaries."""
+"""Turn analysis results into French: months, amounths and changes."""
 
 import pandas as pd
 
@@ -40,7 +40,7 @@ def format_month(month: str) -> str:
 
 
 def format_baseline(months: list[str]) -> str:
-    """Return the French description of the baseline months, like "la moyenne de juin à août 2026"."""
+    """Return the French description of the baseline months."""
 
     if len(months) == 1:
         return format_month(months[0])
@@ -73,7 +73,7 @@ def format_amount(amount: float, signed: bool = False) -> str:
 
 
 def format_change(change: float, change_pct: float) -> str:
-    """Return a change as a signd French amount and percentage, like "+120,00 € (+9 %)", or "(nouveau)" without a percentage."""
+    """Return a change as a signed French amount and percentage."""
 
     amount = format_amount(change, signed=True)
     if pd.isna(change_pct):
@@ -87,7 +87,7 @@ def format_change(change: float, change_pct: float) -> str:
 
 
 def _sign(value: float) -> str:
-    """Return "+" for a positive value, nothing otherwise: format_amount already writes the minus sign."""
+    """Return "+" for a positive value, else "": negatives already show "-"."""
     return "+" if value > 0 else ""
 
 
@@ -95,4 +95,6 @@ def format_top_variation(category: str, change: float) -> str:
     """Return a sentence naming the category with the biggest change."""
 
     direction = "en hausse" if change > 0 else "en baisse"
-    return f"La plus forte variation{NBSP}: {category.lower()}, {direction} de {format_amount(abs(change))}."
+    amount = format_amount(abs(change))
+    category = category.lower()
+    return f"La plus forte variation{NBSP}: {category}, {direction} de {amount}."

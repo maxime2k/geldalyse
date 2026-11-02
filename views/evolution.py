@@ -21,7 +21,8 @@ from geldalyse.formatting import BASELINE_LABELS, format_baseline, format_month
 
 st.title("Évolution")
 st.caption(
-    "Comparez un mois à vos habitudes. Cette page compare des mois entiers : elle n’utilise pas le filtre de période."
+    "Comparez un mois à vos habitudes. Cette page compare des mois entiers: "
+    "elle n’utilise pas le filtre de période."
 )
 
 all_transactions = st.session_state[ALL_TRANSACTIONS_KEY]

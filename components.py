@@ -13,7 +13,10 @@ from geldalyse.formatting import (
 
 PERIOD_TRANSACTIONS_KEY = "period_transactions"
 ALL_TRANSACTIONS_KEY = "all_transactions"
-NO_TRANSACTION_MSG = "Aucune transaction à afficher. Vérifiez la période sélectionnée ou le contenu de votre relevé."
+NO_TRANSACTION_MSG = (
+    "Aucune transaction à afficher. "
+    "Vérifiez la période sélectionnée ou le contenu de votre relevé."
+)
 EXPENSE_CHOICES_KEY = "expense_choices"
 INCOME_CHOICES_KEY = "income_choices"
 
@@ -27,7 +30,7 @@ LABEL_MARGIN = 0.4  # share of the largest change, left free for the labels
 
 
 def category_chart(total_category: pd.DataFrame) -> alt.LayerChart:
-    """Build a horizontal bar chart of totals by category, biggest first, with amount labels."""
+    """Build a bar chart of totals by category, biggest first, with labels."""
 
     base = alt.Chart(total_category).encode(
         x=alt.X("amount", title="Montant (€)"),
@@ -48,7 +51,7 @@ def category_chart(total_category: pd.DataFrame) -> alt.LayerChart:
 def transactions_editor(
     transactions: pd.DataFrame, options: list[str], key: str, empty_message: str
 ) -> pd.DataFrame:
-    """Show an editable transactions table, where only the category can be changed, or a message if there is no transaction."""
+    """Show an editable transactions table (category only), or a message if empty."""
 
     if transactions.empty:
         st.info(empty_message)
@@ -91,7 +94,7 @@ def plural(count: int, word: str) -> str:
 
 
 def period_transactions_or_stop() -> pd.DataFrame:
-    """Return the transactions of the selected period, or stop the page if there are none."""
+    """Return the selected period's transactions, or stop the page if empty."""
     period_transactions = st.session_state[PERIOD_TRANSACTIONS_KEY]
     if period_transactions.empty:
         st.warning(NO_TRANSACTION_MSG)

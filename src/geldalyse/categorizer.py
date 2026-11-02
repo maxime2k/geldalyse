@@ -23,7 +23,7 @@ EXPENSE_CATEGORIES = {
     "RETRAITS": ["RETRAIT D'ESPÈCES"],
 }
 
-# Searched before EXPENSE_CATEGORIES for positive amounts: an income keyword wins over a shop name.
+# Searched before EXPENSE_CATEGORIES for positive amounts.
 INCOME_CATEGORIES = {
     "SALAIRE": ["SALAIRE"],
     "INVESTISSEMENT": ["INTÉRÊTS"],
@@ -40,7 +40,7 @@ SELECTABLE_EXPENSE_CATEGORIES = [
 
 # Match catégories with labels
 def categorize(label: str, amount: float) -> str:
-    """Return the first matching category, else a default that depends on the sign of amount."""
+    """Return the first matching category, else a default based on the sign."""
     if amount > 0:
         category = _find_category(
             label=label, categories=INCOME_CATEGORIES
@@ -72,7 +72,7 @@ def _find_category(label: str, categories: dict[str, list[str]]) -> str | None:
 def apply_manual_categories(
     transactions: pd.DataFrame, choices: dict[str, str]
 ) -> pd.DataFrame:
-    """Return a copy where each operation in choices gets the chosen category, if it matches the direction of the money."""
+    """Return a copy with the chosen categories that match the money direction."""
     transactions_copy = transactions.copy()
     chosen = transactions_copy["merchant"].map(choices)
     wrong_direction = (

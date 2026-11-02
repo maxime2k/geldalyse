@@ -8,7 +8,7 @@ import pandas as pd
 
 from geldalyse.schema import STANDARD_COLUMNS
 
-# Shop -> (min amount, max amount), in euros. Positive: the sign is applied per purchase.
+# Shop: (min amount, max amount), in euros. Positive: the sign is applied per purchase.
 MERCHANTS = {
     "DELHAIZE BRUXELLES": (15, 90),
     "COLRUYT ANDERLECHT": (20, 120),

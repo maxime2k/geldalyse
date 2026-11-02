@@ -148,7 +148,7 @@ def category_variations(
     months_of_baseline: list[str],
     totals_by_category: Callable[[pd.DataFrame], pd.DataFrame],
 ) -> pd.DataFrame:
-    """Compare the totals by category of the chosen month with the average of its baseline months."""
+    """Compare the chosen month's totals by category with its baseline average."""
 
     rows = _month_rows(transactions, [chosen_month])
     current = totals_by_category(rows).rename(columns={"amount": "current"})
@@ -184,7 +184,7 @@ def key_figures_variations(
     chosen_month: str,
     months_of_baseline: list[str],
 ) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
-    """Return the key figures of the chosen month and the average key figures of its baseline months."""
+    """Return the key figures of the chosen month and its baseline average."""
 
     current_key_figures = key_figures(_month_rows(transactions, [chosen_month]))
     baseline_totals = key_figures(_month_rows(transactions, months_of_baseline))

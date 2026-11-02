@@ -45,9 +45,10 @@ if total_uncategorized > 0:
     if new_choices:
         st.session_state[EXPENSE_CHOICES_KEY].update(new_choices)
         st.rerun()
-
+    transactions_text = plural(total_uncategorized, "transaction")
+    operations_text = plural(len(uncategorized_table), "opération")
     st.caption(
-        f"{plural(total_uncategorized, 'transaction')} regroupées en {plural(len(uncategorized_table), 'opération')}"
+        f"{transactions_text} regroupées en {operations_text}"
         if total_uncategorized > 1
         else "1 transaction"
     )
@@ -74,12 +75,14 @@ incomes_transactions = sorted_transactions[sorted_transactions["amount"] > 0]
 
 
 expenses_msg = (
-    "Aucune sortie pour la période et les catégories sélectionnées. Les résultats sont dans l'onglet Entrées."
+    "Aucune sortie pour la période et les catégories sélectionnées. "
+    "Les résultats sont dans l'onglet Entrées."
     if not incomes_transactions.empty
     else NO_TRANSACTION_MSG
 )
 income_msg = (
-    "Aucune entrée pour la période et les catégories sélectionnées. Les résultats sont dans l'onglet Sorties."
+    "Aucune entrée pour la période et les catégories sélectionnées. "
+    "Les résultats sont dans l'onglet Sorties."
     if not expenses_transactions.empty
     else NO_TRANSACTION_MSG
 )
@@ -106,7 +109,8 @@ with st.form("transactions"):
 
     submitted = st.form_submit_button("Enregistrer les modifications")
 st.caption(
-    "Cliquez sur une catégorie pour la modifier, puis enregistrez. Un changement s’applique à toutes les transactions de cette opération."
+    "Cliquez sur une catégorie pour la modifier, puis enregistrez. "
+    "Un changement s’applique à toutes les transactions de cette opération."
 )
 
 if submitted:
