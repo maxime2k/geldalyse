@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from geldalyse.reader import parse_amount, read_bank_statement
+from geldalyse.reader import MISSING_LABEL, parse_amount, read_bank_statement
 from geldalyse.schema import STANDARD_COLUMNS
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
@@ -21,12 +21,13 @@ HEADER = (
 )
 
 
-def ing_csv(amount: str = "-12,50", date: str = "03/01/2026") -> StringIO:
+def ing_csv(
+    amount: str = "-12,50",
+    date: str = "03/01/2026",
+    label: str = "Retrait d'espèces Bancontact 11/02/26 - 14h48 - CASH 1000 - BRUSSELS",
+) -> StringIO:
     """Return an in-memory ING export with one transaction of the given amount."""
-    row = (
-        f";;;7;12/02/2026;{date};{amount};"
-        "EUR;Retrait d'espèces Bancontact 11/02/26 - 14h48 - CASH 1000 - BRUXELLES;;"
-    )
+    row = f";;;7;12/02/2026;{date};{amount};EUR;{label};;"
     return StringIO(f"{HEADER}\n{row}\n")
 
 
@@ -122,3 +123,9 @@ def test_read_bank_statement_rejects_invalid_date(date):
 def test_read_bank_statement_reads_day_first():
     transactions = read_bank_statement(ing_csv(date="05/01/2021"))
     assert transactions["date"].iloc[0] == pd.Timestamp(2021, 1, 5)
+
+
+@pytest.mark.parametrize("label", ["", "   "])
+def test_read_bank_statement_replaces_missing_label(label):
+    transactions = read_bank_statement(ing_csv(label=label))
+    assert transactions["label"].iloc[0] == MISSING_LABEL

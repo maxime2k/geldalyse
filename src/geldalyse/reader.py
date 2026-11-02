@@ -14,6 +14,7 @@ COLUMN_MAPPING = {
     "Montant": "amount",
 }
 AMOUNT_PATTERN = re.compile(r"-?(?:\d{1,3}(?:[. ]\d{3})+|\d+)(?:,\d{1,2})?")
+MISSING_LABEL = "SANS DESCRIPTION"
 
 
 def read_bank_statement(path: Path) -> pd.DataFrame:
@@ -30,6 +31,7 @@ def read_bank_statement(path: Path) -> pd.DataFrame:
     # Explicit day-first format: 03/01 must be January 3rd, not March 1st.
     transactions["date"] = _parse_dates(transactions["date"])
     transactions["label"] = transactions["label"].str.strip().str.upper()
+    transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
 
     transactions["amount"] = _parse_amounts(transactions["amount"])
 
