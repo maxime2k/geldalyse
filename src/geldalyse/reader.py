@@ -28,7 +28,7 @@ def read_bank_statement(path: Path) -> pd.DataFrame:
     transactions = transactions.rename(columns=COLUMN_MAPPING)
 
     # Explicit day-first format: 03/01 must be January 3rd, not March 1st.
-    transactions["date"] = pd.to_datetime(transactions["date"], format="%d/%m/%Y")
+    transactions["date"] = _parse_dates(transactions["date"])
     transactions["label"] = transactions["label"].str.strip().str.upper()
 
     transactions["amount"] = _parse_amounts(transactions["amount"])
@@ -52,3 +52,14 @@ def parse_amount(text: str) -> float:
     if AMOUNT_PATTERN.fullmatch(text) is None:
         raise ValueError(f"Montant invalide : « {text} ».")
     return float(text.replace(".", "").replace(" ", "").replace(",", "."))
+
+
+def _parse_dates(dates: pd.Series) -> pd.Series:
+    """Parse each day-first date, or raise ValueError with its line in the file."""
+    # Explicit day-first format: 03/01 must be January 3rd, not March 1st.
+    parsed = pd.to_datetime(dates, format="%d/%m/%Y", errors="coerce")
+    invalid = parsed.isna()
+    if invalid.any():
+        index = invalid.idxmax()
+        raise ValueError(f"Ligne {index + 2}. Date invalide : « {dates[index]} ».")
+    return parsed

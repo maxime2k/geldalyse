@@ -11,7 +11,6 @@ from geldalyse.schema import STANDARD_COLUMNS
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 WRONG_COLUMNS = FIXTURES_DIR / "wrong_format.csv"
-WRONG_DATE_FORMAT = FIXTURES_DIR / "wrong_date_format.csv"
 EMPTY_FILE = FIXTURES_DIR / "empty.csv"
 HEADER_ONLY = FIXTURES_DIR / "header_only.csv"
 
@@ -22,10 +21,10 @@ HEADER = (
 )
 
 
-def ing_csv(amount: str) -> StringIO:
+def ing_csv(amount: str = "-12,50", date: str = "03/01/2026") -> StringIO:
     """Return an in-memory ING export with one transaction of the given amount."""
     row = (
-        f";;;7;12/02/2026;11/02/2026;{amount};"
+        f";;;7;12/02/2026;{date};{amount};"
         "EUR;Retrait d'espèces Bancontact 11/02/26 - 14h48 - CASH 1000 - BRUXELLES;;"
     )
     return StringIO(f"{HEADER}\n{row}\n")
@@ -54,11 +53,6 @@ def test_output_has_no_missing_values(ing_sample):
 def test_non_ing_file_raises_key_error():
     with pytest.raises(KeyError):
         read_bank_statement(WRONG_COLUMNS)
-
-
-def test_non_ing_date_format_raises_value_error():
-    with pytest.raises(ValueError):
-        read_bank_statement(WRONG_DATE_FORMAT)
 
 
 def test_empty_file_raises_empty_data_error():
@@ -113,4 +107,18 @@ def test_parse_amount_rejects_invalid_amounts(amount):
 @pytest.mark.parametrize("amount", ["abc", "", "12.50"])
 def test_read_bank_statement_rejects_invalid_amount(amount):
     with pytest.raises(ValueError, match="Ligne 2"):
-        read_bank_statement(ing_csv(amount))
+        read_bank_statement(ing_csv(amount=amount))
+
+
+@pytest.mark.parametrize(
+    "date",
+    ["", "any text", "30/02/2015", "25/01/203", "2026/02/15", "2026-01-03"],
+)
+def test_read_bank_statement_rejects_invalid_date(date):
+    with pytest.raises(ValueError, match="Ligne 2"):
+        read_bank_statement(ing_csv(date=date))
+
+
+def test_read_bank_statement_reads_day_first():
+    transactions = read_bank_statement(ing_csv(date="05/01/2021"))
+    assert transactions["date"].iloc[0] == pd.Timestamp(2021, 1, 5)
