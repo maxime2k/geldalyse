@@ -22,12 +22,17 @@ from geldalyse.categorizer import (
 )
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant
-from geldalyse.reader import read_bank_statement
+from geldalyse.reader import InvalidStatementError, read_bank_statement
 
 st.set_page_config(page_title="Geldalyse", layout="wide")
 
 DEMO_SOURCE = "Données de démo"
 UPLOAD_SOURCE = "Importer un relevé ING"
+INVALID_FILE_MSG = (
+    "Ce fichier ne correspond pas à un export ING en français. "
+    "Téléchargez à nouveau votre relevé depuis votre app ou Home’Bank, "
+    "sans l’ouvrir ni l’enregistrer dans Excel."
+)
 
 st.title("Geldalyse")
 st.write("Comprendre où part son argent.")
@@ -49,8 +54,12 @@ else:
 
     try:
         all_transactions = read_bank_statement(uploaded_file)
+    except InvalidStatementError as error:
+        st.error(INVALID_FILE_MSG)
+        st.caption(str(error))
+        st.stop()
     except (KeyError, ValueError, UnicodeDecodeError, pd.errors.EmptyDataError):
-        st.error("Veuillez importer un relevé ING en français, au format CSV")
+        st.error(INVALID_FILE_MSG)
         st.stop()
 
 # Both sources share the standard format, so everything below is source-agnostic.

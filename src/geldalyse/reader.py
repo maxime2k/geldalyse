@@ -17,9 +17,16 @@ AMOUNT_PATTERN = re.compile(r"-?(?:\d{1,3}(?:[. ]\d{3})+|\d+)(?:,\d{1,2})?")
 MISSING_LABEL = "SANS DESCRIPTION"
 
 
-def read_bank_statement(path: Path) -> pd.DataFrame:
-    """Raise KeyError, ValueError, EmptyDataError if the file is invalid ING export."""
+class InvalidStatementError(ValueError):
+    """Raised when a bank statement has an invalid value."""
 
+
+def read_bank_statement(path: Path) -> pd.DataFrame:
+    """Read an ING export into the standard transaction format.
+
+    Raise InvalidStatementError for an invalid value, and KeyError, ValueError
+    or EmptyDataError if the file is not an ING export.
+    """
     df = pd.read_csv(path, sep=";", dtype={"Montant": str}, keep_default_na=False)
     transactions = df[list(COLUMN_MAPPING)]
 
@@ -45,7 +52,7 @@ def _parse_amounts(amounts: pd.Series) -> pd.Series:
         try:
             values.append(parse_amount(text))
         except ValueError as error:
-            raise ValueError(f"Ligne {index + 2}. {error}") from error
+            raise InvalidStatementError(f"Ligne {index + 2}. {error}") from error
     return pd.Series(values, index=amounts.index)
 
 
@@ -63,5 +70,7 @@ def _parse_dates(dates: pd.Series) -> pd.Series:
     invalid = parsed.isna()
     if invalid.any():
         index = invalid.idxmax()
-        raise ValueError(f"Ligne {index + 2}. Date invalide : « {dates[index]} ».")
+        raise InvalidStatementError(
+            f"Ligne {index + 2}. Date invalide : « {dates[index]} »."
+        )
     return parsed

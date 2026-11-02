@@ -6,7 +6,12 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from geldalyse.reader import MISSING_LABEL, parse_amount, read_bank_statement
+from geldalyse.reader import (
+    MISSING_LABEL,
+    InvalidStatementError,
+    parse_amount,
+    read_bank_statement,
+)
 from geldalyse.schema import STANDARD_COLUMNS
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
@@ -107,7 +112,7 @@ def test_parse_amount_rejects_invalid_amounts(amount):
 
 @pytest.mark.parametrize("amount", ["abc", "", "12.50"])
 def test_read_bank_statement_rejects_invalid_amount(amount):
-    with pytest.raises(ValueError, match="Ligne 2"):
+    with pytest.raises(InvalidStatementError, match="Ligne 2"):
         read_bank_statement(ing_csv(amount=amount))
 
 
@@ -116,7 +121,7 @@ def test_read_bank_statement_rejects_invalid_amount(amount):
     ["", "any text", "30/02/2015", "25/01/203", "2026/02/15", "2026-01-03"],
 )
 def test_read_bank_statement_rejects_invalid_date(date):
-    with pytest.raises(ValueError, match="Ligne 2"):
+    with pytest.raises(InvalidStatementError, match="Ligne 2"):
         read_bank_statement(ing_csv(date=date))
 
 
