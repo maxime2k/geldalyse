@@ -19,7 +19,7 @@ Geldalyse est une application Python qui importe un relevé bancaire, catégoris
 - **Catégorisation automatique** selon les mots-clés et le sens de l'argent : entrées et sorties ont leurs propres catégories
 - **Libellé court lisible** : le commerçant, le bénéficiaire d'un virement ou la nature d'une opération bancaire, extrait de la longue description de la banque
 - **Correction manuelle des catégories**, pour toutes les transactions d'une même opération
-- **Gestion des erreurs d'import** : un fichier au mauvais format affiche un message clair, sans faire planter l'application
+- **Import vérifié** : un montant ou une date invalide refuse le relevé, avec la ligne en cause, plutôt que de fausser les chiffres. Les montants avec séparateur de milliers sont acceptés
 - **Tableau de bord interactif**, en trois pages :
   - **Vue d'ensemble** : entrées, sorties et solde de la période, détail par catégorie et mois par mois
   - **Transactions** : opérations à classer et tableau détaillé des transactions
@@ -73,8 +73,9 @@ geldalyse/
 ## Qualité et intégration continue
 
 - **Tests unitaires et d'intégration** avec pytest, dont une partie écrite en TDD
-- **Intégration continue** : les tests sont lancés automatiquement par GitHub Actions à chaque push et à chaque pull request
-- **Branche `main` protégée** : toute modification passe par une pull request, fusionnable uniquement si les tests passent
+- **Code vérifié et formaté** avec Ruff, en local et dans la CI
+- **Intégration continue** : les tests et Ruff sont lancés automatiquement par GitHub Actions à chaque push et à chaque pull request
+- **Branche `main` protégée** : toute modification passe par une pull request, fusionnable uniquement si toutes les vérifications passent
 - **Déploiement continu** : l'application en ligne est mise à jour automatiquement à chaque fusion dans `main`
 
 ## Stack technique
@@ -101,6 +102,8 @@ pip install -r requirements.txt
 
 Sous Ubuntu ou Debian, si la création de l'environnement virtuel échoue, installez d'abord le paquet `python3-venv`.
 
+Sans Git, vous pouvez aussi télécharger le projet depuis GitHub : bouton **Code**, puis **Download ZIP**. Décompressez l'archive, ouvrez un terminal dans le dossier, puis reprenez à partir de `python3 -m venv .venv`.
+
 ## Utilisation
 
 **Lancer le tableau de bord :**
@@ -120,14 +123,15 @@ python -m geldalyse.generator
 **Lancer les tests :**
 
 ```bash
+pip install -e ".[dev]"
 pytest
 ```
 
 ## Données et confidentialité
 
-Le dépôt ne contient **aucune donnée bancaire réelle**. Les tests utilisent des fixtures synthétiques qui reproduisent la structure d'un export ING, avec un contenu entièrement inventé. Un relevé importé dans l'application n'est jamais enregistré : il est traité en mémoire, tout comme les catégories choisies manuellement, perdues à la fermeture de la page.
+Le dépôt ne contient **aucune donnée bancaire réelle**. Les tests utilisent des fixtures synthétiques qui reproduisent la structure d'un export ING, avec un contenu entièrement inventé. Un relevé importé n'est jamais enregistré : il est traité en mémoire le temps de la session, tout comme les catégories choisies manuellement, perdues à la fermeture de la page.
 
-Pour analyser vos propres relevés, **utilisez l'application en local** : vos données ne quittent alors jamais votre ordinateur. La version en ligne est destinée à la démonstration, avec les données fictives.
+Sur la version en ligne, ce traitement a lieu sur les serveurs de Streamlit Cloud : l'application demande donc de cocher une case avant tout import. Pour analyser vos propres relevés, **utilisez l'application en local** : vos données ne quittent alors jamais votre ordinateur.
 
 ## Feuille de route
 
@@ -186,8 +190,10 @@ Pour analyser vos propres relevés, **utilisez l'application en local** : vos do
 - [ ] Budgets par catégorie avec alertes
 
 **Qualité**
+- [x] Vérification et formatage du code avec Ruff, dans la CI
+- [x] Exception personnalisée pour les relevés invalides
 - [ ] Tests sur plusieurs versions de Python (matrice CI)
-- [ ] Exception personnalisée pour les relevés invalides
+
 
 ## Auteur
 

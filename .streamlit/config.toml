@@ -1,3 +1,11 @@
 [theme]
 base = "dark"
 primaryColor = "#1F6FEB"
+
+[server]
+# An ING export covers one year at most: about 1 MB for a very active account.
+maxUploadSize = 2
+
+[client]
+# Never show code or values to visitors: details stay in the logs.
+showErrorDetails = "none"
