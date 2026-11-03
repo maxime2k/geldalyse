@@ -119,20 +119,6 @@ period_transactions = all_transactions[in_period]
 st.session_state[ALL_TRANSACTIONS_KEY] = all_transactions
 st.session_state[PERIOD_TRANSACTIONS_KEY] = period_transactions
 
-page = st.navigation(
-    [
-        st.Page(
-            OVERVIEW_PAGE,
-            title="Vue d'ensemble",
-            icon=":material/dashboard:",
-            default=True,
-        ),
-        st.Page(EVOLUTION_PAGE, title="Évolution", icon=":material/trending_up:"),
-        st.Page(TRANSACTIONS_PAGE, title="Transactions", icon=":material/list:"),
-    ]
-)
-page.run()
-
 
 # --- Count uncategorized transactions ---
 
@@ -150,3 +136,18 @@ else:
         st.page_link(
             TRANSACTIONS_PAGE, label="Les classer", icon=":material/arrow_forward:"
         )
+
+
+page = st.navigation(
+    [
+        st.Page(
+            OVERVIEW_PAGE,
+            title="Vue d'ensemble",
+            icon=":material/dashboard:",
+            default=True,
+        ),
+        st.Page(EVOLUTION_PAGE, title="Évolution", icon=":material/trending_up:"),
+        st.Page(TRANSACTIONS_PAGE, title="Transactions", icon=":material/list:"),
+    ]
+)
+page.run()
