@@ -79,6 +79,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 
 - **Un choix manuel s'applique à toute l'opération**, pour toutes ses transactions du même sens. La correction d'une seule transaction nécessite un identifiant de transaction.
 - **Les choix manuels sont conservés pendant la session uniquement** : ils sont perdus si la page est rechargée.
+- **Les choix manuels sont partagés entre la démo et un relevé importé** pendant la session : une opération classée dans la démo garde ce choix si un relevé importé contient une opération du même nom.
 - **Un salaire versé par un commerçant** dont le nom est un mot-clé, sans le mot « SALAIRE » dans le libellé, est classé comme un remboursement de ce magasin. Une règle manuelle le corrige.
 - **Un mois sans transaction compte pour 0** dans la moyenne de la page Évolution.
 - **Seule la première valeur invalide est signalée** : un relevé qui en contient plusieurs les révèle une par une, à chaque nouvel import.
