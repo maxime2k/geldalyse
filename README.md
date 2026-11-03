@@ -33,18 +33,16 @@ Le projet suit un schéma **ETL** (*Extract, Transform, Load*). Chaque étape es
 
 | Étape | Module | Rôle |
 |---|---|---|
-| Extract | `reader.py` | Lit un export bancaire CSV |
+| Extract | `readers/` | Lit un export bancaire : un lecteur par banque, qui valide les données et déchiffre les libellés |
 | Extract | `generator.py` | Génère des transactions fictives reproductibles |
-| Transform | `reader.py` | Convertit les données au format standard |
 | Transform | `categorizer.py` | Attribue une catégorie selon les mots-clés et le signe du montant, et applique les choix manuels |
-| Transform | `merchant.py` | Extrait le nom de la contrepartie et reconnaît les virements reçus |
 | Transform | `analysis.py` | Calcule les chiffres clés et les agrégats |
 | Load | `app.py` | Point d'entrée : barre latérale, chargement des données et navigation |
 | Load | `views/` | Une page du tableau de bord par fichier |
 | Load | `components.py` | Fonctions d'affichage partagées par les pages |
 | Load | `formatting.py` | Met en forme les résultats en français (mois, montants, écarts) |
 
-Toutes les sources de données produisent le même **format standard**, défini dans `schema.py`. Ajouter une nouvelle banque ne demande donc qu'un nouveau lecteur : le reste de l'application ne change pas.
+Chaque banque a son lecteur, qui hérite de la classe `BankReader` et produit le **format standard** défini dans `schema.py`. Le reste de l'application ne travaille que sur ce format, sans savoir d'où viennent les données. Objectif en cours : qu'ajouter une nouvelle banque ne demande qu'un nouveau lecteur. Pour cela, le commerçant et le type d'opération seront produits par chaque lecteur, et non plus déchiffrés ensuite à partir des libellés ING.
 
 La logique (`src/geldalyse/`) ne dépend pas de Streamlit : elle est testée seule, et pourrait servir une autre interface.
 
@@ -57,12 +55,14 @@ geldalyse/
 │   ├── overview.py         # Vue d'ensemble : chiffres clés, catégories, mois par mois
 │   └── transactions.py     # Transactions : non catégorisées et tableau modifiable
 ├── src/geldalyse/
+│   ├── readers/
+│   │   ├── __init__.py     # read_statement : lit un relevé, quelle que soit la banque
+│   │   ├── base.py         # BankReader : le contrat commun à tous les lecteurs
+│   │   └── ing.py          # Lecture, validation et libellés des exports ING
 │   ├── analysis.py         # Chiffres clés, agrégats et variations
 │   ├── categorizer.py      # Catégorisation par mots-clés et signe du montant
 │   ├── formatting.py       # Textes en français : mois, montants, écarts
 │   ├── generator.py        # Transactions fictives
-│   ├── merchant.py         # Libellé court et reconnaissance des virements reçus
-│   ├── reader.py           # Lecture des exports ING
 │   └── schema.py           # Format standard des données
 ├── tests/                  # Tests unitaires et d'intégration (pytest)
 │   └── fixtures/           # Relevés synthétiques, valides et invalides

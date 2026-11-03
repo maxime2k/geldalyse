@@ -55,7 +55,7 @@ def generate_transactions(start: date, days: int, seed: int = 42) -> pd.DataFram
             transactions.append(make_transaction(day, shop, amount))
 
     transactions = pd.DataFrame(transactions, columns=STANDARD_COLUMNS)
-    # Same date type as reader.py: both sources must share the standard format.
+    # Same date type as reader: both sources must share the standard format.
     transactions["date"] = pd.to_datetime(transactions["date"])
 
     return transactions

@@ -6,7 +6,7 @@ Keep keywords precise: "CAR" would also match "CARTE".
 
 import pandas as pd
 
-from geldalyse.merchant import is_received_transfer
+from geldalyse.readers.ing import is_received_transfer
 
 DEFAULT_EXPENSE_CATEGORY = "INCONNU"
 DEFAULT_INCOME_CATEGORY = "AUTRES ENTRÉES"

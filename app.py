@@ -21,8 +21,8 @@ from geldalyse.categorizer import (
     categorize,
 )
 from geldalyse.generator import generate_transactions
-from geldalyse.merchant import extract_merchant
-from geldalyse.reader import InvalidStatementError, read_bank_statement
+from geldalyse.readers import InvalidStatementError, read_statement
+from geldalyse.readers.ing import extract_merchant
 
 st.set_page_config(page_title="Geldalyse", layout="wide")
 
@@ -69,7 +69,7 @@ else:
         # A file in another format must not crash the app.
 
     try:
-        all_transactions = read_bank_statement(uploaded_file)
+        all_transactions = read_statement(uploaded_file)
     except InvalidStatementError as error:
         st.error(INVALID_FILE_MSG)
         st.caption(str(error))
