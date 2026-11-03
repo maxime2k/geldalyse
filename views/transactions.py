@@ -24,6 +24,11 @@ period_transactions = period_transactions_or_stop()
 total_uncategorized = count_uncategorized(period_transactions)
 if total_uncategorized > 0:
     st.subheader("Transactions non catégorisées, par opération")
+    st.caption(
+        "Cliquez sur une catégorie pour la modifier. "
+        "Un changement s’applique à toutes les transactions de cette opération "
+        "et reste conservé jusqu’à ce que vous rechargiez ou fermiez la page."
+    )
     uncategorized_table = uncategorized_by_operation(period_transactions)
     uncategorized_table["category"] = None
     edited_table = st.data_editor(
@@ -110,7 +115,8 @@ with st.form("transactions"):
     submitted = st.form_submit_button("Enregistrer les modifications")
 st.caption(
     "Cliquez sur une catégorie pour la modifier, puis enregistrez. "
-    "Un changement s’applique à toutes les transactions de cette opération."
+    "Un changement s’applique à toutes les transactions de cette opération "
+    "et reste conservé jusqu’à ce que vous rechargiez ou fermiez la page."
 )
 
 if submitted:
