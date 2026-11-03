@@ -16,14 +16,15 @@ from geldalyse.analysis import (
     key_figures,
     monthly_totals,
 )
+from geldalyse.formatting import format_amount
 
 period_transactions = period_transactions_or_stop()
 # --- Key figures ---------------------------------------------------------
 incomes, expenses, balance = key_figures(period_transactions)
 income_col, expenses_col, balance_col = st.columns(3)
-income_col.metric("Entrées", f"{incomes:.2f} €", border=True)
-expenses_col.metric("Sorties", f"{abs(expenses):.2f} €", border=True)
-balance_col.metric("Solde", f"{balance:.2f} €", border=True)
+income_col.metric("Entrées", f"{format_amount(incomes)}", border=True)
+expenses_col.metric("Sorties", f"{format_amount(abs(expenses))}", border=True)
+balance_col.metric("Solde", f"{format_amount(balance)}", border=True)
 
 
 left, right = st.columns([3, 2])
