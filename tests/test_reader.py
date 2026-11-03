@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from geldalyse.reader import (
+from geldalyse.readers.ing import (
     MISSING_LABEL,
     InvalidStatementError,
     parse_amount,

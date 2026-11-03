@@ -22,7 +22,7 @@ from geldalyse.categorizer import (
 )
 from geldalyse.generator import generate_transactions
 from geldalyse.merchant import extract_merchant
-from geldalyse.reader import InvalidStatementError, read_bank_statement
+from geldalyse.readers.ing import InvalidStatementError, read_bank_statement
 
 st.set_page_config(page_title="Geldalyse", layout="wide")
 
