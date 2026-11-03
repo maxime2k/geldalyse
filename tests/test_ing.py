@@ -9,11 +9,11 @@ import pytest
 from geldalyse.readers.ing import (
     FIXED_NAMES,
     MISSING_LABEL,
+    INGReader,
     InvalidStatementError,
     extract_merchant,
     is_received_transfer,
     parse_amount,
-    read_bank_statement,
 )
 from geldalyse.schema import STANDARD_COLUMNS
 
@@ -69,37 +69,37 @@ def ing_csv(
 
 
 def test_output_columns_match(ing_sample):
-    transactions = read_bank_statement(ing_sample)
+    transactions = INGReader().read(ing_sample)
     assert list(transactions.columns) == STANDARD_COLUMNS
 
 
 def test_small_negative_amount_keeps_sign(ing_sample):
-    transactions = read_bank_statement(ing_sample)
+    transactions = INGReader().read(ing_sample)
     assert transactions["amount"][3] == -0.5
 
 
 def test_dates_are_converted(ing_sample):
-    transactions = read_bank_statement(ing_sample)
+    transactions = INGReader().read(ing_sample)
     assert transactions["date"][0] == pd.Timestamp(2025, 12, 31)
 
 
 def test_output_has_no_missing_values(ing_sample):
-    transactions = read_bank_statement(ing_sample)
+    transactions = INGReader().read(ing_sample)
     assert not transactions.isna().any().any()
 
 
 def test_non_ing_file_raises_key_error():
     with pytest.raises(KeyError):
-        read_bank_statement(WRONG_COLUMNS)
+        INGReader().read(WRONG_COLUMNS)
 
 
 def test_empty_file_raises_empty_data_error():
     with pytest.raises(pd.errors.EmptyDataError):
-        read_bank_statement(EMPTY_FILE)
+        INGReader().read(EMPTY_FILE)
 
 
 def test_header_only_returns_empty_table():
-    transactions = read_bank_statement(HEADER_ONLY)
+    transactions = INGReader().read(HEADER_ONLY)
     assert transactions.empty
     assert list(transactions) == STANDARD_COLUMNS
 
@@ -143,28 +143,28 @@ def test_parse_amount_rejects_invalid_amounts(amount):
 
 
 @pytest.mark.parametrize("amount", ["abc", "", "12.50"])
-def test_read_bank_statement_rejects_invalid_amount(amount):
+def test_ing_reader_rejects_invalid_amount(amount):
     with pytest.raises(InvalidStatementError, match="Ligne 2"):
-        read_bank_statement(ing_csv(amount=amount))
+        INGReader().read(ing_csv(amount=amount))
 
 
 @pytest.mark.parametrize(
     "date",
     ["", "any text", "30/02/2015", "25/01/203", "2026/02/15", "2026-01-03"],
 )
-def test_read_bank_statement_rejects_invalid_date(date):
+def test_ing_reader_rejects_invalid_date(date):
     with pytest.raises(InvalidStatementError, match="Ligne 2"):
-        read_bank_statement(ing_csv(date=date))
+        INGReader().read(ing_csv(date=date))
 
 
-def test_read_bank_statement_reads_day_first():
-    transactions = read_bank_statement(ing_csv(date="05/01/2021"))
+def test_ing_reader_reads_day_first():
+    transactions = INGReader().read(ing_csv(date="05/01/2021"))
     assert transactions["date"].iloc[0] == pd.Timestamp(2021, 1, 5)
 
 
 @pytest.mark.parametrize("label", ["", "   "])
-def test_read_bank_statement_replaces_missing_label(label):
-    transactions = read_bank_statement(ing_csv(label=label))
+def test_ing_reader_replaces_missing_label(label):
+    transactions = INGReader().read(ing_csv(label=label))
     assert transactions["label"].iloc[0] == MISSING_LABEL
 
 

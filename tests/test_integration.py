@@ -6,7 +6,8 @@ import pandas as pd
 
 from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, categorize
 from geldalyse.generator import MERCHANTS, RECURRING, generate_transactions
-from geldalyse.readers.ing import extract_merchant, read_bank_statement
+from geldalyse.readers import read_statement
+from geldalyse.readers.ing import extract_merchant
 from geldalyse.schema import STANDARD_COLUMNS
 
 # --- Generated data ---
@@ -42,12 +43,12 @@ def test_generator_dates_are_datetime():
 
 
 def test_reader_dates_are_datetime(ing_sample):
-    transactions = read_bank_statement(ing_sample)
+    transactions = read_statement(ing_sample)
     assert pd.api.types.is_datetime64_any_dtype(transactions["date"])
 
 
 def test_reader_output_can_be_categorized(ing_sample):
-    transactions = read_bank_statement(ing_sample)
+    transactions = read_statement(ing_sample)
     categories = transactions.apply(
         lambda row: categorize(row["label"], row["amount"]), axis=1
     )
@@ -55,6 +56,6 @@ def test_reader_output_can_be_categorized(ing_sample):
 
 
 def test_reader_output_gives_non_empty_merchant(ing_sample):
-    transactions = read_bank_statement(ing_sample)
+    transactions = read_statement(ing_sample)
     merchants = transactions["label"].apply(extract_merchant)
     assert (merchants.str.len() > 0).all()

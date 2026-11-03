@@ -12,10 +12,10 @@ Received transfer: a "VIREMENT ..." description containing "DE:".
 """
 
 import re
-from pathlib import Path
 
 import pandas as pd
 
+from geldalyse.readers.base import BankReader, InvalidStatementError
 from geldalyse.schema import STANDARD_COLUMNS
 
 # ING columns to Geldalyse columns
@@ -45,32 +45,31 @@ TRANSFER_MARKERS = (TRANSFER_RECEIVED_MARKER, TRANSFER_SENT_MARKER)
 CARD_PAYMENT_PREFIX = "PAIEMENT"
 
 
-class InvalidStatementError(ValueError):
-    """Raised when a bank statement has an invalid value."""
+class INGReader(BankReader):
+    """Reader for ING Belgium exports in French, as downloaded from Home'Bank."""
 
+    def read(self, file) -> pd.DataFrame:
+        """Read an ING export into the standard transaction format.
 
-def read_bank_statement(path: Path) -> pd.DataFrame:
-    """Read an ING export into the standard transaction format.
+        Raise InvalidStatementError for an invalid value, and KeyError, ValueError
+        or EmptyDataError if the file is not an ING export.
+        """
+        df = pd.read_csv(file, sep=";", dtype={"Montant": str}, keep_default_na=False)
+        transactions = df[list(COLUMN_MAPPING)]
 
-    Raise InvalidStatementError for an invalid value, and KeyError, ValueError
-    or EmptyDataError if the file is not an ING export.
-    """
-    df = pd.read_csv(path, sep=";", dtype={"Montant": str}, keep_default_na=False)
-    transactions = df[list(COLUMN_MAPPING)]
+        # Drop the separator rows (only semicolons): they are not transactions.
+        # A row with any value is kept, so a missing amount is still reported.
+        transactions = transactions[~transactions.eq("").all(axis=1)]
+        transactions = transactions.rename(columns=COLUMN_MAPPING)
 
-    # Drop the separator rows (only semicolons): they are not transactions.
-    # A row with any value is kept, so a missing amount is still reported.
-    transactions = transactions[~transactions.eq("").all(axis=1)]
-    transactions = transactions.rename(columns=COLUMN_MAPPING)
+        # Explicit day-first format: 03/01 must be January 3rd, not March 1st.
+        transactions["date"] = _parse_dates(transactions["date"])
+        transactions["label"] = transactions["label"].str.strip().str.upper()
+        transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
 
-    # Explicit day-first format: 03/01 must be January 3rd, not March 1st.
-    transactions["date"] = _parse_dates(transactions["date"])
-    transactions["label"] = transactions["label"].str.strip().str.upper()
-    transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
+        transactions["amount"] = _parse_amounts(transactions["amount"])
 
-    transactions["amount"] = _parse_amounts(transactions["amount"])
-
-    return transactions[STANDARD_COLUMNS].reset_index(drop=True)
+        return transactions[STANDARD_COLUMNS].reset_index(drop=True)
 
 
 def _parse_amounts(amounts: pd.Series) -> pd.Series:
