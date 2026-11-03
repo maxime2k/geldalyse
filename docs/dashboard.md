@@ -37,7 +37,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 ## Règles de conception
 
 - **Aucune catégorie écrite en dur** dans le dashboard : les catégories affichées sont celles présentes dans les données. Une nouvelle catégorie apparaît automatiquement.
-- **Catégories selon le signe du montant** : une sortie reçoit une catégorie de sortie ; une entrée reçoit une catégorie d'entrée, sauf un remboursement de magasin, qui garde la catégorie de sa dépense.
+- **Catégories selon le signe du montant** : une sortie reçoit une catégorie de sortie ; une entrée reçoit une catégorie d'entrée. Un virement reçu non reconnu est classé en VIREMENTS REÇUS, et un remboursement de magasin garde la catégorie de sa dépense.
 - **Sorties affichées en valeurs positives** dans les graphiques, pour une lecture naturelle.
 - **Les entrées sont exclues** du graphique des sorties par catégorie. Les remboursements de magasin y sont déduits de leur catégorie de dépense.
 - **Les retraits d'espèces** apparaissent comme une catégorie à part entière, RETRAITS.
@@ -51,6 +51,9 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **Pas d'information portée uniquement par la couleur** : chaque série est nommée dans une légende.
 - **Le libellé court** est affiché en priorité ; **la description complète** reste disponible en dernière colonne, pour ne rien cacher.
 - **Le contenu avant la navigation** : les liens vers les autres pages sont en bas de la vue d'ensemble. Sur mobile, les colonnes s'empilent, et l'utilisateur voit ses résultats en premier.
+- **L'application constate, elle ne suppose pas** : un virement reçu est un fait visible dans le relevé, un remboursement est une intention de l'expéditeur. Un virement reçu n'est donc jamais classé en remboursement automatiquement ; l'utilisateur peut le faire.
+- **L'utilisateur corrige la nature d'une transaction, jamais ce qu'elle compte** : une entrée ne peut pas recevoir une catégorie de dépense. Sinon, ranger son salaire en ALIMENTATION effacerait ses dépenses, et les chiffres ne mesureraient plus rien. Seul un remboursement de magasin réduit sa catégorie, car le relevé le prouve : le même commerçant apparaît dans les deux sens.
+
 
 ### Règles de l'import
 
@@ -85,3 +88,4 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **Seule la première valeur invalide est signalée** : un relevé qui en contient plusieurs les révèle une par une, à chaque nouvel import.
 - **Les transactions sans description forment une seule opération** : un choix manuel s'applique donc à toutes, même si ce sont des dépenses différentes.
 - **Les séparateurs de milliers n'ont pas été vus dans un vrai export ING** : leur prise en charge repose sur la règle des trois chiffres, sans exemple réel pour la confirmer.
+- **Un salaire est rarement reconnu automatiquement** : le libellé contient en général le nom de l'employeur, pas le mot « SALAIRE ». Il apparaît en VIREMENTS REÇUS, et un seul choix manuel reclasse tous les virements du même employeur.
