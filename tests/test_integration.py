@@ -1,41 +1,36 @@
 """Integration tests: modules must work together on generated and ING data."""
 
 from datetime import date
+from io import StringIO
 
 import pandas as pd
 
 from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, categorize
-from geldalyse.generator import MERCHANTS, RECURRING, generate_transactions
+from geldalyse.generator import generate_ing_export
 from geldalyse.readers import read_statement
 from geldalyse.readers.ing import extract_merchant
-from geldalyse.schema import STANDARD_COLUMNS
 
 # --- Generated data ---
-# les quatre tests du générateur
 
 
-def test_all_merchants_are_categorized():
-    for merchant, (low, high) in MERCHANTS.items():
-        assert categorize(merchant, -low) != DEFAULT_EXPENSE_CATEGORY, (
-            f"{merchant} does not have a category"
-        )
+EXPECTED_UNKNOWN = {"BOULANGERIE FICTIVE", "LIBRAIRIE DU COIN"}
 
 
-def test_all_recurring_labels_are_categorized():
-    for _, label, amount in RECURRING:
-        assert categorize(label, amount) != DEFAULT_EXPENSE_CATEGORY, (
-            f"{label} does not have a category"
-        )
+def test_only_expected_demo_merchants_are_uncategorized():
+    export = generate_ing_export(start=date(2026, 1, 1), days=90)
+    transactions = read_statement(StringIO(export))
+    merchants = transactions["label"].map(extract_merchant)
+    categories = transactions.apply(
+        lambda row: categorize(row["label"], row["amount"]), axis=1
+    )
+    assert set(merchants[categories == DEFAULT_EXPENSE_CATEGORY]) == EXPECTED_UNKNOWN
 
 
-def test_output_generator_columns_match_standard_columns():
-    transactions = generate_transactions(start=date(2026, 1, 1), days=10)
-    assert list(transactions.columns) == STANDARD_COLUMNS
+def test_export_is_a_valid_ing_statement():
+    export = generate_ing_export(start=date(2026, 1, 1), days=90)
+    transactions = read_statement(StringIO(export))
 
-
-def test_generator_dates_are_datetime():
-    transactions = generate_transactions(start=date(2026, 1, 1), days=10)
-    assert pd.api.types.is_datetime64_any_dtype(transactions["date"])
+    assert len(transactions) == len(export.splitlines()) - 1
 
 
 # --- ING data ---

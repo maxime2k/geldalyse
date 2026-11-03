@@ -1,6 +1,7 @@
 """Geldalyse entry point: sidebar, data loading and navigation between pages."""
 
 from datetime import date
+from io import StringIO
 
 import pandas as pd
 import streamlit as st
@@ -20,7 +21,7 @@ from geldalyse.categorizer import (
     apply_manual_categories,
     categorize,
 )
-from geldalyse.generator import generate_transactions
+from geldalyse.generator import generate_ing_export
 from geldalyse.readers import InvalidStatementError, read_statement
 from geldalyse.readers.ing import extract_merchant
 
@@ -49,7 +50,9 @@ st.sidebar.title("Paramètres")
 choice = st.sidebar.radio("Source de données", [DEMO_SOURCE, UPLOAD_SOURCE])
 
 if choice == DEMO_SOURCE:
-    all_transactions = generate_transactions(start=date(2026, 1, 1), days=180)
+    export = generate_ing_export(start=date(2026, 1, 1), days=180)
+    all_transactions = read_statement(StringIO(export))
+
 else:
     st.sidebar.warning(f"{PRIVACY_MSG} {INSTALLATION_LINK}")
     agree = st.sidebar.checkbox("J'ai compris, importer mon relevé")
