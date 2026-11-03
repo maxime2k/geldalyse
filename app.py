@@ -21,8 +21,11 @@ from geldalyse.categorizer import (
     categorize,
 )
 from geldalyse.generator import generate_transactions
-from geldalyse.merchant import extract_merchant
-from geldalyse.readers.ing import InvalidStatementError, read_bank_statement
+from geldalyse.readers.ing import (
+    InvalidStatementError,
+    extract_merchant,
+    read_bank_statement,
+)
 
 st.set_page_config(page_title="Geldalyse", layout="wide")
 

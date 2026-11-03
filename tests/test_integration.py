@@ -6,8 +6,7 @@ import pandas as pd
 
 from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, categorize
 from geldalyse.generator import MERCHANTS, RECURRING, generate_transactions
-from geldalyse.merchant import extract_merchant
-from geldalyse.readers.ing import read_bank_statement
+from geldalyse.readers.ing import extract_merchant, read_bank_statement
 from geldalyse.schema import STANDARD_COLUMNS
 
 # --- Generated data ---

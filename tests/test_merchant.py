@@ -5,7 +5,7 @@ Descriptions come from the ING fixture, in uppercase as produced by the reader.
 
 import pytest
 
-from geldalyse.merchant import FIXED_NAMES, extract_merchant, is_received_transfer
+from geldalyse.readers.ing import FIXED_NAMES, extract_merchant, is_received_transfer
 
 CARD_PAYMENT = (
     "PAIEMENT BANCONTACT 04/01/26 - 18H12 - DELHAIZE IXELLES 1050 - BRUXELLES "
