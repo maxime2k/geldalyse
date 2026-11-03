@@ -14,7 +14,7 @@ Geldalyse est une application Python qui importe un relevé bancaire, catégoris
 
 ## Fonctionnalités
 
-- **Deux sources de données** : des transactions fictives générées à la volée, ou un export CSV d'ING Belgique (en français)
+- **Deux sources de données** : un relevé de démo au format ING, généré à la volée et lu comme un vrai relevé, ou votre propre export CSV d'ING Belgique (en français)
 - **Nettoyage automatique** : colonnes renommées, dates converties, libellés normalisés, lignes vides supprimées
 - **Catégorisation automatique** selon les mots-clés et le sens de l'argent : entrées et sorties ont leurs propres catégories
 - **Libellé court lisible** : le commerçant, le bénéficiaire d'un virement ou la nature d'une opération bancaire, extrait de la longue description de la banque
@@ -44,6 +44,8 @@ Le projet suit un schéma **ETL** (*Extract, Transform, Load*). Chaque étape es
 
 Chaque banque a son lecteur, qui hérite de la classe `BankReader` et produit le **format standard** défini dans `schema.py`. Le reste de l'application ne travaille que sur ce format, sans savoir d'où viennent les données. Objectif en cours : qu'ajouter une nouvelle banque ne demande qu'un nouveau lecteur. Pour cela, le commerçant et le type d'opération seront produits par chaque lecteur, et non plus déchiffrés ensuite à partir des libellés ING.
 
+La démo suit le même chemin : le générateur écrit un export ING, que l'application lit avec le lecteur ING, comme un relevé importé.
+
 La logique (`src/geldalyse/`) ne dépend pas de Streamlit : elle est testée seule, et pourrait servir une autre interface.
 
 ```
@@ -62,7 +64,7 @@ geldalyse/
 │   ├── analysis.py         # Chiffres clés, agrégats et variations
 │   ├── categorizer.py      # Catégorisation par mots-clés et signe du montant
 │   ├── formatting.py       # Textes en français : mois, montants, écarts
-│   ├── generator.py        # Transactions fictives
+│   ├── generator.py        # Relevé fictif au format ING
 │   └── schema.py           # Format standard des données
 ├── tests/                  # Tests unitaires et d'intégration (pytest)
 │   └── fixtures/           # Relevés synthétiques, valides et invalides
@@ -114,11 +116,13 @@ streamlit run app.py
 
 Choisissez ensuite la source dans la barre latérale : les données de démo, ou votre propre export ING au format CSV (en français, depuis Home'Bank).
 
-**Générer un relevé fictif en CSV :**
+**Générer un relevé de démo au format ING :**
 
 ```bash
 python -m geldalyse.generator
 ```
+
+Le fichier `data/ing_demo_export.csv` peut ensuite être importé dans l'application, comme un vrai relevé.
 
 **Lancer les tests :**
 
@@ -149,7 +153,7 @@ Sur la version en ligne, ce traitement a lieu sur les serveurs de Streamlit Clou
 - [ ] Exports ING en néerlandais, anglais et allemand
 - [ ] Prise en charge d'autres banques (BNP Paribas Fortis, Belfius…)
 - [ ] Import de jeux de données publics (Kaggle, UCI) via le même format standard
-- [ ] Générateur produisant des relevés fictifs au format ING, pour une démo à grand volume
+- [x] Générateur produisant des relevés fictifs au format ING, lus par le lecteur ING 
 - [ ] Simulation des montants par une loi log-normale plutôt qu'uniforme
 - [ ] Utiliser le détail de l'opération quand la description est trop générique (ex. « Rectification »)
 
