@@ -6,7 +6,7 @@ import pytest
 from geldalyse.categorizer import (
     DEFAULT_EXPENSE_CATEGORY,
     DEFAULT_INCOME_CATEGORY,
-    REFUND_CATEGORY,
+    RECEIVED_TRANSFER_CATEGORY,
     SELECTABLE_EXPENSE_CATEGORIES,
     apply_manual_categories,
     categorize,
@@ -53,8 +53,8 @@ def test_shop_refund_returns_expense_category():
     assert categorize("REMBOURSEMENT VOTRE ACHAT ZALANDO", 50.0) == "SHOPPING"
 
 
-def test_received_transfer_returns_refund():
-    assert categorize("virement de: ami fictif", 50.0) == REFUND_CATEGORY
+def test_received_transfer_returns_received_transfer_category():
+    assert categorize("virement de: ami fictif", 50.0) == RECEIVED_TRANSFER_CATEGORY
 
 
 def test_apply_manual_categories_changes_chosen_operation():
@@ -99,9 +99,9 @@ def test_apply_manual_categories_keeps_other_operations():
         # Income category on an expense: refused, the expense keeps its category.
         ("SALAIRE", -40.0, DEFAULT_EXPENSE_CATEGORY, DEFAULT_EXPENSE_CATEGORY),
         # Income category on an income: applied.
-        ("SALAIRE", 50.0, REFUND_CATEGORY, "SALAIRE"),
+        ("SALAIRE", 50.0, RECEIVED_TRANSFER_CATEGORY, "SALAIRE"),
         # Expense category on an income: refused, the income keeps its category.
-        ("RESTAURATION", 50.0, REFUND_CATEGORY, REFUND_CATEGORY),
+        ("RESTAURATION", 50.0, RECEIVED_TRANSFER_CATEGORY, RECEIVED_TRANSFER_CATEGORY),
         # Expense category on an expense: applied.
         ("RESTAURATION", -40.0, DEFAULT_EXPENSE_CATEGORY, "RESTAURATION"),
     ],

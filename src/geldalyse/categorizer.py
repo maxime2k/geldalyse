@@ -11,6 +11,7 @@ from geldalyse.merchant import is_received_transfer
 DEFAULT_EXPENSE_CATEGORY = "INCONNU"
 DEFAULT_INCOME_CATEGORY = "AUTRES ENTRÉES"
 REFUND_CATEGORY = "REMBOURSEMENT"
+RECEIVED_TRANSFER_CATEGORY = "VIREMENTS REÇUS"
 
 EXPENSE_CATEGORIES = {
     "ALIMENTATION": ["DELHAIZE", "COLRUYT", "CARREFOUR", "OKAY", "ALIMENTATION"],
@@ -30,7 +31,12 @@ INCOME_CATEGORIES = {
 }
 
 EXPENSE_CATEGORY_NAMES = [*EXPENSE_CATEGORIES, DEFAULT_EXPENSE_CATEGORY]
-INCOME_CATEGORY_NAMES = [*INCOME_CATEGORIES, DEFAULT_INCOME_CATEGORY, REFUND_CATEGORY]
+INCOME_CATEGORY_NAMES = [
+    *INCOME_CATEGORIES,
+    DEFAULT_INCOME_CATEGORY,
+    REFUND_CATEGORY,
+    RECEIVED_TRANSFER_CATEGORY,
+]
 SELECTABLE_EXPENSE_CATEGORIES = [
     category
     for category in EXPENSE_CATEGORY_NAMES
@@ -46,7 +52,9 @@ def categorize(label: str, amount: float) -> str:
             label=label, categories=INCOME_CATEGORIES
         ) or _find_category(label=label, categories=EXPENSE_CATEGORIES)
         default_category = (
-            REFUND_CATEGORY if is_received_transfer(label) else DEFAULT_INCOME_CATEGORY
+            RECEIVED_TRANSFER_CATEGORY
+            if is_received_transfer(label)
+            else DEFAULT_INCOME_CATEGORY
         )
     else:
         category = _find_category(label=label, categories=EXPENSE_CATEGORIES)
