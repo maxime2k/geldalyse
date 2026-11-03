@@ -91,10 +91,3 @@ def apply_manual_categories(
     transactions_copy["category"] = chosen.fillna(transactions["category"])
 
     return transactions_copy
-
-
-if __name__ == "__main__":
-    print(categorize("DELHAIZE BRUXELLES", -10.0))
-    print(categorize("VIREMENT SALAIRE", -250.5))
-    print(categorize("BOULANGERIE DU COIN", -30.5))
-    print(categorize("stib mivb", -2.7))
