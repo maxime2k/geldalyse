@@ -12,7 +12,7 @@ class Merchant:
 
     name: str
     city: str
-    card: str
+    family: str
     low: float
     high: float
     country: str = "BEL"
@@ -166,7 +166,7 @@ def generate_ing_export(start: date, days: int, seed: int = 42) -> str:
             shop = rng.choice(MERCHANTS)
             amount = -round(rng.uniform(shop.low, shop.high), 2)
             fields = {"merchant": shop.name, "city": shop.city, "country": shop.country}
-            rows.append(_ing_row(len(rows) + 1, day, shop.card, fields, amount, rng))
+            rows.append(_ing_row(len(rows) + 1, day, shop.family, fields, amount, rng))
 
     return "\n".join([ING_HEADER, *rows]) + "\n"
 

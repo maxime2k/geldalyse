@@ -1,4 +1,4 @@
-"""Unit tests for the bank statement reader."""
+"""Unit tests for the ing bank statement reader."""
 
 from io import StringIO
 from pathlib import Path
@@ -13,9 +13,19 @@ from geldalyse.readers.ing import (
     InvalidStatementError,
     extract_merchant,
     is_received_transfer,
+    operation_type,
     parse_amount,
 )
-from geldalyse.schema import STANDARD_COLUMNS
+from geldalyse.schema import (
+    BANK_OPERATION,
+    CARD,
+    CASH,
+    DIRECT_DEBIT,
+    OTHER,
+    STANDARD_COLUMNS,
+    STANDING_ORDER,
+    TRANSFER,
+)
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 WRONG_COLUMNS = FIXTURES_DIR / "wrong_format.csv"
@@ -242,3 +252,61 @@ def test_is_received_transfer_false_for_sent_transfer():
 
 def test_is_received_transfer_false_for_card_payment():
     assert not is_received_transfer(CARD_PAYMENT)
+
+
+@pytest.mark.parametrize(
+    "label, expected",
+    [
+        (
+            (
+                "Paiement Bancontact 04/01/26 - 18h12 - DELHAIZE IXELLES 1050"
+                " - BRUXELLES - BEL Numéro de carte 0000 XXXX XXXX 0000"
+            ).upper(),
+            CARD,
+        ),
+        (
+            (
+                "Paiement Debit Mastercard 07/01/26 - 19h35 - PARKING FICTIF 1000"
+                " - BRUSSEL - BEL Numéro de carte 0000 XXXX XXXX 0000 Référence ING: XX"
+            ).upper(),
+            CARD,
+        ),
+        (
+            ("Décompte de frais n° 000000000 Pièce justificative en annexe").upper(),
+            BANK_OPERATION,
+        ),
+        (
+            (
+                "Ordre permanent Vers: PROPRIÉTAIRE FICTIF"
+                " - BE00 0000 0000 0000 Communication: LOYER"
+            ).upper(),
+            STANDING_ORDER,
+        ),
+        (
+            (
+                "Virement instantané: ING app Vers: AMI FICTIF - "
+                "BE00 0000 0000 0000 Instantané le 20/02 - 18:30:00 Info personnelle:XX"
+            ).upper(),
+            TRANSFER,
+        ),
+        (("Domiciliation en euros Vers: PROXIMUS - XXXX").upper(), DIRECT_DEBIT),
+        (("Rectification xxx ").upper(), OTHER),
+        (
+            (
+                "Retrait d'espèces Bancontact 11/02/26 - 14h48 - CASH 1000 - "
+                "BRUXELLES - BEL Numéro de carte 0000 XXXX XXXX 0000"
+            ).upper(),
+            CASH,
+        ),
+        (
+            (
+                "Virement en euros (SEPA) De: SOCIÉTÉ FICTIVE SA"
+                " - BE00 0000 0000 0000 Communication: SALAIRE JANVIER"
+            ).upper(),
+            TRANSFER,
+        ),
+        (("Intérêts-Frais au 31/12/25 Décompte en annexe").upper(), BANK_OPERATION),
+    ],
+)
+def test_operation_type_returns_correct_type(label, expected):
+    assert operation_type(label) == expected

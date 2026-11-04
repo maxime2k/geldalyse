@@ -9,6 +9,7 @@ from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, categorize
 from geldalyse.generator import generate_ing_export
 from geldalyse.readers import read_statement
 from geldalyse.readers.ing import extract_merchant
+from geldalyse.schema import OTHER
 
 # --- Generated data ---
 
@@ -31,6 +32,13 @@ def test_export_is_a_valid_ing_statement():
     transactions = read_statement(StringIO(export))
 
     assert len(transactions) == len(export.splitlines()) - 1
+
+
+def test_demo_transactions_has_no_other_operation_type():
+    export = generate_ing_export(start=date(2026, 1, 1), days=90)
+    transactions = read_statement(StringIO(export))
+    operations = transactions["operation_type"]
+    assert OTHER not in operations.tolist()
 
 
 # --- ING data ---

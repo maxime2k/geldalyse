@@ -65,6 +65,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **Une transaction sans description est gardée**, avec la description « SANS DESCRIPTION » : son montant compte dans les totaux, et elle apparaît dans les opérations à classer.
 - **L'utilisateur coche une case avant d'importer** : son relevé est traité sur Streamlit Cloud. Une case à cocher a été préférée à une fenêtre d'acceptation, que les utilisateurs ont pris l'habitude de valider sans lire.
 - **La démo publique est protégée** : un fichier importé est limité à 2 Mo (un relevé ING couvre un an au plus, soit environ 1 Mo pour un compte très actif), et une erreur imprévue n'affiche aucun détail technique.
+- **Chaque transaction reçoit un type d'opération**, commun à toutes les banques : carte, paiement mobile, virement, ordre permanent, domiciliation, espèces, opération bancaire, ou autre. Le type dit comment l'argent a bougé, le signe du montant dit dans quel sens : un virement reçu est un virement avec un montant positif. Un libellé non reconnu reçoit le type « Autre » plutôt que d'être refusé.
 
 ### Règles de la page Évolution
 
