@@ -10,6 +10,7 @@ from geldalyse.formatting import (
     format_change,
     format_top_variation,
 )
+from geldalyse.schema import OPERATION_TYPE_LABELS
 
 PERIOD_TRANSACTIONS_KEY = "period_transactions"
 ALL_TRANSACTIONS_KEY = "all_transactions"
@@ -56,12 +57,21 @@ def transactions_editor(
     if transactions.empty:
         st.info(empty_message)
         return transactions
-
+    display_table = transactions.assign(
+        operation_type=transactions["operation_type"].map(OPERATION_TYPE_LABELS)
+    )
     return st.data_editor(
-        transactions,
+        display_table,
         key=key,
         hide_index=True,
-        column_order=["date", "counterparty", "amount", "category", "label"],
+        column_order=[
+            "date",
+            "counterparty",
+            "amount",
+            "category",
+            "operation_type",
+            "label",
+        ],
         column_config={
             "date": st.column_config.DateColumn(
                 "Date", format="DD/MM/YYYY", width="small"
@@ -70,12 +80,13 @@ def transactions_editor(
             "amount": st.column_config.NumberColumn(
                 "Montant", format="%.2f €", width="small"
             ),
+            "operation_type": st.column_config.TextColumn("Type d'opération"),
             "category": st.column_config.SelectboxColumn(
                 "Catégorie", options=sorted(options)
             ),
             "counterparty": st.column_config.TextColumn("Contrepartie"),
         },
-        disabled=["date", "label", "amount", "counterparty"],
+        disabled=["date", "label", "amount", "counterparty", "operation_type"],
     )
 
 

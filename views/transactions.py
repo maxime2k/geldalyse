@@ -11,12 +11,13 @@ from components import (
     plural,
     transactions_editor,
 )
-from geldalyse.analysis import count_uncategorized, uncategorized_by_operation
+from geldalyse.analysis import count_uncategorized, uncategorized_by_counterparty
 from geldalyse.categorizer import (
     EXPENSE_CATEGORIES,
     INCOME_CATEGORY_NAMES,
     SELECTABLE_EXPENSE_CATEGORIES,
 )
+from geldalyse.schema import OPERATION_TYPE_LABELS
 
 # --- Uncategorized transactions table -------------------------
 period_transactions = period_transactions_or_stop()
@@ -29,12 +30,22 @@ if total_uncategorized > 0:
         "Un changement s’applique à toutes les transactions de cette contrepartie "
         "et reste conservé jusqu’à ce que vous rechargiez ou fermiez la page."
     )
-    uncategorized_table = uncategorized_by_operation(period_transactions)
+    uncategorized_table = uncategorized_by_counterparty(period_transactions)
     uncategorized_table["category"] = None
+    display_table = uncategorized_table.assign(
+        operation_type=uncategorized_table["operation_type"].map(OPERATION_TYPE_LABELS)
+    )
     edited_table = st.data_editor(
-        uncategorized_table,
+        display_table,
         hide_index=True,
         placeholder="Choisir une catégorie",
+        column_order=[
+            "counterparty",
+            "total_amount",
+            "operation_type",
+            "transaction_count",
+            "category",
+        ],
         column_config={
             "counterparty": st.column_config.TextColumn("Contrepartie"),
             "transaction_count": st.column_config.NumberColumn("Transactions"),
@@ -42,8 +53,14 @@ if total_uncategorized > 0:
             "category": st.column_config.SelectboxColumn(
                 "Catégorie", options=sorted(EXPENSE_CATEGORIES)
             ),
+            "operation_type": st.column_config.TextColumn("Type d'opération"),
         },
-        disabled=["counterparty", "transaction_count", "total_amount"],
+        disabled=[
+            "counterparty",
+            "transaction_count",
+            "total_amount",
+            "operation_type",
+        ],
     )
     chosen_rows = edited_table[edited_table["category"].notna()]
     new_choices = dict(zip(chosen_rows["counterparty"], chosen_rows["category"]))
