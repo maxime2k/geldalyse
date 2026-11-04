@@ -49,7 +49,7 @@ if total_uncategorized > 0:
         column_config={
             "counterparty": st.column_config.TextColumn("Contrepartie"),
             "transaction_count": st.column_config.NumberColumn("Transactions"),
-            "total_amount": st.column_config.NumberColumn("Total", format="%.2f €"),
+            "total_amount": st.column_config.NumberColumn("Total", format="euro"),
             "category": st.column_config.SelectboxColumn(
                 "Catégorie", options=sorted(EXPENSE_CATEGORIES)
             ),

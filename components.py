@@ -104,7 +104,7 @@ def transactions_editor(
             ),
             "label": st.column_config.TextColumn("Description"),
             "amount": st.column_config.NumberColumn(
-                "Montant", format="%.2f €", width="small"
+                "Montant", format="euro", width="small"
             ),
             "operation_type": st.column_config.TextColumn("Type d'opération"),
             "category": st.column_config.SelectboxColumn(
