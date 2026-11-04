@@ -108,7 +108,7 @@ def transactions_editor(
             ),
             "operation_type": st.column_config.TextColumn("Type d'opération"),
             "category": st.column_config.SelectboxColumn(
-                "Catégorie", options=sorted(options)
+                "Catégorie", options=sorted(options), required=True
             ),
             "counterparty": st.column_config.TextColumn("Contrepartie"),
         },
