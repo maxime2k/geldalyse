@@ -232,6 +232,10 @@ def variation_chart(
             axis=alt.Axis(labels=False, ticks=False),
             scale=alt.Scale(domain=[low, high]),
         ),
+        tooltip=[
+            alt.Tooltip("category", title="Catégorie"),
+            alt.Tooltip("label", title="Écart"),
+        ],
     )
     bars = base.mark_bar().encode(
         color=alt.condition(
