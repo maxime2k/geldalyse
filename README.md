@@ -6,8 +6,7 @@
 
 Geldalyse est une application Python qui importe un relevé bancaire, catégorise automatiquement les transactions et affiche un tableau de bord des entrées et des sorties d'argent.
 
-![Tableau de bord Geldalyse](docs/dashboard.png)
-
+![Vue d'ensemble : entrées, sorties et solde, sorties par catégorie et par mois](docs/overview.png)
 **[Voir la démo en ligne](https://geldalyse.streamlit.app/)**
 
 ---
@@ -23,8 +22,9 @@ Geldalyse est une application Python qui importe un relevé bancaire, catégoris
 - **Tableau de bord interactif**, en trois pages :
   - **Vue d'ensemble** : entrées, sorties et solde de la période, détail par catégorie et mois par mois
   - **Transactions** : opérations à classer et tableau détaillé des transactions
+ ![Deux contreparties à classer, puis le tableau des transactions avec leur contrepartie, leur montant, leur catégorie et leur type d'opération](docs/transactions.png)
   - **Évolution** : un mois comparé au mois précédent, à la moyenne des 3 mois précédents ou au même mois l'an passé, avec les écarts par catégorie
-
+![Mai 2026 comparé à la moyenne des trois mois précédents : cartes des entrées, sorties et solde, puis écarts par catégorie en barres divergentes](docs/evolution.png)
 Le contenu de chaque page et les règles de calcul sont décrits dans la [conception du tableau de bord](docs/dashboard.md).
 
 ## Architecture
