@@ -16,8 +16,28 @@ import re
 import pandas as pd
 
 from geldalyse.readers.base import BankReader, InvalidStatementError
-from geldalyse.schema import STANDARD_COLUMNS
+from geldalyse.schema import (
+    BANK_OPERATION,
+    CARD,
+    CASH,
+    DIRECT_DEBIT,
+    OTHER,
+    STANDARD_COLUMNS,
+    STANDING_ORDER,
+    TRANSFER,
+)
 
+ING_OPERATION_TYPES = {
+    "PAIEMENT BANCONTACT": CARD,
+    "PAIEMENT DEBIT MASTERCARD": CARD,
+    "RETRAIT D'ESPÈCES": CASH,
+    "VIREMENT EN EUROS": TRANSFER,
+    "VIREMENT INSTANTANÉ": TRANSFER,
+    "DOMICILIATION": DIRECT_DEBIT,
+    "ORDRE PERMANENT": STANDING_ORDER,
+    "DÉCOMPTE DE FRAIS": BANK_OPERATION,
+    "INTÉRÊTS-FRAIS": BANK_OPERATION,
+}
 # ING columns to Geldalyse columns
 COLUMN_MAPPING = {
     "Date valeur": "date",
@@ -66,7 +86,7 @@ class INGReader(BankReader):
         transactions["date"] = _parse_dates(transactions["date"])
         transactions["label"] = transactions["label"].str.strip().str.upper()
         transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
-
+        transactions["operation_type"] = transactions["label"].map(operation_type)
         transactions["amount"] = _parse_amounts(transactions["amount"])
 
         return transactions[STANDARD_COLUMNS].reset_index(drop=True)
@@ -152,3 +172,11 @@ def is_received_transfer(label: str) -> bool:
     label = label.upper()
 
     return label.startswith(TRANSFER_PREFIX) and TRANSFER_RECEIVED_MARKER in label
+
+
+def operation_type(label: str) -> str:
+    """Return the operation type of an ING description, or OTHER if it is unknown."""
+    for prefix, operation in ING_OPERATION_TYPES.items():
+        if label.startswith(prefix):
+            return operation
+    return OTHER
