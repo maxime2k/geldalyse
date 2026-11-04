@@ -36,25 +36,27 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 
 ## Règles de conception
 
+### Règles générales
+
+- **L'application constate, elle ne suppose pas** : un virement reçu est un fait visible dans le relevé, un remboursement est une intention de l'expéditeur. Un virement reçu n'est donc jamais classé en remboursement automatiquement ; l'utilisateur peut le faire.
 - **Aucune catégorie écrite en dur** dans le dashboard : les catégories affichées sont celles présentes dans les données. Une nouvelle catégorie apparaît automatiquement.
-- **Catégories selon le signe du montant** : une sortie reçoit une catégorie de sortie ; une entrée reçoit une catégorie d'entrée. Un virement reçu non reconnu est classé en VIREMENTS REÇUS, et un remboursement de magasin garde la catégorie de sa dépense.
-- **Le type d'opération passe avant les mots-clés** : des frais bancaires sont classés en FACTURE et des intérêts en INVESTISSEMENT par leur type, quel que soit leur libellé. Les mots-clés reconnaissent ensuite les commerçants et les motifs, qui s'écrivent de la même façon dans toutes les banques.
-- **Sorties affichées en valeurs positives** dans les graphiques, pour une lecture naturelle.
-- **Les entrées sont exclues** du graphique des sorties par catégorie. Les remboursements de magasin y sont déduits de leur catégorie de dépense.
-- **Les retraits d'espèces** apparaissent comme une catégorie à part entière, RETRAITS, reconnue par le type d'opération.
 - **Deux vues de l'argent** :
   - les **chiffres clés** et le **graphique mensuel** suivent le compte bancaire : une entrée est un montant positif, une sortie un montant négatif. Leurs totaux sont vérifiables sur le relevé ;
-  - les **onglets par catégorie** montrent ce que l'argent représente : un remboursement de magasin est déduit de sa catégorie de dépense, et n'apparaît pas dans les entrées.
+  - les **vues par catégorie** montrent ce que l'argent représente : un remboursement de magasin est déduit de sa catégorie de dépense, et n'apparaît pas dans les entrées.
 - **Cohérence entre les deux vues** : total des entrées par catégorie − total des sorties par catégorie = Solde.
-- **Choix manuels selon le sens de l'argent** : une sortie ne peut recevoir qu'une catégorie de sortie, une entrée qu'une catégorie d'entrée. L'utilisateur ne transforme jamais une entrée en sortie.
-- **Le filtre de période** s'applique à tout le dashboard ; **le filtre par catégorie** ne s'applique qu'au tableau des transactions. Une sélection de catégories vide affiche toutes les catégories.
+- **Le filtre de période** s'applique à toutes les pages, sauf Évolution, qui compare des mois entiers.
 - **Une période sans transaction** affiche un message, au lieu d'une page vide.
-- **Pas d'information portée uniquement par la couleur** : chaque série est nommée dans une légende.
-- **Les informations les plus utiles d'abord** : dans le tableau des transactions, la contrepartie, le montant et la catégorie viennent en premier, pour rester visibles sur mobile. Le type d'opération suit, pour aider à reconnaître une transaction, et **la description complète** reste disponible en dernière colonne, pour ne rien cacher.
-- **Le contenu avant la navigation** : les liens vers les autres pages sont en bas de la vue d'ensemble. Sur mobile, les colonnes s'empilent, et l'utilisateur voit ses résultats en premier.
-- **L'application constate, elle ne suppose pas** : un virement reçu est un fait visible dans le relevé, un remboursement est une intention de l'expéditeur. Un virement reçu n'est donc jamais classé en remboursement automatiquement ; l'utilisateur peut le faire.
-- **L'utilisateur corrige la nature d'une transaction, jamais ce qu'elle compte** : une entrée ne peut pas recevoir une catégorie de dépense. Sinon, ranger son salaire en ALIMENTATION effacerait ses dépenses, et les chiffres ne mesureraient plus rien. Seul un remboursement de magasin réduit sa catégorie, car le relevé le prouve : le même commerçant apparaît dans les deux sens.
+- **Sorties affichées en valeurs positives** dans les graphiques, pour une lecture naturelle.
+- **Le montant exact sur la barre, sans axe** : les graphiques portent leur montant au format français. Seul le graphique mensuel, trop dense pour des étiquettes sur mobile, garde un axe en euros et donne le montant exact au survol.
+- **Pas d'information portée uniquement par la couleur** : chaque série est nommée dans une légende, et la position des barres porte le même sens que leur couleur.
 
+### Règles de catégorisation
+
+- **Catégories selon le signe du montant** : une sortie reçoit une catégorie de sortie ; une entrée reçoit une catégorie d'entrée. Un virement reçu non reconnu est classé en VIREMENTS REÇUS, et un remboursement de magasin garde la catégorie de sa dépense.
+- **Le type d'opération passe avant les mots-clés** : des frais bancaires sont classés en FACTURE et des intérêts en INVESTISSEMENT par leur type, quel que soit leur libellé. Les mots-clés reconnaissent ensuite les commerçants et les motifs, qui s'écrivent de la même façon dans toutes les banques.
+- **Les retraits d'espèces** apparaissent comme une catégorie à part entière, RETRAITS, reconnue par le type d'opération.
+- **Choix manuels selon le sens de l'argent** : une sortie ne peut recevoir qu'une catégorie de sortie, une entrée qu'une catégorie d'entrée.
+- **L'utilisateur corrige la nature d'une transaction, jamais ce qu'elle compte** : une entrée ne peut pas recevoir une catégorie de dépense. Sinon, ranger son salaire en ALIMENTATION effacerait ses dépenses, et les chiffres ne mesureraient plus rien. Seul un remboursement de magasin réduit sa catégorie, car le relevé le prouve : le même commerçant apparaît dans les deux sens.
 
 ### Règles de l'import
 
@@ -68,7 +70,20 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **La démo publique est protégée** : un fichier importé est limité à 2 Mo (un relevé ING couvre un an au plus, soit environ 1 Mo pour un compte très actif), et une erreur imprévue n'affiche aucun détail technique.
 - **Chaque transaction reçoit un type d'opération**, commun à toutes les banques : carte, paiement mobile, virement, ordre permanent, domiciliation, espèces, opération bancaire, ou autre. Le type dit comment l'argent a bougé, le signe du montant dit dans quel sens : un virement reçu est un virement avec un montant positif. Un libellé non reconnu reçoit le type « Autre » plutôt que d'être refusé.
 - **Le lecteur de chaque banque produit la contrepartie et le type d'opération**, en lisant ses propres libellés ou colonnes. Le reste de l'application ne lit jamais un libellé bancaire pour en tirer une information.
-### Règles de la page Évolution
+
+### Vue d'ensemble
+
+- **Les entrées sont exclues** du graphique des sorties par catégorie. Les remboursements de magasin y sont déduits de leur catégorie de dépense.
+- **Le contenu avant la navigation** : les liens vers les autres pages sont en bas de la page. Sur mobile, les colonnes s'empilent, et l'utilisateur voit ses résultats en premier.
+
+### Transactions
+
+- **Le filtre par catégorie** ne s'applique qu'au tableau des transactions. Une sélection vide affiche toutes les catégories.
+- **Les informations les plus utiles d'abord** : la contrepartie, le montant et la catégorie viennent en premier, pour rester visibles sur mobile. Le type d'opération suit, pour aider à reconnaître une transaction, et **la description complète** reste disponible en dernière colonne, pour ne rien cacher.
+- **Les montants restent des nombres dans les tableaux**, pour que le tri par montant fonctionne. Leur format suit la langue du navigateur.
+- **Chaque enregistrement est confirmé** : un message indique combien de contreparties ont été reclassées.
+
+### Évolution
 
 - **Des mois entiers** : la page compare un mois complet à une base, et n'utilise pas le filtre de période.
 - **Le mois par défaut est l'avant-dernier** : le dernier mois du relevé est souvent incomplet.

@@ -158,6 +158,7 @@ Sur la version en ligne, ce traitement a lieu sur les serveurs de Streamlit Clou
 - [ ] Import de jeux de données publics (Kaggle, UCI) via le même format standard
 - [ ] Simulation des montants par une loi log-normale plutôt qu'uniforme
 - [ ] Utiliser le détail du mouvement quand la description est trop générique (ex. « Rectification »)
+- [ ] Tendance des entrées et des sorties sur toute la période, avec le mois choisi mis en évidence (page Évolution)
 
 **Catégorisation**
 - [x] Prise en compte du signe du montant (entrées et sorties, catégories par défaut)
