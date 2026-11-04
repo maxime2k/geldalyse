@@ -11,7 +11,7 @@ from geldalyse.categorizer import (
     apply_manual_categories,
     categorize,
 )
-from geldalyse.schema import BANK_OPERATION, CARD, OTHER, TRANSFER
+from geldalyse.schema import BANK_OPERATION, CARD, CASH, OTHER, TRANSFER
 
 
 def test_supermarket_is_food():
@@ -46,6 +46,14 @@ def test_negative_interest_is_bank_fee():
         )
         == "FACTURE"
     )
+
+
+def test_cash_type_is_withdrawal_without_keyword():
+    assert categorize("CASH WITHDRAWAL", -50.0, CASH) == "RETRAITS"
+
+
+def test_bank_operation_type_is_bank_fee_without_keyword():
+    assert categorize("FRAIS DE TENUE DE COMPTE", -1.9, BANK_OPERATION) == "FACTURE"
 
 
 def test_salary_transfers_returns_salary():
