@@ -1,12 +1,12 @@
 """Overview page: key figures, totals by category and month by month."""
 
-import altair as alt
 import streamlit as st
 
 from components import (
     EVOLUTION_PAGE,
     TRANSACTIONS_PAGE,
     category_chart,
+    monthly_chart,
     page_card,
     period_transactions_or_stop,
 )
@@ -58,16 +58,7 @@ total_monthly_transactions["flow"] = total_monthly_transactions["flow"].replace(
 
 # -- graph monthly transactions ---
 st.subheader("Entrées et Sorties par mois")
-chart = (
-    alt.Chart(total_monthly_transactions)
-    .mark_bar()
-    .encode(
-        x=alt.X("month", title="Années-Mois", axis=alt.Axis(labelAngle=0)),
-        y=alt.Y("amount", title="Montant (€)"),
-        color=alt.Color("flow", title=None),
-        xOffset="flow",
-    )
-)
+chart = monthly_chart(total_monthly_transactions)
 st.altair_chart(chart, use_container_width=True)
 
 

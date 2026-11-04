@@ -8,6 +8,7 @@ from geldalyse.formatting import (
     NBSP,
     format_amount,
     format_change,
+    format_month,
     format_top_variation,
 )
 from geldalyse.schema import OPERATION_TYPE_LABELS
@@ -47,6 +48,31 @@ def category_chart(total_category: pd.DataFrame) -> alt.LayerChart:
     # Light text: the app theme is dark (.streamlit/config.toml).
     labels = base.mark_text(align="left", dx=3, color=LABEL_COLOR).encode(text="label")
     return bars + labels
+
+
+def monthly_chart(totals: pd.DataFrame) -> alt.LayerChart:
+    """Return grouped bars of incomes and expenses by month."""
+    totals = totals.assign(
+        month_label=totals["month"].map(format_month),
+        label=totals["amount"].map(format_amount),
+    )
+    base = alt.Chart(totals).encode(
+        x=alt.X("month_label", sort=None, title=None, axis=alt.Axis(labelAngle=0)),
+        y=alt.Y(
+            "amount",
+            title="Montant (€)",
+            axis=alt.Axis(labelExpr="replace(datum.label, ',', ' ')"),
+        ),
+        xOffset="flow",
+        tooltip=[
+            alt.Tooltip("month_label", title="Mois"),
+            alt.Tooltip("flow", title="Flux"),
+            alt.Tooltip("label", title="Montant"),
+        ],
+    )
+    bars = base.mark_bar().encode(color=alt.Color("flow", title=None))
+
+    return bars
 
 
 def transactions_editor(
