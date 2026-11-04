@@ -40,11 +40,6 @@ INCOME_CATEGORY_NAMES = [
     REFUND_CATEGORY,
     RECEIVED_TRANSFER_CATEGORY,
 ]
-SELECTABLE_EXPENSE_CATEGORIES = [
-    category
-    for category in EXPENSE_CATEGORY_NAMES
-    if category != DEFAULT_EXPENSE_CATEGORY
-]
 
 
 def categorize(label: str, amount: float, operation_type: str) -> str:
