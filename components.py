@@ -125,7 +125,7 @@ def category_changes(original: pd.DataFrame, edited: pd.DataFrame) -> dict[str, 
 
 
 def plural(count: int, word: str) -> str:
-    """Return the count followed by the word, with an s when the count is above 1."""
+    """Return the count followed by the word, with an "s" from 2 onwards."""
 
     return f"{count} {word}s" if count > 1 else f"{count} {word}"
 
