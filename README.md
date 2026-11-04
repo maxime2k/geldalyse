@@ -35,7 +35,7 @@ Le projet suit un schéma **ETL** (*Extract, Transform, Load*). Chaque étape es
 |---|---|---|
 | Extract | `readers/` | Lit un export bancaire : un lecteur par banque, qui valide les données et déchiffre les libellés |
 | Extract | `generator.py` | Génère des transactions fictives reproductibles |
-| Transform | `categorizer.py` | Attribue une catégorie selon les mots-clés et le signe du montant, et applique les choix manuels |
+| Transform | `categorizer.py` | Attribue une catégorie selon le type d'opération, les mots-clés et le signe du montant, et applique les choix manuels |
 | Transform | `analysis.py` | Calcule les chiffres clés et les agrégats |
 | Load | `app.py` | Point d'entrée : barre latérale, chargement des données et navigation |
 | Load | `views/` | Une page du tableau de bord par fichier |
