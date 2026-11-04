@@ -61,7 +61,7 @@ def transactions_editor(
         transactions,
         key=key,
         hide_index=True,
-        column_order=["date", "merchant", "amount", "category", "label"],
+        column_order=["date", "counterparty", "amount", "category", "label"],
         column_config={
             "date": st.column_config.DateColumn(
                 "Date", format="DD/MM/YYYY", width="small"
@@ -73,9 +73,9 @@ def transactions_editor(
             "category": st.column_config.SelectboxColumn(
                 "Catégorie", options=sorted(options)
             ),
-            "merchant": st.column_config.TextColumn("Opération"),
+            "counterparty": st.column_config.TextColumn("Contrepartie"),
         },
-        disabled=["date", "label", "amount", "merchant"],
+        disabled=["date", "label", "amount", "counterparty"],
     )
 
 
@@ -84,7 +84,7 @@ def category_changes(original: pd.DataFrame, edited: pd.DataFrame) -> dict[str, 
 
     changed_rows = edited[edited["category"] != original["category"]]
 
-    return dict(zip(changed_rows["merchant"], changed_rows["category"]))
+    return dict(zip(changed_rows["counterparty"], changed_rows["category"]))
 
 
 def plural(count: int, word: str) -> str:

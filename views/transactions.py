@@ -36,17 +36,17 @@ if total_uncategorized > 0:
         hide_index=True,
         placeholder="Choisir une catégorie",
         column_config={
-            "merchant": st.column_config.TextColumn("Opération"),
+            "counterparty": st.column_config.TextColumn("Contrepartie"),
             "transaction_count": st.column_config.NumberColumn("Transactions"),
             "total_amount": st.column_config.NumberColumn("Total", format="%.2f €"),
             "category": st.column_config.SelectboxColumn(
                 "Catégorie", options=sorted(EXPENSE_CATEGORIES)
             ),
         },
-        disabled=["merchant", "transaction_count", "total_amount"],
+        disabled=["counterparty", "transaction_count", "total_amount"],
     )
     chosen_rows = edited_table[edited_table["category"].notna()]
-    new_choices = dict(zip(chosen_rows["merchant"], chosen_rows["category"]))
+    new_choices = dict(zip(chosen_rows["counterparty"], chosen_rows["category"]))
     if new_choices:
         st.session_state[EXPENSE_CHOICES_KEY].update(new_choices)
         st.rerun()

@@ -78,7 +78,7 @@ def test_apply_manual_categories_changes_chosen_operation():
     transactions = pd.DataFrame(
         [
             {
-                "merchant": "FRITERIE AS",
+                "counterparty": "FRITERIE AS",
                 "amount": -15.0,
                 "category": DEFAULT_EXPENSE_CATEGORY,
             }
@@ -95,17 +95,21 @@ def test_apply_manual_categories_keeps_other_operations():
     transactions = pd.DataFrame(
         [
             {
-                "merchant": "FRITERIE AS",
+                "counterparty": "FRITERIE AS",
                 "amount": -15.0,
                 "category": DEFAULT_EXPENSE_CATEGORY,
             },
-            {"merchant": "SOCIETE FICTIVE SA", "amount": 1000.0, "category": "SALAIRE"},
+            {
+                "counterparty": "SOCIETE FICTIVE SA",
+                "amount": 1000.0,
+                "category": "SALAIRE",
+            },
         ]
     )
     choices = {"FRITERIE AS": "ALIMENTATION"}
 
     result = apply_manual_categories(transactions, choices)
-    societe_fictive = result[result["merchant"] == "SOCIETE FICTIVE SA"]
+    societe_fictive = result[result["counterparty"] == "SOCIETE FICTIVE SA"]
 
     assert societe_fictive["category"].iloc[0] == "SALAIRE"
 
@@ -127,7 +131,7 @@ def test_apply_manual_categories_respects_money_direction(
     chosen, amount, original, expected
 ):
     transactions = pd.DataFrame(
-        [{"merchant": "AMI FICTIF", "amount": amount, "category": original}]
+        [{"counterparty": "AMI FICTIF", "amount": amount, "category": original}]
     )
     choices = {"AMI FICTIF": chosen}
 

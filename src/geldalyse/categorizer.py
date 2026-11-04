@@ -88,7 +88,7 @@ def apply_manual_categories(
 ) -> pd.DataFrame:
     """Return a copy with the chosen categories that match the money direction."""
     transactions_copy = transactions.copy()
-    chosen = transactions_copy["merchant"].map(choices)
+    chosen = transactions_copy["counterparty"].map(choices)
     wrong_direction = (
         chosen.isin(INCOME_CATEGORY_NAMES) & (transactions_copy["amount"] < 0)
     ) | (chosen.isin(EXPENSE_CATEGORY_NAMES) & (transactions_copy["amount"] > 0))
