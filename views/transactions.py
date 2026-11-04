@@ -19,6 +19,8 @@ from geldalyse.categorizer import (
 )
 from geldalyse.schema import OPERATION_TYPE_LABELS
 
+SAVED_MESSAGE_KEY = "saved_message"
+
 # --- Uncategorized transactions table -------------------------
 period_transactions = period_transactions_or_stop()
 
@@ -26,9 +28,10 @@ total_uncategorized = count_uncategorized(period_transactions)
 if total_uncategorized > 0:
     st.subheader("Transactions non catégorisées, par contrepartie")
     st.caption(
-        "Cliquez sur une catégorie pour la modifier. "
-        "Un changement s’applique à toutes les transactions de cette contrepartie "
-        "et reste conservé jusqu’à ce que vous rechargiez ou fermiez la page."
+        "Choisissez une catégorie pour chaque contrepartie. Elle s'applique à toutes "
+        "ses transactions, qui quittent ce tableau et prennent cette catégorie dans le "
+        "tableau des transactions. Vos choix sont conservés jusqu'à ce que vous "
+        "rechargiez ou fermiez la page."
     )
     uncategorized_table = uncategorized_by_counterparty(period_transactions)
     uncategorized_table["category"] = None
@@ -49,7 +52,7 @@ if total_uncategorized > 0:
         column_config={
             "counterparty": st.column_config.TextColumn("Contrepartie"),
             "transaction_count": st.column_config.NumberColumn("Transactions"),
-            "total_amount": st.column_config.NumberColumn("Total", format="%.2f €"),
+            "total_amount": st.column_config.NumberColumn("Total", format="euro"),
             "category": st.column_config.SelectboxColumn(
                 "Catégorie", options=sorted(EXPENSE_CATEGORIES)
             ),
@@ -81,7 +84,9 @@ st.subheader("Transactions")
 st.caption("Les plus récentes en premier.")
 
 selected = st.multiselect(
-    "Catégories ", options=sorted(period_transactions["category"].unique())
+    "Catégories ",
+    options=sorted(period_transactions["category"].unique()),
+    placeholder="Toutes les catégories",
 )
 
 if not selected:
@@ -108,6 +113,10 @@ income_msg = (
     if not expenses_transactions.empty
     else NO_TRANSACTION_MSG
 )
+
+saved_message = st.session_state.pop(SAVED_MESSAGE_KEY, None)
+if saved_message:
+    st.toast(saved_message)
 
 with st.form("transactions"):
     expenses_transactions_tab, incomes_transactions_tab = st.tabs(
@@ -143,5 +152,10 @@ if submitted:
     if expense_changes or income_changes:
         st.session_state[EXPENSE_CHOICES_KEY].update(expense_changes)
         st.session_state[INCOME_CHOICES_KEY].update(income_changes)
+
+        total = len(expense_changes) + len(income_changes)
+        ending = "s" if total > 1 else ""
+        message = f"{plural(total, 'contrepartie')} reclassée{ending}."
+        st.session_state[SAVED_MESSAGE_KEY] = message
 
         st.rerun()

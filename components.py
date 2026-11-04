@@ -8,6 +8,7 @@ from geldalyse.formatting import (
     NBSP,
     format_amount,
     format_change,
+    format_month,
     format_top_variation,
 )
 from geldalyse.schema import OPERATION_TYPE_LABELS
@@ -32,21 +33,46 @@ LABEL_MARGIN = 0.4  # share of the largest change, left free for the labels
 
 def category_chart(total_category: pd.DataFrame) -> alt.LayerChart:
     """Build a bar chart of totals by category, biggest first, with labels."""
-
+    total_category = total_category.assign(
+        label=total_category["amount"].map(format_amount)
+    )
     base = alt.Chart(total_category).encode(
-        x=alt.X("amount", title="Montant (€)"),
+        x=alt.X("amount", title=None, axis=alt.Axis(labels=False, ticks=False)),
         y=alt.Y("category", sort="-x", title=None),
         tooltip=[
             alt.Tooltip("category", title="Catégorie"),
-            alt.Tooltip("amount", title="Montant (€)", format=".2f"),
+            alt.Tooltip("label", title="Montant"),
         ],
     )
     bars = base.mark_bar()
     # Light text: the app theme is dark (.streamlit/config.toml).
-    labels = base.mark_text(align="left", dx=3, color=LABEL_COLOR).encode(
-        text=alt.Text("amount", format=".2f"),
-    )
+    labels = base.mark_text(align="left", dx=3, color=LABEL_COLOR).encode(text="label")
     return bars + labels
+
+
+def monthly_chart(totals: pd.DataFrame) -> alt.LayerChart:
+    """Return grouped bars of incomes and expenses by month."""
+    totals = totals.assign(
+        month_label=totals["month"].map(format_month),
+        label=totals["amount"].map(format_amount),
+    )
+    base = alt.Chart(totals).encode(
+        x=alt.X("month_label", sort=None, title=None, axis=alt.Axis(labelAngle=0)),
+        y=alt.Y(
+            "amount",
+            title="Montant (€)",
+            axis=alt.Axis(labelExpr="replace(datum.label, ',', ' ')"),
+        ),
+        xOffset="flow",
+        tooltip=[
+            alt.Tooltip("month_label", title="Mois"),
+            alt.Tooltip("flow", title="Flux"),
+            alt.Tooltip("label", title="Montant"),
+        ],
+    )
+    bars = base.mark_bar().encode(color=alt.Color("flow", title=None))
+
+    return bars
 
 
 def transactions_editor(
@@ -78,11 +104,11 @@ def transactions_editor(
             ),
             "label": st.column_config.TextColumn("Description"),
             "amount": st.column_config.NumberColumn(
-                "Montant", format="%.2f €", width="small"
+                "Montant", format="euro", width="small"
             ),
             "operation_type": st.column_config.TextColumn("Type d'opération"),
             "category": st.column_config.SelectboxColumn(
-                "Catégorie", options=sorted(options)
+                "Catégorie", options=sorted(options), required=True
             ),
             "counterparty": st.column_config.TextColumn("Contrepartie"),
         },
@@ -99,7 +125,7 @@ def category_changes(original: pd.DataFrame, edited: pd.DataFrame) -> dict[str, 
 
 
 def plural(count: int, word: str) -> str:
-    """Return the count followed by the word, with an s when the count is above 1."""
+    """Return the count followed by the word, with an "s" from 2 onwards."""
 
     return f"{count} {word}s" if count > 1 else f"{count} {word}"
 
@@ -206,6 +232,10 @@ def variation_chart(
             axis=alt.Axis(labels=False, ticks=False),
             scale=alt.Scale(domain=[low, high]),
         ),
+        tooltip=[
+            alt.Tooltip("category", title="Catégorie"),
+            alt.Tooltip("label", title="Écart"),
+        ],
     )
     bars = base.mark_bar().encode(
         color=alt.condition(
