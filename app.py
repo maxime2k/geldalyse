@@ -23,7 +23,6 @@ from geldalyse.categorizer import (
 )
 from geldalyse.generator import generate_ing_export
 from geldalyse.readers import InvalidStatementError, read_statement
-from geldalyse.readers.ing import extract_merchant
 
 st.set_page_config(page_title="Geldalyse", layout="wide")
 
@@ -89,8 +88,6 @@ if all_transactions.empty:
 all_transactions["category"] = all_transactions.apply(
     lambda row: categorize(row["label"], row["amount"], row["operation_type"]), axis=1
 )
-# Short, readable name shown in the table; the full description is kept too.
-all_transactions["merchant"] = all_transactions["label"].apply(extract_merchant)
 
 # --- Manual categories by user ---
 

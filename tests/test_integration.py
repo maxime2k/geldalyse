@@ -8,7 +8,6 @@ import pandas as pd
 from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, categorize
 from geldalyse.generator import generate_ing_export
 from geldalyse.readers import read_statement
-from geldalyse.readers.ing import extract_merchant
 from geldalyse.schema import OTHER
 
 # --- Generated data ---
@@ -20,7 +19,7 @@ EXPECTED_UNKNOWN = {"BOULANGERIE FICTIVE", "LIBRAIRIE DU COIN"}
 def test_only_expected_demo_merchants_are_uncategorized():
     export = generate_ing_export(start=date(2026, 1, 1), days=90)
     transactions = read_statement(StringIO(export))
-    merchants = transactions["label"].map(extract_merchant)
+    merchants = transactions["merchant"]
     categories = transactions.apply(
         lambda row: categorize(row["label"], row["amount"], row["operation_type"]),
         axis=1,
@@ -62,5 +61,5 @@ def test_reader_output_can_be_categorized(ing_sample):
 
 def test_reader_output_gives_non_empty_merchant(ing_sample):
     transactions = read_statement(ing_sample)
-    merchants = transactions["label"].apply(extract_merchant)
+    merchants = transactions["merchant"]
     assert (merchants.str.len() > 0).all()

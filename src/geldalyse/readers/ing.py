@@ -86,6 +86,7 @@ class INGReader(BankReader):
         transactions["date"] = _parse_dates(transactions["date"])
         transactions["label"] = transactions["label"].str.strip().str.upper()
         transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
+        transactions["merchant"] = transactions["label"].map(extract_merchant)
         transactions["operation_type"] = transactions["label"].map(operation_type)
         transactions["amount"] = _parse_amounts(transactions["amount"])
 

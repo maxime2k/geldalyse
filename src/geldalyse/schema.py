@@ -1,7 +1,7 @@
 """How money moved, shared by all banks:
 each reader maps its own descriptions to these types."""
 
-STANDARD_COLUMNS = ["date", "label", "amount", "operation_type"]
+STANDARD_COLUMNS = ["date", "label", "amount", "merchant", "operation_type"]
 
 
 CARD = "card"
