@@ -91,12 +91,16 @@ def count_uncategorized(transactions: pd.DataFrame) -> int:
     return int((transactions["category"] == DEFAULT_EXPENSE_CATEGORY).sum())
 
 
-def uncategorized_by_operation(transactions: pd.DataFrame) -> pd.DataFrame:
-    """Group uncategorized transactions by merchant, most frequent first."""
+def uncategorized_by_counterparty(transactions: pd.DataFrame) -> pd.DataFrame:
+    """Group uncategorized transactions by counterparty, most frequent first."""
     uncategorized = transactions[transactions["category"] == DEFAULT_EXPENSE_CATEGORY]
     grouped_uncategorized = (
-        uncategorized.groupby("merchant")
-        .agg(transaction_count=("amount", "count"), total_amount=("amount", "sum"))
+        uncategorized.groupby("counterparty")
+        .agg(
+            transaction_count=("amount", "count"),
+            total_amount=("amount", "sum"),
+            operation_type=("operation_type", "first"),
+        )
         .reset_index()
         .sort_values(["transaction_count", "total_amount"], ascending=[False, True])
     )

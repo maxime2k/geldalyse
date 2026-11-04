@@ -26,7 +26,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 | 4 | Vue d'ensemble | Sorties et entrées par catégorie | Deux onglets ; barres horizontales triées de la plus grande à la plus petite, avec le montant de chaque barre | Où part mon argent, d'où vient-il ? |
 | 5 | Vue d'ensemble | Entrées et sorties par mois | Barres groupées, en pleine largeur | Comment ça évolue ? |
 | 6 | Vue d'ensemble | Aller plus loin | Une carte par page, en bas de page | Que puis-je regarder ensuite ? |
-| 7 | Transactions | Transactions non catégorisées, par opération | Tableau modifiable : une catégorie à choisir par opération | Que reste-t-il à classer ? |
+| 7 | Transactions | Transactions non catégorisées, par contrepartie | Tableau modifiable : une catégorie à choisir par opération | Que reste-t-il à classer ? |
 | 8 | Transactions | Transactions, avec filtre par catégorie | Tableau modifiable en deux onglets, sorties et entrées, les plus récentes en premier | Quelles opérations se cachent derrière les chiffres ? |
 | 9 | Évolution | Mois et base de comparaison | Deux listes déroulantes, côte à côte | Quel mois comparer, et à quoi ? |
 | 10 | Évolution | Rappel de la comparaison | Phrase sous les listes | Qu'est-ce que je suis en train de comparer ? |
@@ -50,7 +50,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **Le filtre de période** s'applique à tout le dashboard ; **le filtre par catégorie** ne s'applique qu'au tableau des transactions. Une sélection de catégories vide affiche toutes les catégories.
 - **Une période sans transaction** affiche un message, au lieu d'une page vide.
 - **Pas d'information portée uniquement par la couleur** : chaque série est nommée dans une légende.
-- **Le libellé court** est affiché en priorité ; **la description complète** reste disponible en dernière colonne, pour ne rien cacher.
+- **Les informations les plus utiles d'abord** : dans le tableau des transactions, la contrepartie, le montant et la catégorie viennent en premier, pour rester visibles sur mobile. Le type d'opération suit, pour aider à reconnaître une transaction, et **la description complète** reste disponible en dernière colonne, pour ne rien cacher.
 - **Le contenu avant la navigation** : les liens vers les autres pages sont en bas de la vue d'ensemble. Sur mobile, les colonnes s'empilent, et l'utilisateur voit ses résultats en premier.
 - **L'application constate, elle ne suppose pas** : un virement reçu est un fait visible dans le relevé, un remboursement est une intention de l'expéditeur. Un virement reçu n'est donc jamais classé en remboursement automatiquement ; l'utilisateur peut le faire.
 - **L'utilisateur corrige la nature d'une transaction, jamais ce qu'elle compte** : une entrée ne peut pas recevoir une catégorie de dépense. Sinon, ranger son salaire en ALIMENTATION effacerait ses dépenses, et les chiffres ne mesureraient plus rien. Seul un remboursement de magasin réduit sa catégorie, car le relevé le prouve : le même commerçant apparaît dans les deux sens.
@@ -63,11 +63,11 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **Les séparateurs de milliers sont acceptés** (`1.234,56` ou `1 234,56`) à une condition : chaque groupe a exactement trois chiffres. Un point suivi de deux chiffres (`12.50`) est refusé, pour ne jamais lire 12,50 € comme 1 250 €.
 - **Les dates sont lues jour d'abord** (`03/01/2026` est le 3 janvier). Une date qui n'existe pas, comme le 30 février, est refusée.
 - **Une ligne sans aucune valeur est ignorée** : c'est une ligne de mise en page, pas une transaction.
-- **Une transaction sans description est gardée**, avec la description « SANS DESCRIPTION » : son montant compte dans les totaux, et elle apparaît dans les opérations à classer.
+- **Une transaction sans description est gardée**, avec la description « SANS DESCRIPTION » : son montant compte dans les totaux, et elle apparaît dans les contreparties à classer.
 - **L'utilisateur coche une case avant d'importer** : son relevé est traité sur Streamlit Cloud. Une case à cocher a été préférée à une fenêtre d'acceptation, que les utilisateurs ont pris l'habitude de valider sans lire.
 - **La démo publique est protégée** : un fichier importé est limité à 2 Mo (un relevé ING couvre un an au plus, soit environ 1 Mo pour un compte très actif), et une erreur imprévue n'affiche aucun détail technique.
 - **Chaque transaction reçoit un type d'opération**, commun à toutes les banques : carte, paiement mobile, virement, ordre permanent, domiciliation, espèces, opération bancaire, ou autre. Le type dit comment l'argent a bougé, le signe du montant dit dans quel sens : un virement reçu est un virement avec un montant positif. Un libellé non reconnu reçoit le type « Autre » plutôt que d'être refusé.
-
+- **Le lecteur de chaque banque produit la contrepartie et le type d'opération**, en lisant ses propres libellés ou colonnes. Le reste de l'application ne lit jamais un libellé bancaire pour en tirer une information.
 ### Règles de la page Évolution
 
 - **Des mois entiers** : la page compare un mois complet à une base, et n'utilise pas le filtre de période.

@@ -17,8 +17,9 @@ from geldalyse.analysis import (
     key_figures_variations,
     month_range,
     monthly_totals,
-    uncategorized_by_operation,
+    uncategorized_by_counterparty,
 )
+from geldalyse.schema import CARD, TRANSFER
 
 TRANSACTIONS = pd.DataFrame(
     [
@@ -80,21 +81,21 @@ UNKNOWN_TRANSACTIONS = pd.DataFrame(
             "label": "SALAIRE DE: SOCIETE FICTIVE SA",
             "amount": 500.0,
             "category": "SALAIRE",
-            "merchant": "SOCIETE FICTIVE SA",
+            "counterparty": "SOCIETE FICTIVE SA",
         },
         {
             "date": pd.Timestamp(2026, 3, 17),
             "label": "PAIEMENT CARTE - 17/03 10:12 - BOULANGERIE DUPONT 1000",
             "amount": -30.0,
             "category": "INCONNU",
-            "merchant": "BOULANGERIE DUPONT",
+            "counterparty": "BOULANGERIE DUPONT",
         },
         {
             "date": pd.Timestamp(2026, 1, 20),
             "label": "PAIEMENT CARTE - 20/03 14:20 - BOULANGERIE DUPONT 1000",
             "amount": -20.0,
             "category": "INCONNU",
-            "merchant": "BOULANGERIE DUPONT",
+            "counterparty": "BOULANGERIE DUPONT",
         },
     ]
 )
@@ -106,28 +107,32 @@ UNCATEGORIZED_TRANSACTIONS = pd.DataFrame(
             "label": "SALAIRE DE: SOCIETE FICTIVE SA",
             "amount": 500.0,
             "category": "SALAIRE",
-            "merchant": "SOCIETE FICTIVE SA",
+            "counterparty": "SOCIETE FICTIVE SA",
+            "operation_type": TRANSFER,
         },
         {
             "date": pd.Timestamp(2026, 3, 17),
             "label": "PAIEMENT CARTE - 17/03 10:12 - FRITERIE AS 1050",
             "amount": -35.0,
             "category": "INCONNU",
-            "merchant": "FRITERIE AS",
+            "counterparty": "FRITERIE AS",
+            "operation_type": CARD,
         },
         {
             "date": pd.Timestamp(2026, 1, 20),
             "label": "PAIEMENT CARTE - 20/01 14:20 - FRITERIE AS 1050",
             "amount": -20.0,
             "category": "INCONNU",
-            "merchant": "FRITERIE AS",
+            "counterparty": "FRITERIE AS",
+            "operation_type": CARD,
         },
         {
             "date": pd.Timestamp(2026, 3, 17),
-            "label": "PAIEMENT CARTE - 17/03 10:12 - BOULANGERIE DUPONT 1000",
+            "label": "VIREMENT INSTANTANÉ VERS: AMI FICTIF",
             "amount": -30.0,
             "category": "INCONNU",
-            "merchant": "BOULANGERIE DUPONT",
+            "counterparty": "AMI FICTIF",
+            "operation_type": TRANSFER,
         },
     ]
 )
@@ -255,29 +260,46 @@ def test_count_uncategorized_counts_default_category_rows():
     assert total_count == 2
 
 
-def test_uncategorized_by_operation_excludes_categorized():
-    uncategorized = uncategorized_by_operation(UNCATEGORIZED_TRANSACTIONS)
+def test_uncategorized_by_counterparty_excludes_categorized():
+    uncategorized = uncategorized_by_counterparty(UNCATEGORIZED_TRANSACTIONS)
 
-    assert "SOCIETE FICTIVE SA" not in uncategorized["merchant"].tolist()
+    assert "SOCIETE FICTIVE SA" not in uncategorized["counterparty"].tolist()
 
 
-def test_uncategorized_by_operation_groups_same_merchant():
-    uncategorized = uncategorized_by_operation(UNCATEGORIZED_TRANSACTIONS)
-    friterie = uncategorized[uncategorized["merchant"] == "FRITERIE AS"]
+def test_uncategorized_by_counterparty_groups_same_counterparty():
+    uncategorized = uncategorized_by_counterparty(UNCATEGORIZED_TRANSACTIONS)
+    friterie = uncategorized[uncategorized["counterparty"] == "FRITERIE AS"]
     assert len(uncategorized) == 2
     assert friterie["transaction_count"].iloc[0] == 2
     assert friterie["total_amount"].iloc[0] == -55.0
 
 
-def test_uncategorized_by_operation_ties_sorted_by_amount():
+def test_uncategorized_by_counterparty_keeps_each_operation_type():
+    uncategorized = uncategorized_by_counterparty(UNCATEGORIZED_TRANSACTIONS)
+    types = uncategorized.set_index("counterparty")["operation_type"]
+    assert types["FRITERIE AS"] == CARD
+    assert types["AMI FICTIF"] == TRANSFER
+
+
+def test_uncategorized_by_counterparty_ties_sorted_by_amount():
     tied_transactions = pd.DataFrame(
         [
-            {"category": "INCONNU", "merchant": "BOULANGERIE DUPONT", "amount": -20.0},
-            {"category": "INCONNU", "merchant": "FRITERIE AS", "amount": -50.0},
+            {
+                "category": "INCONNU",
+                "counterparty": "BOULANGERIE DUPONT",
+                "amount": -20.0,
+                "operation_type": CARD,
+            },
+            {
+                "category": "INCONNU",
+                "counterparty": "FRITERIE AS",
+                "amount": -50.0,
+                "operation_type": CARD,
+            },
         ]
     )
-    uncategorized = uncategorized_by_operation(tied_transactions)
-    assert uncategorized["merchant"].iloc[0] == "FRITERIE AS"
+    uncategorized = uncategorized_by_counterparty(tied_transactions)
+    assert uncategorized["counterparty"].iloc[0] == "FRITERIE AS"
 
 
 def test_month_range_includes_months_without_transactions():

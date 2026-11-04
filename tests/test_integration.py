@@ -8,7 +8,6 @@ import pandas as pd
 from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, categorize
 from geldalyse.generator import generate_ing_export
 from geldalyse.readers import read_statement
-from geldalyse.readers.ing import extract_merchant
 from geldalyse.schema import OTHER
 
 # --- Generated data ---
@@ -17,15 +16,17 @@ from geldalyse.schema import OTHER
 EXPECTED_UNKNOWN = {"BOULANGERIE FICTIVE", "LIBRAIRIE DU COIN"}
 
 
-def test_only_expected_demo_merchants_are_uncategorized():
+def test_only_expected_demo_counterparties_are_uncategorized():
     export = generate_ing_export(start=date(2026, 1, 1), days=90)
     transactions = read_statement(StringIO(export))
-    merchants = transactions["label"].map(extract_merchant)
+    counterparties = transactions["counterparty"]
     categories = transactions.apply(
         lambda row: categorize(row["label"], row["amount"], row["operation_type"]),
         axis=1,
     )
-    assert set(merchants[categories == DEFAULT_EXPENSE_CATEGORY]) == EXPECTED_UNKNOWN
+    assert (
+        set(counterparties[categories == DEFAULT_EXPENSE_CATEGORY]) == EXPECTED_UNKNOWN
+    )
 
 
 def test_export_is_a_valid_ing_statement():
@@ -60,7 +61,7 @@ def test_reader_output_can_be_categorized(ing_sample):
     assert categories.notna().all()
 
 
-def test_reader_output_gives_non_empty_merchant(ing_sample):
+def test_reader_output_gives_non_empty_counterparty(ing_sample):
     transactions = read_statement(ing_sample)
-    merchants = transactions["label"].apply(extract_merchant)
-    assert (merchants.str.len() > 0).all()
+    counterparties = transactions["counterparty"]
+    assert (counterparties.str.len() > 0).all()

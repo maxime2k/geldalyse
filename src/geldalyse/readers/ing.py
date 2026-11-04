@@ -1,6 +1,6 @@
 """Read ING exports into the standard format, and parse their descriptions.
 
-Merchant name, by family of description:
+counterparty name, by family of description:
 - Card payment ("PAIEMENT ..."): 3rd segment between " - ", without postal code
 - Cash withdrawal ("RETRAIT D'ESPÈCES ..."): the fixed value "RETRAIT D'ESPÈCES"
 - Transfer ("VIREMENT ..."): text between "DE:" or "VERS:" and the next " - "
@@ -86,6 +86,7 @@ class INGReader(BankReader):
         transactions["date"] = _parse_dates(transactions["date"])
         transactions["label"] = transactions["label"].str.strip().str.upper()
         transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
+        transactions["counterparty"] = transactions["label"].map(extract_counterparty)
         transactions["operation_type"] = transactions["label"].map(operation_type)
         transactions["amount"] = _parse_amounts(transactions["amount"])
 
@@ -123,7 +124,7 @@ def _parse_dates(dates: pd.Series) -> pd.Series:
     return parsed
 
 
-def extract_merchant(label: str) -> str:
+def extract_counterparty(label: str) -> str:
     """Return a short, readable name for a bank transaction description."""
 
     # Normalize here too, so the output is uniform whatever the source.
@@ -151,10 +152,10 @@ def extract_merchant(label: str) -> str:
     segments = label.split(SEPARATOR)
     if len(segments) < 3:
         return label
-    merchant = segments[2]
-    merchant_name = _remove_postal_code(name=merchant)
+    counterparty = segments[2]
+    counterparty_name = _remove_postal_code(name=counterparty)
 
-    return merchant_name
+    return counterparty_name
 
 
 def _remove_postal_code(name: str) -> str:

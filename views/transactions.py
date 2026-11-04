@@ -11,47 +11,64 @@ from components import (
     plural,
     transactions_editor,
 )
-from geldalyse.analysis import count_uncategorized, uncategorized_by_operation
+from geldalyse.analysis import count_uncategorized, uncategorized_by_counterparty
 from geldalyse.categorizer import (
     EXPENSE_CATEGORIES,
     INCOME_CATEGORY_NAMES,
     SELECTABLE_EXPENSE_CATEGORIES,
 )
+from geldalyse.schema import OPERATION_TYPE_LABELS
 
 # --- Uncategorized transactions table -------------------------
 period_transactions = period_transactions_or_stop()
 
 total_uncategorized = count_uncategorized(period_transactions)
 if total_uncategorized > 0:
-    st.subheader("Transactions non catégorisées, par opération")
+    st.subheader("Transactions non catégorisées, par contrepartie")
     st.caption(
         "Cliquez sur une catégorie pour la modifier. "
-        "Un changement s’applique à toutes les transactions de cette opération "
+        "Un changement s’applique à toutes les transactions de cette contrepartie "
         "et reste conservé jusqu’à ce que vous rechargiez ou fermiez la page."
     )
-    uncategorized_table = uncategorized_by_operation(period_transactions)
+    uncategorized_table = uncategorized_by_counterparty(period_transactions)
     uncategorized_table["category"] = None
+    display_table = uncategorized_table.assign(
+        operation_type=uncategorized_table["operation_type"].map(OPERATION_TYPE_LABELS)
+    )
     edited_table = st.data_editor(
-        uncategorized_table,
+        display_table,
         hide_index=True,
         placeholder="Choisir une catégorie",
+        column_order=[
+            "counterparty",
+            "total_amount",
+            "operation_type",
+            "transaction_count",
+            "category",
+        ],
         column_config={
-            "merchant": st.column_config.TextColumn("Opération"),
+            "counterparty": st.column_config.TextColumn("Contrepartie"),
             "transaction_count": st.column_config.NumberColumn("Transactions"),
             "total_amount": st.column_config.NumberColumn("Total", format="%.2f €"),
             "category": st.column_config.SelectboxColumn(
                 "Catégorie", options=sorted(EXPENSE_CATEGORIES)
             ),
+            "operation_type": st.column_config.TextColumn("Type d'opération"),
         },
-        disabled=["merchant", "transaction_count", "total_amount"],
+        disabled=[
+            "counterparty",
+            "transaction_count",
+            "total_amount",
+            "operation_type",
+        ],
     )
     chosen_rows = edited_table[edited_table["category"].notna()]
-    new_choices = dict(zip(chosen_rows["merchant"], chosen_rows["category"]))
+    new_choices = dict(zip(chosen_rows["counterparty"], chosen_rows["category"]))
     if new_choices:
         st.session_state[EXPENSE_CHOICES_KEY].update(new_choices)
         st.rerun()
     transactions_text = plural(total_uncategorized, "transaction")
-    operations_text = plural(len(uncategorized_table), "opération")
+    operations_text = plural(len(uncategorized_table), "contrepartie")
     st.caption(
         f"{transactions_text} regroupées en {operations_text}"
         if total_uncategorized > 1
@@ -115,7 +132,7 @@ with st.form("transactions"):
     submitted = st.form_submit_button("Enregistrer les modifications")
 st.caption(
     "Cliquez sur une catégorie pour la modifier, puis enregistrez. "
-    "Un changement s’applique à toutes les transactions de cette opération "
+    "Un changement s’applique à toutes les transactions de cette contrepartie "
     "et reste conservé jusqu’à ce que vous rechargiez ou fermiez la page."
 )
 

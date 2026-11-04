@@ -17,8 +17,8 @@ Geldalyse est une application Python qui importe un relevé bancaire, catégoris
 - **Deux sources de données** : un relevé de démo au format ING, généré à la volée et lu comme un vrai relevé, ou votre propre export CSV d'ING Belgique (en français)
 - **Nettoyage automatique** : colonnes renommées, dates converties, libellés normalisés, lignes vides supprimées
 - **Catégorisation automatique** selon les mots-clés et le sens de l'argent : entrées et sorties ont leurs propres catégories
-- **Libellé court lisible** : le commerçant, le bénéficiaire d'un virement ou la nature d'une opération bancaire, extrait de la longue description de la banque
-- **Correction manuelle des catégories**, pour toutes les transactions d'une même opération
+- **Contrepartie lisible** : le commerçant, le bénéficiaire d'un virement ou la nature d'une opération bancaire, extrait de la longue description de la banque
+- **Correction manuelle des catégories**, pour toutes les transactions d'une même contrepartie
 - **Import vérifié** : un montant ou une date invalide refuse le relevé, avec la ligne en cause, plutôt que de fausser les chiffres. Les montants avec séparateur de milliers sont acceptés
 - **Tableau de bord interactif**, en trois pages :
   - **Vue d'ensemble** : entrées, sorties et solde de la période, détail par catégorie et mois par mois
@@ -42,7 +42,7 @@ Le projet suit un schéma **ETL** (*Extract, Transform, Load*). Chaque étape es
 | Load | `components.py` | Fonctions d'affichage partagées par les pages |
 | Load | `formatting.py` | Met en forme les résultats en français (mois, montants, écarts) |
 
-Chaque banque a son lecteur, qui hérite de la classe `BankReader` et produit le **format standard** défini dans `schema.py`. Le reste de l'application ne travaille que sur ce format, sans savoir d'où viennent les données. Objectif en cours : qu'ajouter une nouvelle banque ne demande qu'un nouveau lecteur. Pour cela, le commerçant et le type d'opération seront produits par chaque lecteur, et non plus déchiffrés ensuite à partir des libellés ING.
+Chaque banque a son lecteur, qui hérite de la classe `BankReader` et produit le **format standard** défini dans `schema.py` : la date, le montant, la description, la contrepartie et le type d'opération. Le reste de l'application ne travaille que sur ce format. Ajouter une banque ne demande donc qu'un nouveau lecteur.
 
 La démo suit le même chemin : le générateur écrit un export ING, que l'application lit avec le lecteur ING, comme un relevé importé.
 
@@ -149,13 +149,15 @@ Sur la version en ligne, ce traitement a lieu sur les serveurs de Streamlit Clou
 ### V2 — en cours
 
 **Données et import**
-- [x] Libellé court extrait de chaque description (commerçant, virement, opération bancaire)
+- [x] Contrepartie extraite de chaque description (commerçant, bénéficiaire d'un virement, opération bancaire)
+- [x] Type d'opération reconnu pour chaque transaction : carte, virement, domiciliation, ordre permanent, espèces, opération bancaire
+- [x] Un lecteur par banque, derrière la classe commune `BankReader` : ajouter une banque ne demande qu'un lecteur
+- [x] Générateur produisant des relevés fictifs au format ING, lus par le lecteur ING
 - [ ] Exports ING en néerlandais, anglais et allemand
 - [ ] Prise en charge d'autres banques (BNP Paribas Fortis, Belfius…)
 - [ ] Import de jeux de données publics (Kaggle, UCI) via le même format standard
-- [x] Générateur produisant des relevés fictifs au format ING, lus par le lecteur ING 
 - [ ] Simulation des montants par une loi log-normale plutôt qu'uniforme
-- [ ] Utiliser le détail de l'opération quand la description est trop générique (ex. « Rectification »)
+- [ ] Utiliser le détail du mouvement quand la description est trop générique (ex. « Rectification »)
 
 **Catégorisation**
 - [x] Prise en compte du signe du montant (entrées et sorties, catégories par défaut)
@@ -183,7 +185,7 @@ Sur la version en ligne, ce traitement a lieu sur les serveurs de Streamlit Clou
 - [ ] Nom et logo de l'application dans la barre latérale
 
 **Tableau de bord**
-- [x] Transactions non catégorisées regroupées par opération, pour enrichir les mots-clés
+- [x] Transactions non catégorisées regroupées par contrepartie, pour enrichir les mots-clés
 - [x] Correction manuelle de la catégorie d'une opération non catégorisée
 - [x] Comparaison d'un mois au mois précédent, à la moyenne des 3 mois précédents ou au même mois l'an passé, avec les écarts par catégorie (page Évolution)
 - [ ] Faits marquants sur la vue d'ensemble (plus forte variation du mois)

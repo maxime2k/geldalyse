@@ -11,7 +11,7 @@ from geldalyse.readers.ing import (
     MISSING_LABEL,
     INGReader,
     InvalidStatementError,
-    extract_merchant,
+    extract_counterparty,
     operation_type,
     parse_amount,
 )
@@ -181,37 +181,37 @@ def test_ing_reader_replaces_missing_label(label):
 
 
 def test_card_payment_returns_third_segment():
-    assert extract_merchant(CARD_PAYMENT) == "DELHAIZE IXELLES"
+    assert extract_counterparty(CARD_PAYMENT) == "DELHAIZE IXELLES"
 
 
 def test_card_payment_without_postcode_keeps_full_name():
     # Nothing to remove: the name must stay intact.
-    assert extract_merchant(CARD_PAYMENT_NO_POSTCODE) == "NETFLIX.COM"
+    assert extract_counterparty(CARD_PAYMENT_NO_POSTCODE) == "NETFLIX.COM"
 
 
 def test_malformed_card_payment_is_returned_unchanged():
-    assert extract_merchant(MALFORMED_CARD_PAYMENT) == MALFORMED_CARD_PAYMENT
+    assert extract_counterparty(MALFORMED_CARD_PAYMENT) == MALFORMED_CARD_PAYMENT
 
 
 # --- Fixed names ---
 
 
 def test_cash_withdrawal_returns_fixed_name():
-    assert extract_merchant(CASH_WITHDRAWAL) == FIXED_NAMES["RETRAIT D'ESPÈCES"]
+    assert extract_counterparty(CASH_WITHDRAWAL) == FIXED_NAMES["RETRAIT D'ESPÈCES"]
 
 
 def test_bank_fees_return_fixed_name():
-    assert extract_merchant(BANK_FEES) == FIXED_NAMES["DÉCOMPTE DE FRAIS"]
+    assert extract_counterparty(BANK_FEES) == FIXED_NAMES["DÉCOMPTE DE FRAIS"]
 
 
 def test_interest_returns_fixed_name():
-    assert extract_merchant(INTEREST) == FIXED_NAMES["INTÉRÊTS-FRAIS"]
+    assert extract_counterparty(INTEREST) == FIXED_NAMES["INTÉRÊTS-FRAIS"]
 
 
 @pytest.mark.parametrize("prefix, name", FIXED_NAMES.items())
 def test_every_fixed_prefix_returns_its_name(prefix, name):
     # Checks that no prefix is shadowed by another one in the dictionary.
-    assert extract_merchant(prefix + " ANY FOLLOWING TEXT") == name
+    assert extract_counterparty(prefix + " ANY FOLLOWING TEXT") == name
 
 
 # --- Unknown descriptions ---
@@ -219,26 +219,26 @@ def test_every_fixed_prefix_returns_its_name(prefix, name):
 
 @pytest.mark.parametrize("label", ["opération diverse", "abc - def"])
 def test_unknown_description_is_returned_in_uppercase(label):
-    assert extract_merchant(label) == label.upper()
+    assert extract_counterparty(label) == label.upper()
 
 
 def test_unknown_description_with_segments_is_returned_unchanged():
-    assert extract_merchant(UNKNOWN_WITH_SEGMENTS) == UNKNOWN_WITH_SEGMENTS
+    assert extract_counterparty(UNKNOWN_WITH_SEGMENTS) == UNKNOWN_WITH_SEGMENTS
 
 
 # --- Transfers ---
 
 
 def test_transfer_receive():
-    assert extract_merchant(TRANSFER_RECEIVED) == "SOCIÉTÉ FICTIVE SA"
+    assert extract_counterparty(TRANSFER_RECEIVED) == "SOCIÉTÉ FICTIVE SA"
 
 
 def test_transfer_sent():
-    assert extract_merchant(TRANSFER_SENT) == "AMI FICTIF"
+    assert extract_counterparty(TRANSFER_SENT) == "AMI FICTIF"
 
 
 def test_transfer_without_marker_is_returned_unchanged():
-    assert extract_merchant(TRANSFER_WITHOUT_MARKER) == TRANSFER_WITHOUT_MARKER
+    assert extract_counterparty(TRANSFER_WITHOUT_MARKER) == TRANSFER_WITHOUT_MARKER
 
 
 @pytest.mark.parametrize(
