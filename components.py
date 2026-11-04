@@ -32,20 +32,20 @@ LABEL_MARGIN = 0.4  # share of the largest change, left free for the labels
 
 def category_chart(total_category: pd.DataFrame) -> alt.LayerChart:
     """Build a bar chart of totals by category, biggest first, with labels."""
-
+    total_category = total_category.assign(
+        label=total_category["amount"].map(format_amount)
+    )
     base = alt.Chart(total_category).encode(
-        x=alt.X("amount", title="Montant (€)"),
+        x=alt.X("amount", title=None, axis=alt.Axis(labels=False, ticks=False)),
         y=alt.Y("category", sort="-x", title=None),
         tooltip=[
             alt.Tooltip("category", title="Catégorie"),
-            alt.Tooltip("amount", title="Montant (€)", format=".2f"),
+            alt.Tooltip("label", title="Montant"),
         ],
     )
     bars = base.mark_bar()
     # Light text: the app theme is dark (.streamlit/config.toml).
-    labels = base.mark_text(align="left", dx=3, color=LABEL_COLOR).encode(
-        text=alt.Text("amount", format=".2f"),
-    )
+    labels = base.mark_text(align="left", dx=3, color=LABEL_COLOR).encode(text="label")
     return bars + labels
 
 
