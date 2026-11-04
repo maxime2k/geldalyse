@@ -38,9 +38,10 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 
 - **Aucune catégorie écrite en dur** dans le dashboard : les catégories affichées sont celles présentes dans les données. Une nouvelle catégorie apparaît automatiquement.
 - **Catégories selon le signe du montant** : une sortie reçoit une catégorie de sortie ; une entrée reçoit une catégorie d'entrée. Un virement reçu non reconnu est classé en VIREMENTS REÇUS, et un remboursement de magasin garde la catégorie de sa dépense.
+- **Le type d'opération passe avant les mots-clés** : des frais bancaires sont classés en FACTURE et des intérêts en INVESTISSEMENT par leur type, quel que soit leur libellé. Les mots-clés reconnaissent ensuite les commerçants et les motifs, qui s'écrivent de la même façon dans toutes les banques.
 - **Sorties affichées en valeurs positives** dans les graphiques, pour une lecture naturelle.
 - **Les entrées sont exclues** du graphique des sorties par catégorie. Les remboursements de magasin y sont déduits de leur catégorie de dépense.
-- **Les retraits d'espèces** apparaissent comme une catégorie à part entière, RETRAITS.
+- **Les retraits d'espèces** apparaissent comme une catégorie à part entière, RETRAITS, reconnue par le type d'opération.
 - **Deux vues de l'argent** :
   - les **chiffres clés** et le **graphique mensuel** suivent le compte bancaire : une entrée est un montant positif, une sortie un montant négatif. Leurs totaux sont vérifiables sur le relevé ;
   - les **onglets par catégorie** montrent ce que l'argent représente : un remboursement de magasin est déduit de sa catégorie de dépense, et n'apparaît pas dans les entrées.

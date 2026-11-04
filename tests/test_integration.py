@@ -22,7 +22,8 @@ def test_only_expected_demo_merchants_are_uncategorized():
     transactions = read_statement(StringIO(export))
     merchants = transactions["label"].map(extract_merchant)
     categories = transactions.apply(
-        lambda row: categorize(row["label"], row["amount"]), axis=1
+        lambda row: categorize(row["label"], row["amount"], row["operation_type"]),
+        axis=1,
     )
     assert set(merchants[categories == DEFAULT_EXPENSE_CATEGORY]) == EXPECTED_UNKNOWN
 
@@ -53,7 +54,8 @@ def test_reader_dates_are_datetime(ing_sample):
 def test_reader_output_can_be_categorized(ing_sample):
     transactions = read_statement(ing_sample)
     categories = transactions.apply(
-        lambda row: categorize(row["label"], row["amount"]), axis=1
+        lambda row: categorize(row["label"], row["amount"], row["operation_type"]),
+        axis=1,
     )
     assert categories.notna().all()
 

@@ -6,7 +6,7 @@ Keep keywords precise: "CAR" would also match "CARTE".
 
 import pandas as pd
 
-from geldalyse.readers.ing import is_received_transfer
+from geldalyse.schema import BANK_OPERATION, CASH, TRANSFER
 
 DEFAULT_EXPENSE_CATEGORY = "INCONNU"
 DEFAULT_INCOME_CATEGORY = "AUTRES ENTRÉES"
@@ -17,18 +17,21 @@ EXPENSE_CATEGORIES = {
     "ALIMENTATION": ["DELHAIZE", "COLRUYT", "CARREFOUR", "OKAY", "ALIMENTATION"],
     "TRANSPORT": ["STIB", "SNCB", "TOTALENERGIES", "PARKING", "DELIJN", "PARK BRU"],
     "SANTE": ["PHARMA"],
-    "FACTURE": ["PROXIMUS", "NETFLIX", "DÉCOMPTE DE FRAIS", "INTÉRÊTS-FRAIS"],
+    "FACTURE": ["PROXIMUS", "NETFLIX"],
     "LOGEMENT": ["LOYER"],
     "SHOPPING": ["ZALANDO", "ZARA", "C&A", "FNAC", "AMZN", "PAPETERIE"],
     "RESTAURATION": ["PAIN QUOTIDIEN", "RESTAURANT", "DELIVEROO", "SNACK"],
-    "RETRAITS": ["RETRAIT D'ESPÈCES"],
+    "RETRAITS": [],
 }
 
 # Searched before EXPENSE_CATEGORIES for positive amounts.
 INCOME_CATEGORIES = {
     "SALAIRE": ["SALAIRE"],
-    "INVESTISSEMENT": ["INTÉRÊTS"],
+    "INVESTISSEMENT": [],
 }
+# Decided by the operation type, before any keyword: the type is a fact from the reader.
+EXPENSE_TYPE_CATEGORIES = {CASH: "RETRAITS", BANK_OPERATION: "FACTURE"}
+INCOME_TYPE_CATEGORIES = {BANK_OPERATION: "INVESTISSEMENT"}
 
 EXPENSE_CATEGORY_NAMES = [*EXPENSE_CATEGORIES, DEFAULT_EXPENSE_CATEGORY]
 INCOME_CATEGORY_NAMES = [
@@ -44,27 +47,30 @@ SELECTABLE_EXPENSE_CATEGORIES = [
 ]
 
 
-# Match catégories with labels
-def categorize(label: str, amount: float) -> str:
+def categorize(label: str, amount: float, operation_type: str) -> str:
     """Return the first matching category, else a default based on the sign."""
     if amount > 0:
-        category = _find_category(
-            label=label, categories=INCOME_CATEGORIES
-        ) or _find_category(label=label, categories=EXPENSE_CATEGORIES)
+        category = (
+            INCOME_TYPE_CATEGORIES.get(operation_type)
+            or _find_category(label=label, categories=INCOME_CATEGORIES)
+            or _find_category(label=label, categories=EXPENSE_CATEGORIES)
+        )
         default_category = (
             RECEIVED_TRANSFER_CATEGORY
-            if is_received_transfer(label)
+            if operation_type == TRANSFER
             else DEFAULT_INCOME_CATEGORY
         )
     else:
-        category = _find_category(label=label, categories=EXPENSE_CATEGORIES)
+        category = EXPENSE_TYPE_CATEGORIES.get(operation_type) or _find_category(
+            label=label, categories=EXPENSE_CATEGORIES
+        )
         default_category = DEFAULT_EXPENSE_CATEGORY
 
     return category or default_category
 
 
 def _find_category(label: str, categories: dict[str, list[str]]) -> str | None:
-
+    """Return the first category whose keyword appears in the label, or None."""
     normalized_label = label.upper()
     for category, keywords in categories.items():
         for keyword in keywords:

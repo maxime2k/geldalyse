@@ -12,7 +12,6 @@ from geldalyse.readers.ing import (
     INGReader,
     InvalidStatementError,
     extract_merchant,
-    is_received_transfer,
     operation_type,
     parse_amount,
 )
@@ -240,18 +239,6 @@ def test_transfer_sent():
 
 def test_transfer_without_marker_is_returned_unchanged():
     assert extract_merchant(TRANSFER_WITHOUT_MARKER) == TRANSFER_WITHOUT_MARKER
-
-
-def test_is_received_transfer_true_for_received_transfer():
-    assert is_received_transfer(TRANSFER_RECEIVED)
-
-
-def test_is_received_transfer_false_for_sent_transfer():
-    assert not is_received_transfer(TRANSFER_SENT)
-
-
-def test_is_received_transfer_false_for_card_payment():
-    assert not is_received_transfer(CARD_PAYMENT)
 
 
 @pytest.mark.parametrize(
