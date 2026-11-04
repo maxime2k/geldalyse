@@ -87,7 +87,7 @@ if all_transactions.empty:
     st.stop()
 
 all_transactions["category"] = all_transactions.apply(
-    lambda row: categorize(row["label"], row["amount"]), axis=1
+    lambda row: categorize(row["label"], row["amount"], row["operation_type"]), axis=1
 )
 # Short, readable name shown in the table; the full description is kept too.
 all_transactions["merchant"] = all_transactions["label"].apply(extract_merchant)

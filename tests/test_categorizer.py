@@ -11,50 +11,59 @@ from geldalyse.categorizer import (
     apply_manual_categories,
     categorize,
 )
+from geldalyse.schema import BANK_OPERATION, CARD, OTHER, TRANSFER
 
 
 def test_supermarket_is_food():
-    assert categorize("DELHAIZE BRUXELLES", -10.0) == "ALIMENTATION"
+    assert categorize("DELHAIZE BRUXELLES", -10.0, CARD) == "ALIMENTATION"
 
 
 def test_lowercase_label_is_recognized():
-    assert categorize("virement du salaire", 2500.0) == "SALAIRE"
+    assert categorize("virement du salaire", 2500.0, TRANSFER) == "SALAIRE"
 
 
 def test_unknown_expense_returns_default_expense():
-    assert categorize("delhaize bruxelles", -15.0) == "ALIMENTATION"
+    assert categorize("delhaize bruxelles", -15.0, CARD) == "ALIMENTATION"
 
 
 def test_unknown_income_returns_default_income():
-    assert categorize("nouveau virement", 100.0) == DEFAULT_INCOME_CATEGORY
+    assert categorize("nouveau virement", 100.0, OTHER) == DEFAULT_INCOME_CATEGORY
 
 
 def test_positive_interest_is_investment():
     assert (
-        categorize("Intérêts-Frais au 31/12/25 Décompte en annexe", 12.7)
+        categorize(
+            "Intérêts-Frais au 31/12/25 Décompte en annexe", 12.7, BANK_OPERATION
+        )
         == "INVESTISSEMENT"
     )
 
 
 def test_negative_interest_is_bank_fee():
     assert (
-        categorize("Intérêts-Frais au 31/12/25 Décompte en annexe", -2.7) == "FACTURE"
+        categorize(
+            "Intérêts-Frais au 31/12/25 Décompte en annexe", -2.7, BANK_OPERATION
+        )
+        == "FACTURE"
     )
 
 
 def test_salary_transfers_returns_salary():
     assert (
-        categorize("VIREMENT DE: SOCIETE FICTIVE SA SALAIRE JANVIER", 2500.0)
+        categorize("VIREMENT DE: SOCIETE FICTIVE SA SALAIRE JANVIER", 2500.0, TRANSFER)
         == "SALAIRE"
     )
 
 
 def test_shop_refund_returns_expense_category():
-    assert categorize("REMBOURSEMENT VOTRE ACHAT ZALANDO", 50.0) == "SHOPPING"
+    assert categorize("REMBOURSEMENT VOTRE ACHAT ZALANDO", 50.0, OTHER) == "SHOPPING"
 
 
 def test_received_transfer_returns_received_transfer_category():
-    assert categorize("virement de: ami fictif", 50.0) == RECEIVED_TRANSFER_CATEGORY
+    assert (
+        categorize("virement de: ami fictif", 50.0, TRANSFER)
+        == RECEIVED_TRANSFER_CATEGORY
+    )
 
 
 def test_apply_manual_categories_changes_chosen_operation():

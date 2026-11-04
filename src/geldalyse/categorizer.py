@@ -6,7 +6,7 @@ Keep keywords precise: "CAR" would also match "CARTE".
 
 import pandas as pd
 
-from geldalyse.readers.ing import is_received_transfer
+from geldalyse.schema import TRANSFER
 
 DEFAULT_EXPENSE_CATEGORY = "INCONNU"
 DEFAULT_INCOME_CATEGORY = "AUTRES ENTRÉES"
@@ -44,8 +44,7 @@ SELECTABLE_EXPENSE_CATEGORIES = [
 ]
 
 
-# Match catégories with labels
-def categorize(label: str, amount: float) -> str:
+def categorize(label: str, amount: float, operation_type: str) -> str:
     """Return the first matching category, else a default based on the sign."""
     if amount > 0:
         category = _find_category(
@@ -53,7 +52,7 @@ def categorize(label: str, amount: float) -> str:
         ) or _find_category(label=label, categories=EXPENSE_CATEGORIES)
         default_category = (
             RECEIVED_TRANSFER_CATEGORY
-            if is_received_transfer(label)
+            if operation_type == TRANSFER
             else DEFAULT_INCOME_CATEGORY
         )
     else:
@@ -64,7 +63,7 @@ def categorize(label: str, amount: float) -> str:
 
 
 def _find_category(label: str, categories: dict[str, list[str]]) -> str | None:
-
+    """Return the first category whose keyword appears in the label, or None."""
     normalized_label = label.upper()
     for category, keywords in categories.items():
         for keyword in keywords:
