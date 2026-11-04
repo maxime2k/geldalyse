@@ -14,8 +14,8 @@ from components import (
 from geldalyse.analysis import count_uncategorized, uncategorized_by_counterparty
 from geldalyse.categorizer import (
     EXPENSE_CATEGORIES,
+    EXPENSE_CATEGORY_NAMES,
     INCOME_CATEGORY_NAMES,
-    SELECTABLE_EXPENSE_CATEGORIES,
 )
 from geldalyse.schema import OPERATION_TYPE_LABELS
 
@@ -128,7 +128,7 @@ with st.form("transactions"):
     with expenses_transactions_tab:
         edited_expenses = transactions_editor(
             expenses_transactions,
-            SELECTABLE_EXPENSE_CATEGORIES,
+            EXPENSE_CATEGORY_NAMES,
             "expenses_editor",
             expenses_msg,
         )

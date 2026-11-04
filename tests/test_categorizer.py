@@ -6,8 +6,8 @@ import pytest
 from geldalyse.categorizer import (
     DEFAULT_EXPENSE_CATEGORY,
     DEFAULT_INCOME_CATEGORY,
+    EXPENSE_CATEGORY_NAMES,
     RECEIVED_TRANSFER_CATEGORY,
-    SELECTABLE_EXPENSE_CATEGORIES,
     apply_manual_categories,
     categorize,
 )
@@ -140,7 +140,7 @@ def test_apply_manual_categories_respects_money_direction(
     assert result["category"].iloc[0] == expected
 
 
-def test_selectable_expense_categories_are_expenses_only():
-    assert DEFAULT_EXPENSE_CATEGORY not in SELECTABLE_EXPENSE_CATEGORIES
-    assert "ALIMENTATION" in SELECTABLE_EXPENSE_CATEGORIES  # une catégorie de sortie
-    assert "SALAIRE" not in SELECTABLE_EXPENSE_CATEGORIES  # une catégorie d'entrée
+def test_expense_category_names_are_expenses_only():
+    assert DEFAULT_EXPENSE_CATEGORY in EXPENSE_CATEGORY_NAMES  # displayed in the table
+    assert "ALIMENTATION" in EXPENSE_CATEGORY_NAMES  # an expense category
+    assert "SALAIRE" not in EXPENSE_CATEGORY_NAMES  # an income category
