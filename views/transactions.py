@@ -84,7 +84,9 @@ st.subheader("Transactions")
 st.caption("Les plus récentes en premier.")
 
 selected = st.multiselect(
-    "Catégories ", options=sorted(period_transactions["category"].unique())
+    "Catégories ",
+    options=sorted(period_transactions["category"].unique()),
+    placeholder="Toutes les catégories",
 )
 
 if not selected:

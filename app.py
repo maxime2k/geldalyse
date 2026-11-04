@@ -33,13 +33,14 @@ INVALID_FILE_MSG = (
     "Téléchargez à nouveau votre relevé depuis votre app ou Home’Bank, "
     "sans l’ouvrir ni l’enregistrer dans Excel."
 )
+INSTALLATION_URL = "https://github.com/maxime2k/geldalyse#installation"
+
 PRIVACY_MSG = (
     "Votre relevé est traité sur les serveurs de Streamlit Cloud, "
     "le temps de la session, puis n’est pas conservé. "
     "Pour que vos données ne quittent pas votre ordinateur, "
-    "utilisez l’application en local via ce lien."
+    f"utilisez l’application en [local]({INSTALLATION_URL})."
 )
-INSTALLATION_LINK = "https://github.com/maxime2k/geldalyse#installation"
 st.title("Geldalyse")
 st.write("Comprendre où part son argent.")
 
@@ -53,7 +54,7 @@ if choice == DEMO_SOURCE:
     all_transactions = read_statement(StringIO(export))
 
 else:
-    st.sidebar.warning(f"{PRIVACY_MSG} {INSTALLATION_LINK}")
+    st.sidebar.warning(f"{PRIVACY_MSG}")
     agree = st.sidebar.checkbox("J'ai compris, importer mon relevé")
 
     if not agree:
