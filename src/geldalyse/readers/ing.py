@@ -1,14 +1,10 @@
 """Read ING exports into the standard format, and parse their descriptions.
 
-counterparty name, by family of description:
-- Card payment ("PAIEMENT ..."): 3rd segment between " - ", without postal code
-- Cash withdrawal ("RETRAIT D'ESPÈCES ..."): the fixed value "RETRAIT D'ESPÈCES"
-- Transfer ("VIREMENT ..."): text between "DE:" or "VERS:" and the next " - "
-- Bank operation ("DÉCOMPTE DE FRAIS"): the fixed value "FRAIS COMPTE ING"
-- Bank operation ("INTÉRÊTS-FRAIS"): the fixed value "INTÉRÊTS COMPTE ING"
+Counterparty, by operation type:
+- Card: 3rd " - " segment, without the postal code
+- Transfer, direct debit, standing order: text after "DE:" or "VERS:" up to " - "
+- Cash, bank operation: a fixed name ("RETRAIT D'ESPÈCES", "FRAIS COMPTE ING"...)
 - Anything else: the description, in uppercase
-
-Received transfer: a "VIREMENT ..." description containing "DE:".
 """
 
 import re
@@ -57,12 +53,10 @@ FIXED_NAMES = {
     "INTÉRÊTS-FRAIS": "INTÉRÊTS COMPTE ING",
 }
 
-TRANSFER_PREFIX = "VIREMENT"
+
 TRANSFER_RECEIVED_MARKER = "DE: "
 TRANSFER_SENT_MARKER = "VERS: "
 TRANSFER_MARKERS = (TRANSFER_RECEIVED_MARKER, TRANSFER_SENT_MARKER)
-
-CARD_PAYMENT_PREFIX = "PAIEMENT"
 
 
 class INGReader(BankReader):
@@ -86,8 +80,13 @@ class INGReader(BankReader):
         transactions["date"] = _parse_dates(transactions["date"])
         transactions["label"] = transactions["label"].str.strip().str.upper()
         transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
-        transactions["counterparty"] = transactions["label"].map(extract_counterparty)
         transactions["operation_type"] = transactions["label"].map(operation_type)
+        transactions["counterparty"] = [
+            extract_counterparty(label, operation)
+            for label, operation in zip(
+                transactions["label"], transactions["operation_type"]
+            )
+        ]
         transactions["amount"] = _parse_amounts(transactions["amount"])
 
         return transactions[STANDARD_COLUMNS].reset_index(drop=True)
@@ -124,31 +123,33 @@ def _parse_dates(dates: pd.Series) -> pd.Series:
     return parsed
 
 
-def extract_counterparty(label: str) -> str:
+def extract_counterparty(label: str, operation_type: str) -> str:
     """Return a short, readable name for a bank transaction description."""
-
     # Normalize here too, so the output is uniform whatever the source.
     label = label.upper()
+    parser = COUNTERPARTY_PARSERS.get(operation_type, _whole_label)
+    return parser(label)
 
-    # 1. Fixed names first: these descriptions have no " - " segments.
+
+def _fixed_counterparty(label: str) -> str:
+    """Return the fixed name of a known description, else the label."""
     for prefix, name in FIXED_NAMES.items():
         if label.startswith(prefix):
             return name
+    return label
 
-    # 2. Transfer rule: text between "DE:" or "VERS:" and the next " - "
-    if label.startswith(TRANSFER_PREFIX):
-        for marker in TRANSFER_MARKERS:
-            if marker in label:
-                after_marker = label.partition(marker)[2]
-                return after_marker.split(SEPARATOR)[0]
-        return label
 
-    # 3. Not a card payment: no reliable rule, keep the description.
-    if not label.startswith(CARD_PAYMENT_PREFIX):
-        return label
+def _counterparty_after_marker(label: str) -> str:
+    """Return the text after "DE:" or "VERS:" up to " - ", else the label."""
+    for marker in TRANSFER_MARKERS:
+        if marker in label:
+            after_marker = label.partition(marker)[2]
+            return after_marker.split(SEPARATOR)[0]
+    return label
 
-    # 4. Card payment: 3rd segment, without the postal code.
-    # Spaces matter: city names such as LOUVAIN-LA-NE contain hyphens.
+
+def _card_counterparty(label: str) -> str:
+    """Return the 3rd segment without its postal code, else the label."""
     segments = label.split(SEPARATOR)
     if len(segments) < 3:
         return label
@@ -156,6 +157,21 @@ def extract_counterparty(label: str) -> str:
     counterparty_name = _remove_postal_code(name=counterparty)
 
     return counterparty_name
+
+
+def _whole_label(label: str) -> str:
+    """Return the label unchanged: its counterparty cannot be told apart."""
+    return label
+
+
+COUNTERPARTY_PARSERS = {
+    CARD: _card_counterparty,
+    TRANSFER: _counterparty_after_marker,
+    DIRECT_DEBIT: _counterparty_after_marker,
+    STANDING_ORDER: _counterparty_after_marker,
+    CASH: _fixed_counterparty,
+    BANK_OPERATION: _fixed_counterparty,
+}
 
 
 def _remove_postal_code(name: str) -> str:

@@ -65,6 +65,11 @@ HEADER = (
     "Numéro de compte;Nom du compte;Compte contrepartie;Numéro de mouvement;"
     "Date comptable;Date valeur;Montant;Devise;Libellés;Détails du mouvement;Message"
 )
+DIRECT_DEBIT_LABEL = "DOMICILIATION EN EUROS VERS: PROXIMUS - XXXX"
+STANDING_ORDER_LABEL = (
+    "ORDRE PERMANENT VERS: PROPRIÉTAIRE FICTIF - "
+    "BE00 0000 0000 0000 COMMUNICATION: LOYER"
+)
 
 
 def ing_csv(
@@ -181,37 +186,38 @@ def test_ing_reader_replaces_missing_label(label):
 
 
 def test_card_payment_returns_third_segment():
-    assert extract_counterparty(CARD_PAYMENT) == "DELHAIZE IXELLES"
+    assert extract_counterparty(CARD_PAYMENT, CARD) == "DELHAIZE IXELLES"
 
 
 def test_card_payment_without_postcode_keeps_full_name():
     # Nothing to remove: the name must stay intact.
-    assert extract_counterparty(CARD_PAYMENT_NO_POSTCODE) == "NETFLIX.COM"
+    assert extract_counterparty(CARD_PAYMENT_NO_POSTCODE, CARD) == "NETFLIX.COM"
 
 
 def test_malformed_card_payment_is_returned_unchanged():
-    assert extract_counterparty(MALFORMED_CARD_PAYMENT) == MALFORMED_CARD_PAYMENT
+    assert extract_counterparty(MALFORMED_CARD_PAYMENT, CARD) == MALFORMED_CARD_PAYMENT
 
 
 # --- Fixed names ---
 
 
 def test_cash_withdrawal_returns_fixed_name():
-    assert extract_counterparty(CASH_WITHDRAWAL) == FIXED_NAMES["RETRAIT D'ESPÈCES"]
+    assert (
+        extract_counterparty(CASH_WITHDRAWAL, CASH) == FIXED_NAMES["RETRAIT D'ESPÈCES"]
+    )
 
 
 def test_bank_fees_return_fixed_name():
-    assert extract_counterparty(BANK_FEES) == FIXED_NAMES["DÉCOMPTE DE FRAIS"]
+    assert (
+        extract_counterparty(BANK_FEES, BANK_OPERATION)
+        == FIXED_NAMES["DÉCOMPTE DE FRAIS"]
+    )
 
 
 def test_interest_returns_fixed_name():
-    assert extract_counterparty(INTEREST) == FIXED_NAMES["INTÉRÊTS-FRAIS"]
-
-
-@pytest.mark.parametrize("prefix, name", FIXED_NAMES.items())
-def test_every_fixed_prefix_returns_its_name(prefix, name):
-    # Checks that no prefix is shadowed by another one in the dictionary.
-    assert extract_counterparty(prefix + " ANY FOLLOWING TEXT") == name
+    assert (
+        extract_counterparty(INTEREST, BANK_OPERATION) == FIXED_NAMES["INTÉRÊTS-FRAIS"]
+    )
 
 
 # --- Unknown descriptions ---
@@ -219,26 +225,43 @@ def test_every_fixed_prefix_returns_its_name(prefix, name):
 
 @pytest.mark.parametrize("label", ["opération diverse", "abc - def"])
 def test_unknown_description_is_returned_in_uppercase(label):
-    assert extract_counterparty(label) == label.upper()
+    assert extract_counterparty(label, OTHER) == label.upper()
 
 
 def test_unknown_description_with_segments_is_returned_unchanged():
-    assert extract_counterparty(UNKNOWN_WITH_SEGMENTS) == UNKNOWN_WITH_SEGMENTS
+    assert extract_counterparty(UNKNOWN_WITH_SEGMENTS, OTHER) == UNKNOWN_WITH_SEGMENTS
+
+
+# --- Direct debits and standing orders ---
+
+
+def test_direct_debit_returns_creditor():
+    assert extract_counterparty(DIRECT_DEBIT_LABEL, DIRECT_DEBIT) == "PROXIMUS"
+
+
+def test_standing_order_returns_beneficiary():
+    assert (
+        extract_counterparty(STANDING_ORDER_LABEL, STANDING_ORDER)
+        == "PROPRIÉTAIRE FICTIF"
+    )
 
 
 # --- Transfers ---
 
 
-def test_transfer_receive():
-    assert extract_counterparty(TRANSFER_RECEIVED) == "SOCIÉTÉ FICTIVE SA"
+def test_transfer_received():
+    assert extract_counterparty(TRANSFER_RECEIVED, TRANSFER) == "SOCIÉTÉ FICTIVE SA"
 
 
 def test_transfer_sent():
-    assert extract_counterparty(TRANSFER_SENT) == "AMI FICTIF"
+    assert extract_counterparty(TRANSFER_SENT, TRANSFER) == "AMI FICTIF"
 
 
 def test_transfer_without_marker_is_returned_unchanged():
-    assert extract_counterparty(TRANSFER_WITHOUT_MARKER) == TRANSFER_WITHOUT_MARKER
+    assert (
+        extract_counterparty(TRANSFER_WITHOUT_MARKER, TRANSFER)
+        == TRANSFER_WITHOUT_MARKER
+    )
 
 
 @pytest.mark.parametrize(

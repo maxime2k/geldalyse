@@ -70,6 +70,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **La démo publique est protégée** : un fichier importé est limité à 2 Mo (un relevé ING couvre un an au plus, soit environ 1 Mo pour un compte très actif), et une erreur imprévue n'affiche aucun détail technique.
 - **Chaque transaction reçoit un type d'opération**, commun à toutes les banques : carte, paiement mobile, virement, ordre permanent, domiciliation, espèces, opération bancaire, ou autre. Le type dit comment l'argent a bougé, le signe du montant dit dans quel sens : un virement reçu est un virement avec un montant positif. Un libellé non reconnu reçoit le type « Autre » plutôt que d'être refusé.
 - **Le lecteur de chaque banque produit la contrepartie et le type d'opération**, en lisant ses propres libellés ou colonnes. Le reste de l'application ne lit jamais un libellé bancaire pour en tirer une information.
+- **Chez ING, la contrepartie dépend du type d'opération** : pour une carte, le nom du commerçant sans son code postal ; pour un virement, une domiciliation ou un ordre permanent, le nom qui suit « De: » ou « Vers: » ; pour un retrait, des frais ou des intérêts, un nom fixe. Si un libellé n'a pas la forme attendue, la description entière est gardée, plutôt qu'une contrepartie fausse.
 
 ### Vue d'ensemble
 
@@ -106,3 +107,4 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **Les transactions sans description forment une seule opération** : un choix manuel s'applique donc à toutes, même si ce sont des dépenses différentes.
 - **Les séparateurs de milliers n'ont pas été vus dans un vrai export ING** : leur prise en charge repose sur la règle des trois chiffres, sans exemple réel pour la confirmer.
 - **Un salaire est rarement reconnu automatiquement** : le libellé contient en général le nom de l'employeur, pas le mot « SALAIRE ». Il apparaît en VIREMENTS REÇUS, et un seul choix manuel reclasse tous les virements du même employeur.
+- **Les contreparties des domiciliations et des ordres permanents** reposent sur une structure de libellé (« Vers: NOM - … ») qui n'a pas encore été vérifiée sur un vrai relevé ING.
