@@ -164,11 +164,24 @@ def test_ing_reader_rejects_invalid_amount(amount):
 
 @pytest.mark.parametrize(
     "date",
-    ["", "any text", "30/02/2015", "25/01/203", "2026/02/15", "2026-01-03"],
+    [
+        "",
+        "any text",
+        "30/02/2015",
+        "25/01/203",
+        "2026/02/15",
+        "2026-01-03",
+        "29/02/2025",
+    ],
 )
 def test_ing_reader_rejects_invalid_date(date):
     with pytest.raises(InvalidStatementError, match="Ligne 2"):
         INGReader().read(ing_csv(date=date))
+
+
+def test_leap_day_is_accepted():
+    transactions = INGReader().read(ing_csv(date="29/02/2024"))
+    assert transactions["date"].iloc[0] == pd.Timestamp(2024, 2, 29)
 
 
 def test_ing_reader_reads_day_first():
