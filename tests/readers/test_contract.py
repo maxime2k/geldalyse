@@ -45,3 +45,19 @@ def test_reader_returns_known_operation_types(reader, statement):
     transactions = reader.read(statement)
 
     assert set(transactions["operation_type"]) <= set(OPERATION_TYPE_LABELS)
+
+
+@pytest.mark.parametrize("column", ["label", "counterparty"])
+@pytest.mark.parametrize("reader, statement", READERS)
+def test_reader_returns_no_empty_text(reader, statement, column):
+    transactions = reader.read(statement)
+
+    assert (transactions[column].str.strip() != "").all()
+
+
+@pytest.mark.parametrize("column", ["label", "counterparty"])
+@pytest.mark.parametrize("reader, statement", READERS)
+def test_reader_returns_uppercase_text(reader, statement, column):
+    transactions = reader.read(statement)
+
+    assert (transactions[column] == transactions[column].str.upper()).all()
