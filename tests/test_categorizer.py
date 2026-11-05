@@ -23,7 +23,7 @@ def test_lowercase_label_is_recognized():
 
 
 def test_unknown_expense_returns_default_expense():
-    assert categorize("delhaize bruxelles", -15.0, CARD) == "ALIMENTATION"
+    assert categorize("BOULANGERIE DU COIN", -15.0, CARD) == DEFAULT_EXPENSE_CATEGORY
 
 
 def test_unknown_income_returns_default_income():
