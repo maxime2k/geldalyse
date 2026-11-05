@@ -1,4 +1,4 @@
-"""Unit tests for the ing bank statement reader."""
+"""Unit tests for the ING bank statement reader."""
 
 from io import StringIO
 from pathlib import Path
@@ -20,15 +20,13 @@ from geldalyse.schema import (
     CASH,
     DIRECT_DEBIT,
     OTHER,
-    STANDARD_COLUMNS,
     STANDING_ORDER,
     TRANSFER,
 )
 
 FIXTURES_DIR = Path(__file__).parents[1] / "fixtures"
 WRONG_COLUMNS = FIXTURES_DIR / "wrong_format.csv"
-EMPTY_FILE = FIXTURES_DIR / "empty.csv"
-HEADER_ONLY = FIXTURES_DIR / "header_only.csv"
+
 
 CARD_PAYMENT = (
     "PAIEMENT BANCONTACT 04/01/26 - 18H12 - DELHAIZE IXELLES 1050 - BRUXELLES "
@@ -81,35 +79,14 @@ def ing_csv(
     return StringIO(f"{HEADER}\n{row}\n")
 
 
-def test_output_columns_match(ing_sample):
-    transactions = INGReader().read(ing_sample)
-    assert list(transactions.columns) == STANDARD_COLUMNS
-
-
-def test_small_negative_amount_keeps_sign(ing_sample):
-    transactions = INGReader().read(ing_sample)
-    assert transactions["amount"].iloc[3] == -0.5
-
-
-def test_dates_are_converted(ing_sample):
-    transactions = INGReader().read(ing_sample)
-    assert transactions["date"].iloc[0] == pd.Timestamp(2025, 12, 31)
-
-
-def test_output_has_no_missing_values(ing_sample):
-    transactions = INGReader().read(ing_sample)
-    assert not transactions.isna().any().any()
+def test_small_negative_amount_keeps_sign():
+    transactions = INGReader().read(ing_csv(amount="-0,50"))
+    assert transactions["amount"].iloc[0] == -0.5
 
 
 def test_wrong_columns_names_missing_columns():
     with pytest.raises(InvalidStatementError, match="Colonnes manquantes"):
         INGReader().read(WRONG_COLUMNS)
-
-
-def test_header_only_returns_empty_table():
-    transactions = INGReader().read(HEADER_ONLY)
-    assert transactions.empty
-    assert list(transactions) == STANDARD_COLUMNS
 
 
 @pytest.mark.parametrize(

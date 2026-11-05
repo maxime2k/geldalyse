@@ -10,14 +10,16 @@ FIXTURES_DIR = Path(__file__).parents[1] / "fixtures"
 ING_SAMPLE = "ing_export_sample.csv"
 WRONG_COLUMNS = FIXTURES_DIR / "wrong_format.csv"
 EMPTY_FILE = FIXTURES_DIR / "empty.csv"
-
+ING_HEADER_ONLY = FIXTURES_DIR / "ing_header_only.csv"
 VALID_STATEMENTS = [
     pytest.param(INGReader(), FIXTURES_DIR / ING_SAMPLE, id="ing"),
 ]
 BANK_READERS = [
     pytest.param(INGReader(), id="ing"),
 ]
-
+EMPTY_STATEMENTS = [
+    pytest.param(INGReader(), ING_HEADER_ONLY, id="ing"),
+]
 INVALID_FILES = [
     pytest.param(WRONG_COLUMNS, id="wrong-columns"),
     pytest.param(EMPTY_FILE, id="empty"),
@@ -79,3 +81,11 @@ def test_reader_returns_uppercase_text(reader, statement, column):
 def test_reader_rejects_invalid_file(reader, statement):
     with pytest.raises(InvalidStatementError):
         reader.read(statement)
+
+
+@pytest.mark.parametrize("reader, statement", EMPTY_STATEMENTS)
+def test_reader_returns_standar_colums_for_empty_file(reader, statement):
+    transactions = reader.read(statement)
+
+    assert transactions.empty
+    assert list(transactions) == STANDARD_COLUMNS
