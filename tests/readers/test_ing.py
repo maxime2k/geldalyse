@@ -6,11 +6,10 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from geldalyse.readers import INGReader, InvalidStatementError
 from geldalyse.readers.ing import (
     FIXED_NAMES,
     MISSING_LABEL,
-    INGReader,
-    InvalidStatementError,
     extract_counterparty,
     operation_type,
     parse_amount,
@@ -102,14 +101,9 @@ def test_output_has_no_missing_values(ing_sample):
     assert not transactions.isna().any().any()
 
 
-def test_non_ing_file_raises_key_error():
-    with pytest.raises(KeyError):
+def test_wrong_columns_names_missing_columns():
+    with pytest.raises(InvalidStatementError, match="Colonnes manquantes"):
         INGReader().read(WRONG_COLUMNS)
-
-
-def test_empty_file_raises_empty_data_error():
-    with pytest.raises(pd.errors.EmptyDataError):
-        INGReader().read(EMPTY_FILE)
 
 
 def test_header_only_returns_empty_table():

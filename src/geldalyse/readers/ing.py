@@ -68,7 +68,18 @@ class INGReader(BankReader):
         Raise InvalidStatementError for an invalid value, and KeyError, ValueError
         or EmptyDataError if the file is not an ING export.
         """
-        df = pd.read_csv(file, sep=";", dtype={"Montant": str}, keep_default_na=False)
+        try:
+            df = pd.read_csv(
+                file, sep=";", dtype={"Montant": str}, keep_default_na=False
+            )
+        except pd.errors.EmptyDataError as error:
+            raise InvalidStatementError("Le fichier est vide.") from error
+
+        missing_columns = set(COLUMN_MAPPING) - set(df.columns)
+        if missing_columns:
+            raise InvalidStatementError(
+                f"Colonnes manquantes : {', '.join(sorted(missing_columns))}"
+            )
         transactions = df[list(COLUMN_MAPPING)]
 
         # Drop the separator rows (only semicolons): they are not transactions.
