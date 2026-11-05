@@ -89,12 +89,12 @@ def test_output_columns_match(ing_sample):
 
 def test_small_negative_amount_keeps_sign(ing_sample):
     transactions = INGReader().read(ing_sample)
-    assert transactions["amount"][3] == -0.5
+    assert transactions["amount"].iloc[3] == -0.5
 
 
 def test_dates_are_converted(ing_sample):
     transactions = INGReader().read(ing_sample)
-    assert transactions["date"][0] == pd.Timestamp(2025, 12, 31)
+    assert transactions["date"].iloc[0] == pd.Timestamp(2025, 12, 31)
 
 
 def test_output_has_no_missing_values(ing_sample):
