@@ -26,7 +26,7 @@ from geldalyse.schema import (
     TRANSFER,
 )
 
-FIXTURES_DIR = Path(__file__).parent / "fixtures"
+FIXTURES_DIR = Path(__file__).parents[1] / "fixtures"
 WRONG_COLUMNS = FIXTURES_DIR / "wrong_format.csv"
 EMPTY_FILE = FIXTURES_DIR / "empty.csv"
 HEADER_ONLY = FIXTURES_DIR / "header_only.csv"
