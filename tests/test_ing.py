@@ -89,12 +89,12 @@ def test_output_columns_match(ing_sample):
 
 def test_small_negative_amount_keeps_sign(ing_sample):
     transactions = INGReader().read(ing_sample)
-    assert transactions["amount"][3] == -0.5
+    assert transactions["amount"].iloc[3] == -0.5
 
 
 def test_dates_are_converted(ing_sample):
     transactions = INGReader().read(ing_sample)
-    assert transactions["date"][0] == pd.Timestamp(2025, 12, 31)
+    assert transactions["date"].iloc[0] == pd.Timestamp(2025, 12, 31)
 
 
 def test_output_has_no_missing_values(ing_sample):
@@ -164,11 +164,24 @@ def test_ing_reader_rejects_invalid_amount(amount):
 
 @pytest.mark.parametrize(
     "date",
-    ["", "any text", "30/02/2015", "25/01/203", "2026/02/15", "2026-01-03"],
+    [
+        "",
+        "any text",
+        "30/02/2015",
+        "25/01/203",
+        "2026/02/15",
+        "2026-01-03",
+        "29/02/2025",
+    ],
 )
 def test_ing_reader_rejects_invalid_date(date):
     with pytest.raises(InvalidStatementError, match="Ligne 2"):
         INGReader().read(ing_csv(date=date))
+
+
+def test_leap_day_is_accepted():
+    transactions = INGReader().read(ing_csv(date="29/02/2024"))
+    assert transactions["date"].iloc[0] == pd.Timestamp(2024, 2, 29)
 
 
 def test_ing_reader_reads_day_first():
