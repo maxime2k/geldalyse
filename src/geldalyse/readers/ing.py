@@ -11,9 +11,9 @@ import re
 
 import pandas as pd
 
-from geldalyse.readers import InvalidStatementError
 from geldalyse.readers.base import (
     BankReader,
+    InvalidStatementError,
     check_columns,
     clean_labels,
     parse_amounts,

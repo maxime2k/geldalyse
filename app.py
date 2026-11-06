@@ -64,9 +64,9 @@ else:
         )
         st.stop()
 
-    uploaded_file = st.sidebar.file_uploader("Relevé ING (CSV)", type="csv")
+    uploaded_file = st.sidebar.file_uploader("Relevé ING ou Fortis (CSV)", type="csv")
     if uploaded_file is None:
-        st.info("Importez un relevé ING pour commencer.")
+        st.info("Importez un relevé ING ou Fortis pour commencer.")
         st.stop()  # Nothing below can run without data.
 
         # A file in another format must not crash the app.
