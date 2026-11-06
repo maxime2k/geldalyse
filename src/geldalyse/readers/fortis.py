@@ -15,13 +15,12 @@ import re
 import pandas as pd
 
 from geldalyse.readers import InvalidStatementError
-from geldalyse.readers.base import BankReader, parse_amounts, parse_dates
+from geldalyse.readers.base import BankReader, clean_labels, parse_amounts, parse_dates
 from geldalyse.schema import (
     CARD,
     CASH,
     CASH_WITHDRAWAL_NAME,
     DIRECT_DEBIT,
-    MISSING_LABEL,
     OTHER,
     STANDARD_COLUMNS,
     STANDING_ORDER,
@@ -76,8 +75,7 @@ class FortisReader(BankReader):
             all_transactions[STATUS_COLUMN] == ACCEPTED_STATUS
         ]
         transactions = accepted_transactions.rename(columns=COLUMN_MAPPING)
-        transactions["label"] = transactions["label"].str.strip().str.upper()
-        transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
+        transactions["label"] = clean_labels(transactions["label"])
         transactions["amount"] = parse_amounts(transactions["amount"], convert_amount)
         transactions["date"] = parse_dates(transactions["date"])
         transactions["operation_type"] = transactions["operation_type"].map(

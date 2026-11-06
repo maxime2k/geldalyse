@@ -9,7 +9,6 @@ import pytest
 from geldalyse.readers import INGReader, InvalidStatementError
 from geldalyse.readers.ing import (
     FIXED_NAMES,
-    MISSING_LABEL,
     convert_amount,
     extract_counterparty,
     operation_type,
@@ -19,6 +18,7 @@ from geldalyse.schema import (
     CARD,
     CASH,
     DIRECT_DEBIT,
+    MISSING_LABEL,
     OTHER,
     STANDING_ORDER,
     TRANSFER,
@@ -134,9 +134,8 @@ def test_ing_reader_rejects_invalid_amount(amount):
         INGReader().read(ing_csv(amount=amount))
 
 
-@pytest.mark.parametrize("label", ["", "   "])
-def test_ing_reader_replaces_missing_label(label):
-    transactions = INGReader().read(ing_csv(label=label))
+def test_ing_reader_replaces_missing_label():
+    transactions = INGReader().read(ing_csv(label=" "))
     assert transactions["label"].iloc[0] == MISSING_LABEL
 
 

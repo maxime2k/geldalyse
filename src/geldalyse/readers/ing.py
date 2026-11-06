@@ -12,14 +12,13 @@ import re
 import pandas as pd
 
 from geldalyse.readers import InvalidStatementError
-from geldalyse.readers.base import BankReader, parse_amounts, parse_dates
+from geldalyse.readers.base import BankReader, clean_labels, parse_amounts, parse_dates
 from geldalyse.schema import (
     BANK_OPERATION,
     CARD,
     CASH,
     CASH_WITHDRAWAL_NAME,
     DIRECT_DEBIT,
-    MISSING_LABEL,
     OTHER,
     STANDARD_COLUMNS,
     STANDING_ORDER,
@@ -92,8 +91,7 @@ class INGReader(BankReader):
 
         # Explicit day-first format: 03/01 must be January 3rd, not March 1st.
         transactions["date"] = parse_dates(transactions["date"])
-        transactions["label"] = transactions["label"].str.strip().str.upper()
-        transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
+        transactions["label"] = clean_labels(transactions["label"])
         transactions["operation_type"] = transactions["label"].map(operation_type)
         transactions["counterparty"] = [
             extract_counterparty(label, operation)

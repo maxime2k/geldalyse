@@ -3,6 +3,8 @@ from collections.abc import Callable
 
 import pandas as pd
 
+from geldalyse.schema import MISSING_LABEL
+
 
 class BankReader(ABC):
     """Read one bank's export into the standard transaction format."""
@@ -39,3 +41,10 @@ def parse_amounts(amounts: pd.Series, parse: Callable[[str], float]) -> pd.Serie
         except ValueError as error:
             raise InvalidStatementError(f"Ligne {index + 2}. {error}") from error
     return pd.Series(values, index=amounts.index)
+
+
+def clean_labels(labels: pd.Series) -> pd.Series:
+    """Strip and uppercase each label, or replace it with MISSING_LABEL if empty."""
+    labels = labels.str.strip().str.upper()
+
+    return labels.replace("", MISSING_LABEL)

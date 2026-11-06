@@ -2,7 +2,8 @@ import pandas as pd
 import pytest
 
 from geldalyse.readers import InvalidStatementError
-from geldalyse.readers.base import parse_amounts, parse_dates
+from geldalyse.readers.base import clean_labels, parse_amounts, parse_dates
+from geldalyse.schema import MISSING_LABEL
 
 
 @pytest.mark.parametrize(
@@ -39,3 +40,14 @@ def test_parse_amounts_rejects_invalid_amount():
 
 def test_parse_amounts_converts_each_amount():
     assert parse_amounts(pd.Series(["1.5", "2"]), float).tolist() == [1.5, 2.0]
+
+
+def test_clean_labels_replaces_missing_label():
+    assert clean_labels(pd.Series(["", "   "])).tolist() == [
+        MISSING_LABEL,
+        MISSING_LABEL,
+    ]
+
+
+def test_clean_labels_strip_and_uppercases():
+    assert clean_labels(pd.Series(["  ami fictif  "])).tolist() == ["AMI FICTIF"]
