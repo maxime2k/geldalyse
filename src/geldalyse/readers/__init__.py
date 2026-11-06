@@ -3,9 +3,10 @@
 import pandas as pd
 
 from geldalyse.readers.base import InvalidStatementError
+from geldalyse.readers.fortis import FortisReader
 from geldalyse.readers.ing import INGReader
 
-__all__ = ["InvalidStatementError", "read_statement"]
+__all__ = ["InvalidStatementError", "read_statement", "FortisReader"]
 
 
 def read_statement(file) -> pd.DataFrame:
