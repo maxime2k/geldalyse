@@ -2,7 +2,12 @@ import pandas as pd
 import pytest
 
 from geldalyse.readers import InvalidStatementError
-from geldalyse.readers.base import clean_labels, parse_amounts, parse_dates
+from geldalyse.readers.base import (
+    check_columns,
+    clean_labels,
+    parse_amounts,
+    parse_dates,
+)
 from geldalyse.schema import MISSING_LABEL
 
 
@@ -51,3 +56,14 @@ def test_clean_labels_replaces_missing_label():
 
 def test_clean_labels_strip_and_uppercases():
     assert clean_labels(pd.Series(["  ami fictif  "])).tolist() == ["AMI FICTIF"]
+
+
+def test_check_columns_names_missing_columns():
+
+    with pytest.raises(InvalidStatementError, match=r"Colonnes manquantes : Date\.$"):
+        check_columns(pd.DataFrame(columns=["Montant"]), ["Montant", "Date"])
+
+
+def test_check_columns_accepts_complete_columns():
+
+    check_columns(pd.DataFrame(columns=["Montant", "Date"]), ["Montant", "Date"])

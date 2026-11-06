@@ -15,7 +15,13 @@ import re
 import pandas as pd
 
 from geldalyse.readers import InvalidStatementError
-from geldalyse.readers.base import BankReader, clean_labels, parse_amounts, parse_dates
+from geldalyse.readers.base import (
+    BankReader,
+    check_columns,
+    clean_labels,
+    parse_amounts,
+    parse_dates,
+)
 from geldalyse.schema import (
     CARD,
     CASH,
@@ -65,11 +71,8 @@ class FortisReader(BankReader):
             df = pd.read_csv(file, sep=";", dtype=str, keep_default_na=False)
         except pd.errors.EmptyDataError as error:
             raise InvalidStatementError("Le fichier est vide") from error
-        missing_columns = set(REQUIRED_COLUMNS) - set(df.columns)
-        if missing_columns:
-            raise InvalidStatementError(
-                f"Colonnes manquantes : {', '.join(sorted(missing_columns))}"
-            )
+
+        check_columns(df=df, required=REQUIRED_COLUMNS)
         all_transactions = df[REQUIRED_COLUMNS]
         accepted_transactions = all_transactions[
             all_transactions[STATUS_COLUMN] == ACCEPTED_STATUS

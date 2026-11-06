@@ -48,3 +48,13 @@ def clean_labels(labels: pd.Series) -> pd.Series:
     labels = labels.str.strip().str.upper()
 
     return labels.replace("", MISSING_LABEL)
+
+
+def check_columns(df: pd.DataFrame, required: list[str]) -> None:
+    """Raise InvalidStatementError naming the required columns missing from df."""
+    missing_columns = set(required) - set(df.columns)
+
+    if missing_columns:
+        raise InvalidStatementError(
+            f"Colonnes manquantes : {', '.join(sorted(missing_columns))}."
+        )

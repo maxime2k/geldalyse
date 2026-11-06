@@ -12,7 +12,13 @@ import re
 import pandas as pd
 
 from geldalyse.readers import InvalidStatementError
-from geldalyse.readers.base import BankReader, clean_labels, parse_amounts, parse_dates
+from geldalyse.readers.base import (
+    BankReader,
+    check_columns,
+    clean_labels,
+    parse_amounts,
+    parse_dates,
+)
 from geldalyse.schema import (
     BANK_OPERATION,
     CARD,
@@ -77,11 +83,7 @@ class INGReader(BankReader):
         except pd.errors.EmptyDataError as error:
             raise InvalidStatementError("Le fichier est vide.") from error
 
-        missing_columns = set(COLUMN_MAPPING) - set(df.columns)
-        if missing_columns:
-            raise InvalidStatementError(
-                f"Colonnes manquantes : {', '.join(sorted(missing_columns))}"
-            )
+        check_columns(df=df, required=COLUMN_MAPPING)
         transactions = df[list(COLUMN_MAPPING)]
 
         # Drop the separator rows (only semicolons): they are not transactions.

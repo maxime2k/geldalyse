@@ -85,11 +85,6 @@ def test_small_negative_amount_keeps_sign():
     assert transactions["amount"].iloc[0] == -0.5
 
 
-def test_wrong_columns_names_missing_columns():
-    with pytest.raises(InvalidStatementError, match="Colonnes manquantes"):
-        INGReader().read(WRONG_COLUMNS)
-
-
 @pytest.mark.parametrize(
     "amount, expected",
     [
