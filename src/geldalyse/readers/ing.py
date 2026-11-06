@@ -72,6 +72,7 @@ class INGReader(BankReader):
 
     separator = ";"
     required_columns = list(COLUMN_MAPPING)
+    bank_name = "ING"
 
     def read(self, file) -> pd.DataFrame:
         """Read an ING export into the standard transaction format.

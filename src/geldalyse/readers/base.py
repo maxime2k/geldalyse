@@ -11,6 +11,7 @@ class BankReader(ABC):
 
     separator: str
     required_columns: list[str]
+    bank_name: str
 
     @abstractmethod
     def read(self, file) -> pd.DataFrame:

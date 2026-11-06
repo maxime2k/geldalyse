@@ -65,6 +65,7 @@ class FortisReader(BankReader):
 
     separator = ";"
     required_columns = REQUIRED_COLUMNS
+    bank_name = "BNP Paribas Fortis"
 
     def read(self, file) -> pd.DataFrame:
         """Read a Fortis export into the standard transaction format.
