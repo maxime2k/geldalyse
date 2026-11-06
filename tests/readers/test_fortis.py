@@ -162,6 +162,15 @@ def test_fortis_reader_replaces_missing_label(label):
             ),
             "ENSEIGNE FICTIVE",
         ),
+        (
+            "",
+            CARD,
+            (
+                "PAIEMENT AVEC LA CARTE DE DEBIT NUMERO 0000 00XX XXXX 0000 0000 "
+                "NOUVEAU MAGASIN FICTIF 29/12/2025 VISA DEBIT"
+            ),
+            "NOUVEAU MAGASIN FICTIF",
+        ),
         ("", OTHER, "FRAIS TENUE DE COMPTE", "FRAIS TENUE DE COMPTE"),
     ],
 )

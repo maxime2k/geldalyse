@@ -55,7 +55,7 @@ FORTIS_OPERATION_TYPES = {
     "DOMICILIATION": DIRECT_DEBIT,
     "ORDRE PERMANENT": STANDING_ORDER,
 }
-CARD_PATTERN = re.compile(r"NUMERO \d{4} XXXX XXXX \d{4} (.+?) \d{2}/\d{2}/\d{4}")
+CARD_PATTERN = re.compile(r"NUMERO (?:[\dX]{4} ){4}(.+?) \d{2}/\d{2}/\d{4}")
 POSTAL_CODE_PATTERN = re.compile(r"(.+?) \d{4}\b")
 STORE_NUMBER_PATTERN = re.compile(r"^\d{4} ")
 
