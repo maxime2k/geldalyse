@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 
 import pandas as pd
 
@@ -26,3 +27,15 @@ def parse_dates(dates: pd.Series) -> pd.Series:
             f"Ligne {index + 2}. Date invalide : « {dates[index]} »."
         )
     return parsed
+
+
+def parse_amounts(amounts: pd.Series, parse: Callable[[str], float]) -> pd.Series:
+    """Parse each amount, or raise InvalidStatementError with its line in the file."""
+
+    values = []
+    for index, text in amounts.items():
+        try:
+            values.append(parse(text))
+        except ValueError as error:
+            raise InvalidStatementError(f"Ligne {index + 2}. {error}") from error
+    return pd.Series(values, index=amounts.index)

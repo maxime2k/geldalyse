@@ -10,9 +10,9 @@ from geldalyse.readers import INGReader, InvalidStatementError
 from geldalyse.readers.ing import (
     FIXED_NAMES,
     MISSING_LABEL,
+    convert_amount,
     extract_counterparty,
     operation_type,
-    parse_amount,
 )
 from geldalyse.schema import (
     BANK_OPERATION,
@@ -103,8 +103,8 @@ def test_wrong_columns_names_missing_columns():
         ("-1.235,50", -1235.50),
     ],
 )
-def test_parse_amount_reads_valid_amounts(amount, expected):
-    assert parse_amount(amount) == expected
+def test_convert_amount_reads_valid_amounts(amount, expected):
+    assert convert_amount(amount) == expected
 
 
 @pytest.mark.parametrize(
@@ -123,9 +123,9 @@ def test_parse_amount_reads_valid_amounts(amount, expected):
         ("--5"),
     ],
 )
-def test_parse_amount_rejects_invalid_amounts(amount):
+def test_convert_amount_rejects_invalid_amounts(amount):
     with pytest.raises(ValueError):
-        parse_amount(amount)
+        convert_amount(amount)
 
 
 @pytest.mark.parametrize("amount", ["abc", "", "12.50"])

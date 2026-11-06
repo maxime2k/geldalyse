@@ -12,7 +12,7 @@ import re
 import pandas as pd
 
 from geldalyse.readers import InvalidStatementError
-from geldalyse.readers.base import BankReader, parse_dates
+from geldalyse.readers.base import BankReader, parse_amounts, parse_dates
 from geldalyse.schema import (
     BANK_OPERATION,
     CARD,
@@ -101,23 +101,12 @@ class INGReader(BankReader):
                 transactions["label"], transactions["operation_type"]
             )
         ]
-        transactions["amount"] = _parse_amounts(transactions["amount"])
+        transactions["amount"] = parse_amounts(transactions["amount"], convert_amount)
 
         return transactions[STANDARD_COLUMNS].reset_index(drop=True)
 
 
-def _parse_amounts(amounts: pd.Series) -> pd.Series:
-    """Parse each amount, or raise ValueError with its line in the file."""
-    values = []
-    for index, text in amounts.items():
-        try:
-            values.append(parse_amount(text))
-        except ValueError as error:
-            raise InvalidStatementError(f"Ligne {index + 2}. {error}") from error
-    return pd.Series(values, index=amounts.index)
-
-
-def parse_amount(text: str) -> float:
+def convert_amount(text: str) -> float:
     """Convert an ING amount like "-1.235,50" to a float, or raise ValueError."""
     if AMOUNT_PATTERN.fullmatch(text) is None:
         raise ValueError(f"Montant invalide : « {text} ».")

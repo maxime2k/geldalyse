@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from geldalyse.readers import FortisReader, InvalidStatementError
-from geldalyse.readers.fortis import extract_counterparty, parse_amount
+from geldalyse.readers.fortis import convert_amount, extract_counterparty
 from geldalyse.schema import (
     CARD,
     CASH,
@@ -52,9 +52,9 @@ def fortis_csv(
         "--5",
     ],
 )
-def test_parse_amount_rejects_invalid_amounts(amount):
+def test_convert_amount_rejects_invalid_amounts(amount):
     with pytest.raises(ValueError):
-        parse_amount(amount)
+        convert_amount(amount)
 
 
 @pytest.mark.parametrize(
@@ -71,8 +71,8 @@ def test_parse_amount_rejects_invalid_amounts(amount):
         ("3594.89", 3594.89),
     ],
 )
-def test_parse_amount_reads_valid_amounts(amount, expected):
-    assert parse_amount(amount) == expected
+def test_convert_amount_reads_valid_amounts(amount, expected):
+    assert convert_amount(amount) == expected
 
 
 def test_fortis_reader_rejects_invalid_amount():
