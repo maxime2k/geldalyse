@@ -16,7 +16,9 @@ from geldalyse.schema import (
     BANK_OPERATION,
     CARD,
     CASH,
+    CASH_WITHDRAWAL_NAME,
     DIRECT_DEBIT,
+    MISSING_LABEL,
     OTHER,
     STANDARD_COLUMNS,
     STANDING_ORDER,
@@ -41,14 +43,14 @@ COLUMN_MAPPING = {
     "Montant": "amount",
 }
 AMOUNT_PATTERN = re.compile(r"-?(?:\d{1,3}(?:[. ]\d{3})+|\d+)(?:,\d{1,2})?")
-MISSING_LABEL = "SANS DESCRIPTION"
+
 
 SEPARATOR = " - "
 
 # Description prefix -> displayed name.
 # A prefix must not be the start of another one placed after it.
 FIXED_NAMES = {
-    "RETRAIT D'ESPÈCES": "RETRAIT D'ESPÈCES",
+    "RETRAIT D'ESPÈCES": CASH_WITHDRAWAL_NAME,
     "DÉCOMPTE DE FRAIS": "FRAIS COMPTE ING",
     "INTÉRÊTS-FRAIS": "INTÉRÊTS COMPTE ING",
 }
