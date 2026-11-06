@@ -70,6 +70,9 @@ TRANSFER_MARKERS = (TRANSFER_RECEIVED_MARKER, TRANSFER_SENT_MARKER)
 class INGReader(BankReader):
     """Reader for ING Belgium exports in French, as downloaded from Home'Bank."""
 
+    separator = ";"
+    required_columns = list(COLUMN_MAPPING)
+
     def read(self, file) -> pd.DataFrame:
         """Read an ING export into the standard transaction format.
 
@@ -78,13 +81,13 @@ class INGReader(BankReader):
         """
         try:
             df = pd.read_csv(
-                file, sep=";", dtype={"Montant": str}, keep_default_na=False
+                file, sep=self.separator, dtype={"Montant": str}, keep_default_na=False
             )
         except pd.errors.EmptyDataError as error:
             raise InvalidStatementError("Le fichier est vide.") from error
 
-        check_columns(df=df, required=COLUMN_MAPPING)
-        transactions = df[list(COLUMN_MAPPING)]
+        check_columns(df=df, required=self.required_columns)
+        transactions = df[self.required_columns]
 
         # Drop the separator rows (only semicolons): they are not transactions.
         # A row with any value is kept, so a missing amount is still reported.

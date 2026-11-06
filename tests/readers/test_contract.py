@@ -32,6 +32,11 @@ INVALID_FILES = [
     pytest.param(EMPTY_FILE, id="empty"),
 ]
 
+OTHER_BANK_STATEMENTS = [
+    pytest.param(INGReader(), FORTIS_SAMPLE, id="ing-reads-fortis"),
+    pytest.param(FortisReader(), ING_SAMPLE, id="fortis-reads-ing"),
+]
+
 
 @pytest.mark.parametrize("reader, statement", VALID_STATEMENTS)
 def test_reader_returns_standard_columns(reader, statement):
@@ -96,3 +101,19 @@ def test_reader_returns_standar_colums_for_empty_file(reader, statement):
 
     assert transactions.empty
     assert list(transactions) == STANDARD_COLUMNS
+
+
+@pytest.mark.parametrize("reader, statement", VALID_STATEMENTS)
+def test_reader_matches_its_statement(reader, statement):
+    assert reader.matches(statement)
+
+
+@pytest.mark.parametrize("statement", INVALID_FILES)
+@pytest.mark.parametrize("reader", BANK_READERS)
+def test_reader_does_not_match_invalid_file(reader, statement):
+    assert not reader.matches(statement)
+
+
+@pytest.mark.parametrize("reader, statement", OTHER_BANK_STATEMENTS)
+def test_reader_does_not_match_other_bank_statement(reader, statement):
+    assert not reader.matches(statement)

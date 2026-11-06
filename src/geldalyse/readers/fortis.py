@@ -61,6 +61,11 @@ STORE_NUMBER_PATTERN = re.compile(r"^\d{4} ")
 
 
 class FortisReader(BankReader):
+    """Reader for BNP Parisbas Fortis exports in French."""
+
+    separator = ";"
+    required_columns = REQUIRED_COLUMNS
+
     def read(self, file) -> pd.DataFrame:
         """Read a Fortis export into the standard transaction format.
 
@@ -68,12 +73,12 @@ class FortisReader(BankReader):
         or EmptyDataError if the file is not an ING export.
         """
         try:
-            df = pd.read_csv(file, sep=";", dtype=str, keep_default_na=False)
+            df = pd.read_csv(file, sep=self.separator, dtype=str, keep_default_na=False)
         except pd.errors.EmptyDataError as error:
             raise InvalidStatementError("Le fichier est vide") from error
 
-        check_columns(df=df, required=REQUIRED_COLUMNS)
-        all_transactions = df[REQUIRED_COLUMNS]
+        check_columns(df=df, required=self.required_columns)
+        all_transactions = df[self.required_columns]
         accepted_transactions = all_transactions[
             all_transactions[STATUS_COLUMN] == ACCEPTED_STATUS
         ]

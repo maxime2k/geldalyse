@@ -9,9 +9,25 @@ from geldalyse.schema import MISSING_LABEL
 class BankReader(ABC):
     """Read one bank's export into the standard transaction format."""
 
+    separator: str
+    required_columns: list[str]
+
     @abstractmethod
     def read(self, file) -> pd.DataFrame:
         """Read, validate and parse the file into the standard format."""
+
+    def matches(self, file) -> bool:
+        """Return True if the file has every column this reader requires.
+        Only the header is read, and the file is rewound so it can be read again.
+        """
+        try:
+            header = pd.read_csv(file, sep=self.separator, nrows=0)
+        except pd.errors.EmptyDataError:
+            return False
+        finally:
+            if hasattr(file, "seek"):
+                file.seek(0)
+        return set(self.required_columns) <= set(header.columns)
 
 
 class InvalidStatementError(ValueError):
