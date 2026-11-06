@@ -15,7 +15,7 @@ import re
 import pandas as pd
 
 from geldalyse.readers import InvalidStatementError
-from geldalyse.readers.base import BankReader
+from geldalyse.readers.base import BankReader, parse_dates
 from geldalyse.schema import (
     CARD,
     CASH,
@@ -79,7 +79,7 @@ class FortisReader(BankReader):
         transactions["label"] = transactions["label"].str.strip().str.upper()
         transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
         transactions["amount"] = _parse_amount(transactions["amount"])
-        transactions["date"] = _parse_dates(transactions["date"])
+        transactions["date"] = parse_dates(transactions["date"])
         transactions["operation_type"] = transactions["operation_type"].map(
             operation_type
         )
@@ -112,19 +112,6 @@ def parse_amount(text: str) -> float:
         raise ValueError(f"Le montant est invalide : {text}")
 
     return float(text.replace(",", "."))
-
-
-def _parse_dates(dates: pd.Series) -> pd.Series:
-    """Parse each day-first date, or raise ValueError with its line in the file."""
-
-    parsed = pd.to_datetime(dates, format="%d/%m/%Y", errors="coerce")
-    invalid = parsed.isna()
-    if invalid.any():
-        index = invalid.idxmax()
-        raise InvalidStatementError(
-            f"Ligne {index + 2}. Date invalide : « {dates[index]} »."
-        )
-    return parsed
 
 
 def operation_type(text: str) -> str:

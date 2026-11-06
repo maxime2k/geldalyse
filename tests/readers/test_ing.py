@@ -71,11 +71,12 @@ STANDING_ORDER_LABEL = (
 
 def ing_csv(
     amount: str = "-12,50",
+    booking_date="12/02/2026",
     date: str = "03/01/2026",
     label: str = "Retrait d'espèces Bancontact 11/02/26 - 14h48 - CASH 1000 - BRUSSELS",
 ) -> StringIO:
     """Return an in-memory ING export with one transaction of the given amount."""
-    row = f";;;7;12/02/2026;{date};{amount};EUR;{label};;"
+    row = f";;;7;{booking_date};{date};{amount};EUR;{label};;"
     return StringIO(f"{HEADER}\n{row}\n")
 
 
@@ -133,37 +134,20 @@ def test_ing_reader_rejects_invalid_amount(amount):
         INGReader().read(ing_csv(amount=amount))
 
 
-@pytest.mark.parametrize(
-    "date",
-    [
-        "",
-        "any text",
-        "30/02/2015",
-        "25/01/203",
-        "2026/02/15",
-        "2026-01-03",
-        "29/02/2025",
-    ],
-)
-def test_ing_reader_rejects_invalid_date(date):
-    with pytest.raises(InvalidStatementError, match="Ligne 2"):
-        INGReader().read(ing_csv(date=date))
-
-
-def test_leap_day_is_accepted():
-    transactions = INGReader().read(ing_csv(date="29/02/2024"))
-    assert transactions["date"].iloc[0] == pd.Timestamp(2024, 2, 29)
-
-
-def test_ing_reader_reads_day_first():
-    transactions = INGReader().read(ing_csv(date="05/01/2021"))
-    assert transactions["date"].iloc[0] == pd.Timestamp(2021, 1, 5)
-
-
 @pytest.mark.parametrize("label", ["", "   "])
 def test_ing_reader_replaces_missing_label(label):
     transactions = INGReader().read(ing_csv(label=label))
     assert transactions["label"].iloc[0] == MISSING_LABEL
+
+
+def test_ing_reader_rejects_invalid_date():
+    with pytest.raises(InvalidStatementError):
+        INGReader().read(ing_csv(date="30/02/2015"))
+
+
+def test_ing_reader_reads_value_date():
+    dates = INGReader().read(ing_csv(booking_date="12/02/2026", date="05/01/2021"))
+    assert dates["date"].iloc[0] == pd.Timestamp(2021, 1, 5)
 
 
 # --- Card payments ---

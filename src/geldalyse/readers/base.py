@@ -13,3 +13,16 @@ class BankReader(ABC):
 
 class InvalidStatementError(ValueError):
     """Raised when a bank statement has an invalid value."""
+
+
+def parse_dates(dates: pd.Series) -> pd.Series:
+    """Parse each day-first date, or raise ValueError with its line in the file."""
+
+    parsed = pd.to_datetime(dates, format="%d/%m/%Y", errors="coerce")
+    invalid = parsed.isna()
+    if invalid.any():
+        index = invalid.idxmax()
+        raise InvalidStatementError(
+            f"Ligne {index + 2}. Date invalide : « {dates[index]} »."
+        )
+    return parsed

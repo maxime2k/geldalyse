@@ -11,7 +11,8 @@ import re
 
 import pandas as pd
 
-from geldalyse.readers.base import BankReader, InvalidStatementError
+from geldalyse.readers import InvalidStatementError
+from geldalyse.readers.base import BankReader, parse_dates
 from geldalyse.schema import (
     BANK_OPERATION,
     CARD,
@@ -90,7 +91,7 @@ class INGReader(BankReader):
         transactions = transactions.rename(columns=COLUMN_MAPPING)
 
         # Explicit day-first format: 03/01 must be January 3rd, not March 1st.
-        transactions["date"] = _parse_dates(transactions["date"])
+        transactions["date"] = parse_dates(transactions["date"])
         transactions["label"] = transactions["label"].str.strip().str.upper()
         transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
         transactions["operation_type"] = transactions["label"].map(operation_type)
@@ -121,19 +122,6 @@ def parse_amount(text: str) -> float:
     if AMOUNT_PATTERN.fullmatch(text) is None:
         raise ValueError(f"Montant invalide : « {text} ».")
     return float(text.replace(".", "").replace(" ", "").replace(",", "."))
-
-
-def _parse_dates(dates: pd.Series) -> pd.Series:
-    """Parse each day-first date, or raise ValueError with its line in the file."""
-    # Explicit day-first format: 03/01 must be January 3rd, not March 1st.
-    parsed = pd.to_datetime(dates, format="%d/%m/%Y", errors="coerce")
-    invalid = parsed.isna()
-    if invalid.any():
-        index = invalid.idxmax()
-        raise InvalidStatementError(
-            f"Ligne {index + 2}. Date invalide : « {dates[index]} »."
-        )
-    return parsed
 
 
 def extract_counterparty(label: str, operation_type: str) -> str:
