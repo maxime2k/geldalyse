@@ -1,7 +1,6 @@
 """Unit tests for the ING bank statement reader."""
 
 from io import StringIO
-from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -23,10 +22,6 @@ from geldalyse.schema import (
     STANDING_ORDER,
     TRANSFER,
 )
-
-FIXTURES_DIR = Path(__file__).parents[1] / "fixtures"
-WRONG_COLUMNS = FIXTURES_DIR / "wrong_format.csv"
-
 
 CARD_PAYMENT = (
     "PAIEMENT BANCONTACT 04/01/26 - 18H12 - DELHAIZE IXELLES 1050 - BRUXELLES "

@@ -13,6 +13,10 @@ FORTIS_HEADER_ONLY = FIXTURES_DIR / "fortis_header_only.csv"
 WRONG_COLUMNS = FIXTURES_DIR / "wrong_format.csv"
 EMPTY_FILE = FIXTURES_DIR / "empty.csv"
 
+SAMPLE_STATEMENTS = [
+    pytest.param(ING_SAMPLE, id="ing"),
+    pytest.param(FORTIS_SAMPLE, id="fortis"),
+]
 
 VALID_STATEMENTS = [
     pytest.param(INGReader(), ING_SAMPLE, id="ing"),
