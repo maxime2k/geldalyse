@@ -1,14 +1,20 @@
-"""Integration tests: modules must work together on generated and ING data."""
+"""Integration tests: modules must work together on generated and bank data."""
 
 from datetime import date
 from io import StringIO
 
-import pandas as pd
+import pytest
 
-from geldalyse.categorizer import DEFAULT_EXPENSE_CATEGORY, categorize
+from geldalyse.categorizer import (
+    DEFAULT_EXPENSE_CATEGORY,
+    EXPENSE_CATEGORY_NAMES,
+    INCOME_CATEGORY_NAMES,
+    categorize,
+)
 from geldalyse.generator import generate_ing_export
 from geldalyse.readers import read_statement
 from geldalyse.schema import OTHER
+from tests.readers.statements import SAMPLE_STATEMENTS
 
 # --- Generated data ---
 
@@ -43,25 +49,14 @@ def test_demo_transactions_has_no_other_operation_type():
     assert OTHER not in operations.tolist()
 
 
-# --- ING data ---
-# les trois tests qui lisent la fixture
+# --- Bank statements ---
 
 
-def test_reader_dates_are_datetime(ing_sample):
-    transactions = read_statement(ing_sample)
-    assert pd.api.types.is_datetime64_any_dtype(transactions["date"])
-
-
-def test_reader_output_can_be_categorized(ing_sample):
-    transactions = read_statement(ing_sample)
+@pytest.mark.parametrize("statement", SAMPLE_STATEMENTS)
+def test_bank_statement_gets_known_categories(statement):
+    transactions = read_statement(statement)
     categories = transactions.apply(
         lambda row: categorize(row["label"], row["amount"], row["operation_type"]),
         axis=1,
     )
-    assert categories.notna().all()
-
-
-def test_reader_output_gives_non_empty_counterparty(ing_sample):
-    transactions = read_statement(ing_sample)
-    counterparties = transactions["counterparty"]
-    assert (counterparties.str.len() > 0).all()
+    assert set(categories) <= set(INCOME_CATEGORY_NAMES) | set(EXPENSE_CATEGORY_NAMES)

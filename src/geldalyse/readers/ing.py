@@ -11,11 +11,19 @@ import re
 
 import pandas as pd
 
-from geldalyse.readers.base import BankReader, InvalidStatementError
+from geldalyse.readers.base import (
+    BankReader,
+    InvalidStatementError,
+    check_columns,
+    clean_labels,
+    parse_amounts,
+    parse_dates,
+)
 from geldalyse.schema import (
     BANK_OPERATION,
     CARD,
     CASH,
+    CASH_WITHDRAWAL_NAME,
     DIRECT_DEBIT,
     OTHER,
     STANDARD_COLUMNS,
@@ -41,14 +49,14 @@ COLUMN_MAPPING = {
     "Montant": "amount",
 }
 AMOUNT_PATTERN = re.compile(r"-?(?:\d{1,3}(?:[. ]\d{3})+|\d+)(?:,\d{1,2})?")
-MISSING_LABEL = "SANS DESCRIPTION"
+
 
 SEPARATOR = " - "
 
 # Description prefix -> displayed name.
 # A prefix must not be the start of another one placed after it.
 FIXED_NAMES = {
-    "RETRAIT D'ESPÈCES": "RETRAIT D'ESPÈCES",
+    "RETRAIT D'ESPÈCES": CASH_WITHDRAWAL_NAME,
     "DÉCOMPTE DE FRAIS": "FRAIS COMPTE ING",
     "INTÉRÊTS-FRAIS": "INTÉRÊTS COMPTE ING",
 }
@@ -62,14 +70,25 @@ TRANSFER_MARKERS = (TRANSFER_RECEIVED_MARKER, TRANSFER_SENT_MARKER)
 class INGReader(BankReader):
     """Reader for ING Belgium exports in French, as downloaded from Home'Bank."""
 
+    separator = ";"
+    required_columns = list(COLUMN_MAPPING)
+    bank_name = "ING"
+
     def read(self, file) -> pd.DataFrame:
         """Read an ING export into the standard transaction format.
 
         Raise InvalidStatementError for an invalid value, and KeyError, ValueError
         or EmptyDataError if the file is not an ING export.
         """
-        df = pd.read_csv(file, sep=";", dtype={"Montant": str}, keep_default_na=False)
-        transactions = df[list(COLUMN_MAPPING)]
+        try:
+            df = pd.read_csv(
+                file, sep=self.separator, dtype={"Montant": str}, keep_default_na=False
+            )
+        except pd.errors.EmptyDataError as error:
+            raise InvalidStatementError("Le fichier est vide.") from error
+
+        check_columns(df=df, required=self.required_columns)
+        transactions = df[self.required_columns]
 
         # Drop the separator rows (only semicolons): they are not transactions.
         # A row with any value is kept, so a missing amount is still reported.
@@ -77,9 +96,8 @@ class INGReader(BankReader):
         transactions = transactions.rename(columns=COLUMN_MAPPING)
 
         # Explicit day-first format: 03/01 must be January 3rd, not March 1st.
-        transactions["date"] = _parse_dates(transactions["date"])
-        transactions["label"] = transactions["label"].str.strip().str.upper()
-        transactions["label"] = transactions["label"].replace("", MISSING_LABEL)
+        transactions["date"] = parse_dates(transactions["date"])
+        transactions["label"] = clean_labels(transactions["label"])
         transactions["operation_type"] = transactions["label"].map(operation_type)
         transactions["counterparty"] = [
             extract_counterparty(label, operation)
@@ -87,40 +105,16 @@ class INGReader(BankReader):
                 transactions["label"], transactions["operation_type"]
             )
         ]
-        transactions["amount"] = _parse_amounts(transactions["amount"])
+        transactions["amount"] = parse_amounts(transactions["amount"], convert_amount)
 
         return transactions[STANDARD_COLUMNS].reset_index(drop=True)
 
 
-def _parse_amounts(amounts: pd.Series) -> pd.Series:
-    """Parse each amount, or raise ValueError with its line in the file."""
-    values = []
-    for index, text in amounts.items():
-        try:
-            values.append(parse_amount(text))
-        except ValueError as error:
-            raise InvalidStatementError(f"Ligne {index + 2}. {error}") from error
-    return pd.Series(values, index=amounts.index)
-
-
-def parse_amount(text: str) -> float:
+def convert_amount(text: str) -> float:
     """Convert an ING amount like "-1.235,50" to a float, or raise ValueError."""
     if AMOUNT_PATTERN.fullmatch(text) is None:
         raise ValueError(f"Montant invalide : « {text} ».")
     return float(text.replace(".", "").replace(" ", "").replace(",", "."))
-
-
-def _parse_dates(dates: pd.Series) -> pd.Series:
-    """Parse each day-first date, or raise ValueError with its line in the file."""
-    # Explicit day-first format: 03/01 must be January 3rd, not March 1st.
-    parsed = pd.to_datetime(dates, format="%d/%m/%Y", errors="coerce")
-    invalid = parsed.isna()
-    if invalid.any():
-        index = invalid.idxmax()
-        raise InvalidStatementError(
-            f"Ligne {index + 2}. Date invalide : « {dates[index]} »."
-        )
-    return parsed
 
 
 def extract_counterparty(label: str, operation_type: str) -> str:

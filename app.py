@@ -29,8 +29,8 @@ st.set_page_config(page_title="Geldalyse", layout="wide")
 DEMO_SOURCE = "Données de démo"
 UPLOAD_SOURCE = "Importer un relevé ING"
 INVALID_FILE_MSG = (
-    "Ce fichier ne correspond pas à un export ING en français. "
-    "Téléchargez à nouveau votre relevé depuis votre app ou Home’Bank, "
+    "Ce fichier ne correspond pas à un export ING ou BNP Paribas Fortis. "
+    "Téléchargez à nouveau votre relevé depuis votre app bancaire, "
     "sans l’ouvrir ni l’enregistrer dans Excel."
 )
 INSTALLATION_URL = "https://github.com/maxime2k/geldalyse#installation"
@@ -64,9 +64,9 @@ else:
         )
         st.stop()
 
-    uploaded_file = st.sidebar.file_uploader("Relevé ING (CSV)", type="csv")
+    uploaded_file = st.sidebar.file_uploader("Relevé ING ou Fortis (CSV)", type="csv")
     if uploaded_file is None:
-        st.info("Importez un relevé ING pour commencer.")
+        st.info("Importez un relevé ING ou Fortis pour commencer.")
         st.stop()  # Nothing below can run without data.
 
         # A file in another format must not crash the app.

@@ -3,11 +3,26 @@
 import pandas as pd
 
 from geldalyse.readers.base import InvalidStatementError
+from geldalyse.readers.fortis import FortisReader
 from geldalyse.readers.ing import INGReader
 
-__all__ = ["InvalidStatementError", "read_statement"]
+READERS = [FortisReader(), INGReader()]
+
+__all__ = [
+    "InvalidStatementError",
+    "read_statement",
+    "FortisReader",
+    "INGReader",
+    "READERS",
+]
 
 
 def read_statement(file) -> pd.DataFrame:
     """Read a bank export into the standard transaction format."""
-    return INGReader().read(file)
+    for reader in READERS:
+        if reader.matches(file):
+            return reader.read(file)
+    banks = ", ".join(reader.bank_name for reader in READERS)
+    raise InvalidStatementError(
+        f"Format non reconnu. Banques prises en charge : {banks}."
+    )

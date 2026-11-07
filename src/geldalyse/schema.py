@@ -2,7 +2,8 @@
 each reader maps its own descriptions to these types."""
 
 STANDARD_COLUMNS = ["date", "label", "amount", "counterparty", "operation_type"]
-
+MISSING_LABEL = "SANS DESCRIPTION"
+CASH_WITHDRAWAL_NAME = "RETRAIT D'ESPÈCES"
 
 CARD = "card"
 MOBILE_PAYMENT = "mobile_payment"

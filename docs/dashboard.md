@@ -61,9 +61,13 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 ### Règles de l'import
 
 - **Un relevé faux est refusé, jamais corrigé en silence** : un montant ou une date invalide refuse tout le fichier. Ignorer la ligne fausserait les totaux sans que l'utilisateur le sache.
-- **Le message donne la cause et l'action** : le fichier ne correspond pas à un export ING, il faut le télécharger à nouveau sans l'ouvrir dans Excel. Le détail (la ligne et la valeur en cause) s'affiche en dessous.
-- **Les séparateurs de milliers sont acceptés** (`1.234,56` ou `1 234,56`) à une condition : chaque groupe a exactement trois chiffres. Un point suivi de deux chiffres (`12.50`) est refusé, pour ne jamais lire 12,50 € comme 1 250 €.
+- **Le message donne la cause et l'action** : le fichier ne correspond pas à un export ING ou BNP Paribas Fortis, il faut le télécharger à nouveau sans l'ouvrir dans Excel. Le détail (la ligne et la valeur en cause) s'affiche en dessous.
+- **La banque est reconnue automatiquement**, par les colonnes de l'en-tête. Le fichier est ensuite lu par le seul lecteur de cette banque, pour qu'une erreur dans une ligne soit signalée avec sa vraie cause, et non comme un fichier d'une autre banque.
+- **La date retenue est la date valeur** (le jour de l'opération), et non la date comptable (ING) ou la date d'exécution (BNP Paribas Fortis), qui peuvent être plus tardives.
 - **Les dates sont lues jour d'abord** (`03/01/2026` est le 3 janvier). Une date qui n'existe pas, comme le 30 février, est refusée.
+- **Chez ING, les séparateurs de milliers sont acceptés** (`1.234,56` ou `1 234,56`) à une condition : chaque groupe a exactement trois chiffres. Un point suivi de deux chiffres (`12.50`) est refusé, pour ne jamais lire 12,50 € comme 1 250 €.
+- **Chez BNP Paribas Fortis, le point et la virgule sont acceptés comme séparateur décimal**, puisque les deux formats d'export n'ont pas de séparateur de milliers. Trois chiffres après le séparateur (`1.234`) sont refusés, car ce ne sont jamais des centimes.
+- **Chez BNP Paribas Fortis, seules les opérations acceptées comptent** : une opération refusée n'a fait bouger aucun argent, et un même paiement est souvent tenté plusieurs fois avant d'être accepté.
 - **Une ligne sans aucune valeur est ignorée** : c'est une ligne de mise en page, pas une transaction.
 - **Une transaction sans description est gardée**, avec la description « SANS DESCRIPTION » : son montant compte dans les totaux, et elle apparaît dans les contreparties à classer.
 - **L'utilisateur coche une case avant d'importer** : son relevé est traité sur Streamlit Cloud. Une case à cocher a été préférée à une fenêtre d'acceptation, que les utilisateurs ont pris l'habitude de valider sans lire.
@@ -71,6 +75,7 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **Chaque transaction reçoit un type d'opération**, commun à toutes les banques : carte, paiement mobile, virement, ordre permanent, domiciliation, espèces, opération bancaire, ou autre. Le type dit comment l'argent a bougé, le signe du montant dit dans quel sens : un virement reçu est un virement avec un montant positif. Un libellé non reconnu reçoit le type « Autre » plutôt que d'être refusé.
 - **Le lecteur de chaque banque produit la contrepartie et le type d'opération**, en lisant ses propres libellés ou colonnes. Le reste de l'application ne lit jamais un libellé bancaire pour en tirer une information.
 - **Chez ING, la contrepartie dépend du type d'opération** : pour une carte, le nom du commerçant sans son code postal ; pour un virement, une domiciliation ou un ordre permanent, le nom qui suit « De: » ou « Vers: » ; pour un retrait, des frais ou des intérêts, un nom fixe. Si un libellé n'a pas la forme attendue, la description entière est gardée, plutôt qu'une contrepartie fausse.
+- **Chez BNP Paribas Fortis, la contrepartie vient de la colonne « Nom de la contrepartie »** quand elle est remplie. Pour une carte, c'est le nom du commerçant, sans le numéro de magasin ni l'adresse ; pour un retrait, un nom fixe, le même que chez ING. Si la description n'a pas la forme attendue, elle est gardée entière.
 
 ### Vue d'ensemble
 
@@ -102,9 +107,14 @@ Principe : **du plus général au plus détaillé**, de haut en bas, et **le con
 - **Les choix manuels sont conservés pendant la session uniquement** : ils sont perdus si la page est rechargée.
 - **Les choix manuels sont partagés entre la démo et un relevé importé** pendant la session : une opération classée dans la démo garde ce choix si un relevé importé contient une opération du même nom.
 - **Un salaire versé par un commerçant** dont le nom est un mot-clé, sans le mot « SALAIRE » dans le libellé, est classé comme un remboursement de ce magasin. Une règle manuelle le corrige.
+- **Un salaire est rarement reconnu automatiquement** : le libellé contient en général le nom de l'employeur, pas le mot « SALAIRE ». Il apparaît en VIREMENTS REÇUS, et un seul choix manuel reclasse tous les virements du même employeur.
 - **Un mois sans transaction compte pour 0** dans la moyenne de la page Évolution.
 - **Seule la première valeur invalide est signalée** : un relevé qui en contient plusieurs les révèle une par une, à chaque nouvel import.
+- **Un fichier aux colonnes inconnues reçoit un message général** : l'application ne sait pas de quelle banque il devait venir, et ne peut donc pas dire quelles colonnes manquent.
 - **Les transactions sans description forment une seule opération** : un choix manuel s'applique donc à toutes, même si ce sont des dépenses différentes.
 - **Les séparateurs de milliers n'ont pas été vus dans un vrai export ING** : leur prise en charge repose sur la règle des trois chiffres, sans exemple réel pour la confirmer.
-- **Un salaire est rarement reconnu automatiquement** : le libellé contient en général le nom de l'employeur, pas le mot « SALAIRE ». Il apparaît en VIREMENTS REÇUS, et un seul choix manuel reclasse tous les virements du même employeur.
-- **Les contreparties des domiciliations et des ordres permanents** reposent sur une structure de libellé (« Vers: NOM - … ») qui n'a pas encore été vérifiée sur un vrai relevé ING.
+- **Les contreparties des domiciliations et des ordres permanents d'ING** reposent sur une structure de libellé (« Vers: NOM - … ») qui n'a pas encore été vérifiée sur un vrai relevé ING.
+- **L'export BNP Paribas Fortis avec la virgule décimale** n'a pas encore été vérifié sur un vrai fichier : sa lecture repose sur la structure de l'export avec le point.
+- **Le nom d'un commerçant BNP Paribas Fortis peut garder un nom de quartier ou de ville** placé avant le code postal, car rien ne le sépare du nom dans la description. Un même commerçant peut donc apparaître sous plusieurs contreparties.
+- **Un nom de commerçant BNP Paribas Fortis qui commence ou se termine par un nombre de quatre chiffres** perd ce nombre, confondu avec un numéro de magasin ou un code postal.
+- **Une opération BNP Paribas Fortis d'un type inconnu, sans nom de contrepartie**, garde toute sa description comme contrepartie. Deux opérations de ce genre ne sont donc pas regroupées dans les contreparties à classer.
