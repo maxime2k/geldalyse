@@ -10,21 +10,24 @@ Geldalyse est une application Python qui importe un relevé bancaire, catégoris
 **[Voir la démo en ligne](https://geldalyse.streamlit.app/)**
 
 ---
-
 ## Fonctionnalités
 
-- **Deux sources de données** : un relevé de démo au format ING, généré à la volée et lu comme un vrai relevé, ou votre propre export CSV d'ING Belgique (en français)
+- **Trois sources de données** : un relevé de démo au format ING, généré à la volée et lu comme un vrai relevé, ou votre propre export CSV d'ING Belgique (en français) ou de BNP Paribas Fortis
+- **Banque reconnue automatiquement** : l'application identifie la banque à partir des colonnes du fichier, sans rien demander à l'utilisateur
 - **Nettoyage automatique** : colonnes renommées, dates converties, libellés normalisés, lignes vides supprimées
-- **Catégorisation automatique** selon les mots-clés et le sens de l'argent : entrées et sorties ont leurs propres catégories
+- **Catégorisation automatique** selon le type d'opération, les mots-clés et le sens de l'argent : entrées et sorties ont leurs propres catégories
 - **Contrepartie lisible** : le commerçant, le bénéficiaire d'un virement ou la nature d'une opération bancaire, extrait de la longue description de la banque
 - **Correction manuelle des catégories**, pour toutes les transactions d'une même contrepartie
-- **Import vérifié** : un montant ou une date invalide refuse le relevé, avec la ligne en cause, plutôt que de fausser les chiffres. Les montants avec séparateur de milliers sont acceptés
+- **Import vérifié** : un montant ou une date invalide refuse le relevé, avec la ligne en cause, plutôt que de fausser les chiffres. Chez BNP Paribas Fortis, seules les opérations acceptées sont comptées
 - **Tableau de bord interactif**, en trois pages :
   - **Vue d'ensemble** : entrées, sorties et solde de la période, détail par catégorie et mois par mois
   - **Transactions** : opérations à classer et tableau détaillé des transactions
- ![Deux contreparties à classer, puis le tableau des transactions avec leur contrepartie, leur montant, leur catégorie et leur type d'opération](docs/transactions.png)
   - **Évolution** : un mois comparé au mois précédent, à la moyenne des 3 mois précédents ou au même mois l'an passé, avec les écarts par catégorie
+
+![Deux contreparties à classer, puis le tableau des transactions avec leur contrepartie, leur montant, leur catégorie et leur type d'opération](docs/transactions.png)
+
 ![Mai 2026 comparé à la moyenne des trois mois précédents : cartes des entrées, sorties et solde, puis écarts par catégorie en barres divergentes](docs/evolution.png)
+
 Le contenu de chaque page et les règles de calcul sont décrits dans la [conception du tableau de bord](docs/dashboard.md).
 
 ## Architecture
@@ -33,7 +36,7 @@ Le projet suit un schéma **ETL** (*Extract, Transform, Load*). Chaque étape es
 
 | Étape | Module | Rôle |
 |---|---|---|
-| Extract | `readers/` | Lit un export bancaire : un lecteur par banque, qui valide les données et déchiffre les libellés |
+| Extract | `readers/` | Lit un export bancaire : la banque est reconnue par l'en-tête du fichier, puis son lecteur valide les données et déchiffre les libellés |
 | Extract | `generator.py` | Génère des transactions fictives reproductibles |
 | Transform | `categorizer.py` | Attribue une catégorie selon le type d'opération, les mots-clés et le signe du montant, et applique les choix manuels |
 | Transform | `analysis.py` | Calcule les chiffres clés et les agrégats |
@@ -42,7 +45,9 @@ Le projet suit un schéma **ETL** (*Extract, Transform, Load*). Chaque étape es
 | Load | `components.py` | Fonctions d'affichage partagées par les pages |
 | Load | `formatting.py` | Met en forme les résultats en français (mois, montants, écarts) |
 
-Chaque banque a son lecteur, qui hérite de la classe `BankReader` et produit le **format standard** défini dans `schema.py` : la date, le montant, la description, la contrepartie et le type d'opération. Le reste de l'application ne travaille que sur ce format. Ajouter une banque ne demande donc qu'un nouveau lecteur.
+Chaque banque a son lecteur, qui hérite de la classe `BankReader` et produit le **format standard** défini dans `schema.py` : la date, le montant, la description, la contrepartie et le type d'opération. Le reste de l'application ne travaille que sur ce format. Ajouter une banque ne demande donc qu'un nouveau lecteur : c'est ainsi que BNP Paribas Fortis a été ajouté, sans modifier le catégoriseur ni les pages.
+
+Ce qui est commun à toutes les banques (la lecture des dates, la validation des montants, le nettoyage des descriptions, la vérification des colonnes) est écrit une seule fois dans `base.py`. Chaque lecteur ne contient que ce qui est propre à sa banque.
 
 La démo suit le même chemin : le générateur écrit un export ING, que l'application lit avec le lecteur ING, comme un relevé importé.
 
@@ -58,15 +63,17 @@ geldalyse/
 │   └── transactions.py     # Transactions : non catégorisées et tableau modifiable
 ├── src/geldalyse/
 │   ├── readers/
-│   │   ├── __init__.py     # read_statement : lit un relevé, quelle que soit la banque
-│   │   ├── base.py         # BankReader : le contrat commun à tous les lecteurs
+│   │   ├── __init__.py     # read_statement : reconnaît la banque et lit le relevé
+│   │   ├── base.py         # BankReader et la lecture commune à toutes les banques
+│   │   ├── fortis.py       # Lecture, validation et libellés des exports BNP Paribas Fortis
 │   │   └── ing.py          # Lecture, validation et libellés des exports ING
 │   ├── analysis.py         # Chiffres clés, agrégats et variations
-│   ├── categorizer.py      # Catégorisation par mots-clés et signe du montant
+│   ├── categorizer.py      # Catégorisation par type d'opération, mots-clés et signe du montant
 │   ├── formatting.py       # Textes en français : mois, montants, écarts
 │   ├── generator.py        # Relevé fictif au format ING
 │   └── schema.py           # Format standard des données
 ├── tests/                  # Tests unitaires et d'intégration (pytest)
+│   ├── readers/            # Tests des lecteurs, dont le contrat commun à toutes les banques
 │   └── fixtures/           # Relevés synthétiques, valides et invalides
 ├── docs/                   # Conception du tableau de bord
 └── .github/workflows/      # Intégration continue (GitHub Actions)
@@ -75,6 +82,7 @@ geldalyse/
 ## Qualité et intégration continue
 
 - **Tests unitaires et d'intégration** avec pytest, dont une partie écrite en TDD
+- **Tests de contrat** : une même série de tests vérifie que chaque lecteur produit le format standard. Une nouvelle banque n'a qu'à s'ajouter à la liste pour être vérifiée
 - **Code vérifié et formaté** avec Ruff, en local et dans la CI
 - **Intégration continue** : les tests et Ruff sont lancés automatiquement par GitHub Actions à chaque push et à chaque pull request
 - **Branche `main` protégée** : toute modification passe par une pull request, fusionnable uniquement si toutes les vérifications passent
@@ -89,6 +97,7 @@ geldalyse/
 | Interface | Streamlit |
 | Graphiques | Altair |
 | Tests | pytest |
+| Qualité du code | Ruff |
 | Intégration continue | GitHub Actions |
 | Hébergement | Streamlit Community Cloud |
 
@@ -114,7 +123,12 @@ Sans Git, vous pouvez aussi télécharger le projet depuis GitHub : bouton **Cod
 streamlit run app.py
 ```
 
-Choisissez ensuite la source dans la barre latérale : les données de démo, ou votre propre export ING au format CSV (en français, depuis Home'Bank).
+Choisissez ensuite la source dans la barre latérale : les données de démo, ou votre propre relevé au format CSV. La banque est reconnue automatiquement :
+
+- **ING Belgique** : export en français, depuis l'app ou Home'Bank ;
+- **BNP Paribas Fortis** : export CSV, avec le point ou la virgule comme séparateur décimal.
+
+Importez le fichier tel qu'il a été téléchargé, sans l'ouvrir ni l'enregistrer dans Excel, qui modifie les dates et les montants.
 
 **Générer un relevé de démo au format ING :**
 
@@ -133,7 +147,7 @@ pytest
 
 ## Données et confidentialité
 
-Le dépôt ne contient **aucune donnée bancaire réelle**. Les tests utilisent des fixtures synthétiques qui reproduisent la structure d'un export ING, avec un contenu entièrement inventé. Un relevé importé n'est jamais enregistré : il est traité en mémoire le temps de la session, tout comme les catégories choisies manuellement, perdues à la fermeture de la page.
+Le dépôt ne contient **aucune donnée bancaire réelle**. Les tests utilisent des fixtures synthétiques qui reproduisent la structure des exports ING et BNP Paribas Fortis, avec un contenu entièrement inventé. Un relevé importé n'est jamais enregistré : il est traité en mémoire le temps de la session, tout comme les catégories choisies manuellement, perdues à la fermeture de la page.
 
 Sur la version en ligne, ce traitement a lieu sur les serveurs de Streamlit Cloud : l'application demande donc de cocher une case avant tout import. Pour analyser vos propres relevés, **utilisez l'application en local** : vos données ne quittent alors jamais votre ordinateur.
 
@@ -153,15 +167,15 @@ Sur la version en ligne, ce traitement a lieu sur les serveurs de Streamlit Clou
 - [x] Type d'opération reconnu pour chaque transaction : carte, virement, domiciliation, ordre permanent, espèces, opération bancaire
 - [x] Un lecteur par banque, derrière la classe commune `BankReader` : ajouter une banque ne demande qu'un lecteur
 - [x] Générateur produisant des relevés fictifs au format ING, lus par le lecteur ING
-- [ ] Exports ING en néerlandais, anglais et allemand
-- [ ] Prise en charge d'autres banques (BNP Paribas Fortis, Belfius…)
+- [x] Lecteur BNP Paribas Fortis, avec reconnaissance automatique de la banque
+- [ ] Exports bancaires en néerlandais et anglais
 - [ ] Import de jeux de données publics (Kaggle, UCI) via le même format standard
 - [ ] Simulation des montants par une loi log-normale plutôt qu'uniforme
 - [ ] Utiliser le détail du mouvement quand la description est trop générique (ex. « Rectification »)
-- [ ] Tendance des entrées et des sorties sur toute la période, avec le mois choisi mis en évidence (page Évolution)
 
 **Catégorisation**
 - [x] Prise en compte du signe du montant (entrées et sorties, catégories par défaut)
+- [x] Catégorisation par type d'opération avant les mots-clés (frais, intérêts, retraits)
 - [ ] Recherche des mots-clés en début de mot, pour ajouter des enseignes comme ACTION sans reconnaître « TRANSACTION »
 - [ ] Mots-clés stockés dans un fichier de configuration, modifiables sans toucher au code
 - [ ] Mots-clés personnels de l'utilisateur, enregistrés en local
@@ -176,7 +190,7 @@ Sur la version en ligne, ce traitement a lieu sur les serveurs de Streamlit Clou
 - [x] Totaux nets par catégorie : un remboursement de magasin réduit sa catégorie de dépense
 - [x] Catégories proposées selon le sens de l'argent dans les choix manuels
 - [x] Correction de la catégorie depuis le tableau des transactions, pour toute l'opération
-- [ ] Identifiant de transaction (numéro de mouvement ING)
+- [ ] Identifiant de transaction (numéro de mouvement ING, numéro de séquence BNP Paribas Fortis)
 - [ ] Correction de la catégorie d'une seule transaction
 
 **Interface**
@@ -189,6 +203,7 @@ Sur la version en ligne, ce traitement a lieu sur les serveurs de Streamlit Clou
 - [x] Transactions non catégorisées regroupées par contrepartie, pour enrichir les mots-clés
 - [x] Correction manuelle de la catégorie d'une opération non catégorisée
 - [x] Comparaison d'un mois au mois précédent, à la moyenne des 3 mois précédents ou au même mois l'an passé, avec les écarts par catégorie (page Évolution)
+- [ ] Tendance des entrées et des sorties sur toute la période, avec le mois choisi mis en évidence (page Évolution)
 - [ ] Faits marquants sur la vue d'ensemble (plus forte variation du mois)
 - [ ] Paiements récurrents et total des charges fixes (page Habitudes), détectés par libellé, montant proche et fréquence mensuelle
 - [ ] Top des dépenses variables, hors paiements récurrents
@@ -199,8 +214,8 @@ Sur la version en ligne, ce traitement a lieu sur les serveurs de Streamlit Clou
 **Qualité**
 - [x] Vérification et formatage du code avec Ruff, dans la CI
 - [x] Exception personnalisée pour les relevés invalides
+- [x] Tests de contrat communs à tous les lecteurs de banque
 - [ ] Tests sur plusieurs versions de Python (matrice CI)
-
 
 ## Auteur
 
