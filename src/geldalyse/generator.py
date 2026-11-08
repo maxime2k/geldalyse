@@ -86,8 +86,8 @@ MERCHANTS = [
     Merchant("PHARMACIE MULTIPHARMA 1050", "BRUXELLES", "bancontact", 5, 45),
     Merchant("ZALANDO SE", "BERLIN", "mastercard", 25, 120, country="DEU"),
     # Unknown to the categorizer: the demo also needs operations to classify.
-    Merchant("BOULANGERIE FICTIVE 1050", "BRUXELLES", "bancontact", 3, 12),
-    Merchant("LIBRAIRIE DU COIN 1060", "BRUXELLES", "bancontact", 8, 30),
+    Merchant("MAISON LUMEN 1050", "BRUXELLES", "bancontact", 3, 12),
+    Merchant("AS DEV SPRL 1060", "BRUXELLES", "bancontact", 8, 30),
 ]
 
 RECURRING = [

@@ -27,7 +27,7 @@ from geldalyse.readers import InvalidStatementError, read_statement
 st.set_page_config(page_title="Geldalyse", layout="wide")
 
 DEMO_SOURCE = "Données de démo"
-UPLOAD_SOURCE = "Importer un relevé ING"
+UPLOAD_SOURCE = "Importer un relevé ING ou Fortis"
 INVALID_FILE_MSG = (
     "Ce fichier ne correspond pas à un export ING ou BNP Paribas Fortis. "
     "Téléchargez à nouveau votre relevé depuis votre app bancaire, "

@@ -14,19 +14,54 @@ REFUND_CATEGORY = "REMBOURSEMENT"
 RECEIVED_TRANSFER_CATEGORY = "VIREMENTS REÇUS"
 
 EXPENSE_CATEGORIES = {
-    "ALIMENTATION": ["DELHAIZE", "COLRUYT", "CARREFOUR", "OKAY", "ALIMENTATION"],
-    "TRANSPORT": ["STIB", "SNCB", "TOTALENERGIES", "PARKING", "DELIJN", "PARK BRU"],
-    "SANTE": ["PHARMA"],
-    "FACTURE": ["PROXIMUS", "NETFLIX"],
+    "ALIMENTATION": [
+        "DELHAIZE",
+        "COLRUYT",
+        "CARREFOUR",
+        "OKAY",
+        "ALDI",
+        "LIDL",
+        "SHOP & GO",
+        "TAKEAWAY.COM",
+        "HECTOR CHICKEN",
+        "ALIMENTATION",
+    ],
+    "TRANSPORT": [
+        "STIB",
+        "SNCB",
+        "TOTALENERGIES",
+        "PARKING",
+        "DELIJN",
+        "PARK BRU",
+        "HEETCH",
+    ],
+    "SANTE": ["PHARMA", "MEDI-MARKET"],
+    "FACTURE": ["PROXIMUS", "NETFLIX", "LYCAMOBILE", "ORANGE", "BASE", "TELENET"],
     "LOGEMENT": ["LOYER"],
-    "SHOPPING": ["ZALANDO", "ZARA", "C&A", "FNAC", "AMZN", "PAPETERIE"],
-    "RESTAURATION": ["PAIN QUOTIDIEN", "RESTAURANT", "DELIVEROO", "SNACK"],
+    "SHOPPING": [
+        "ZALANDO",
+        "ZARA",
+        "C&A",
+        "FNAC",
+        "AMZN",
+        "AMAZON",
+        "PAPETERIE",
+        "PRIMARK",
+        "LIBRAIRIE",
+    ],
+    "RESTAURATION": [
+        "PAIN QUOTIDIEN",
+        "RESTAURANT",
+        "DELIVEROO",
+        "SNACK",
+        "BOULANGERIE",
+    ],
     "RETRAITS": [],
 }
 
 # Searched before EXPENSE_CATEGORIES for positive amounts.
 INCOME_CATEGORIES = {
-    "SALAIRE": ["SALAIRE"],
+    "SALAIRE": ["SALAIRE", "LOON"],
     "INVESTISSEMENT": [],
 }
 # Decided by the operation type, before any keyword: the type is a fact from the reader.

@@ -23,7 +23,7 @@ def test_lowercase_label_is_recognized():
 
 
 def test_unknown_expense_returns_default_expense():
-    assert categorize("BOULANGERIE DU COIN", -15.0, CARD) == DEFAULT_EXPENSE_CATEGORY
+    assert categorize("AS BUILD SPRL", -15.0, CARD) == DEFAULT_EXPENSE_CATEGORY
 
 
 def test_unknown_income_returns_default_income():
@@ -144,3 +144,46 @@ def test_expense_category_names_are_expenses_only():
     assert DEFAULT_EXPENSE_CATEGORY in EXPENSE_CATEGORY_NAMES  # displayed in the table
     assert "ALIMENTATION" in EXPENSE_CATEGORY_NAMES  # an expense category
     assert "SALAIRE" not in EXPENSE_CATEGORY_NAMES  # an income category
+
+
+@pytest.mark.parametrize(
+    "label, amount, operation_type, expected",
+    [
+        pytest.param(
+            "PAIEMENT AVEC LA CARTE DE DEBIT NUMERO XX XXXX MEDI-MARKET ADRESSE DATE",
+            -25.0,
+            CARD,
+            "SANTE",
+            id="medi-market",
+        ),
+        pytest.param(
+            (
+                "VIREMENT EN EUROS DU COMPTE BE0000000000 BIC XXXXXX EMPLOYEUR FICTIF "
+                "ADRESSE VILLE REFERENCE DONNEUR D'ORDRE : 0000000000 "
+                "COMMUNICATION : /A/ LOON WEEK 202500 REFERENCE BANQUE"
+            ),
+            1500.0,
+            TRANSFER,
+            "SALAIRE",
+            id="loon",
+        ),
+        pytest.param(
+            "PAIEMENT AVEC LA CARTE DE DEBIT NUMERO XXX 0000 SHOP & GO ADRESSE DATE",
+            -12.0,
+            CARD,
+            "ALIMENTATION",
+            id="SHOP & GO",
+        ),
+        pytest.param(
+            "PAIEMENT  CARTE DE DEBIT NUMERO XXX TAKEAWAY.COM AMSTERDAM 18/09/2025",
+            -25.0,
+            CARD,
+            "ALIMENTATION",
+            id="TAKEAWAY.COM",
+        ),
+    ],
+)
+def test_categorize_recognizes_delicate_keywords(
+    label, amount, operation_type, expected
+):
+    assert categorize(label, amount, operation_type) == expected
