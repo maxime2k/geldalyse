@@ -19,7 +19,7 @@ from tests.readers.statements import SAMPLE_STATEMENTS
 # --- Generated data ---
 
 
-EXPECTED_UNKNOWN = {"BOULANGERIE FICTIVE", "LIBRAIRIE DU COIN"}
+EXPECTED_UNKNOWN = {"MAISON LUMEN", "AS DEV SPRL"}
 
 
 def test_only_expected_demo_counterparties_are_uncategorized():
